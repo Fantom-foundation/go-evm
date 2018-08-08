@@ -1,24 +1,3 @@
-debug.test
-.vscode
-
 build
 
 vendor
-
-demo/demo-docker/conf
-
-demo/demo-terraform/babble.pem
-demo/demo-terraform/terraform.tfstate*
-demo/demo-terraform/secret.tfvars
-demo/demo-terraform/conf
-demo/demo-terraform/ips.dat
-demo/demo-terraform/.terraform
-
-demo/nodejs/node_modules
-demo/web/demo-server/node_modules
-
-docker/evm-babble/evm-babble
-docker/evm-babble-ui/package.json
-
-state/test_data/eth/chaindata
-

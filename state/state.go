@@ -16,10 +16,10 @@ import (
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/mosaicnetworks/babble/hashgraph"
+	"github.com/andrecronje/lachesis/hashgraph"
 	"github.com/sirupsen/logrus"
 
-	bcommon "github.com/mosaicnetworks/evm-babble/common"
+	bcommon "github.com/andrecronje/evm/common"
 )
 
 var (

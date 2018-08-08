@@ -12,8 +12,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/gorilla/mux"
-	"github.com/mosaicnetworks/evm-babble/common"
-	"github.com/mosaicnetworks/evm-babble/state"
+	"github.com/andrecronje/evm/common"
+	"github.com/andrecronje/evm/state"
 	"github.com/sirupsen/logrus"
 )
 

@@ -13,7 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/mosaicnetworks/evm-babble/state"
+	"github.com/andrecronje/evm/state"
 )
 
 /*
@@ -23,7 +23,7 @@ returns: JSON JsonAccount
 
 This endpoint should be used to fetch information about ANY account as opposed
 to the /accounts/ endpoint which only returns information about accounts for which
-the private key is known and managed by the evm-babble Service.
+the private key is known and managed by the evm Service.
 */
 func accountHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	param := r.URL.Path[len("/account/"):]
@@ -54,10 +54,10 @@ func accountHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 GET /accounts
 returns: JSON JsonAccountList
 
-This endpoint returns the list of accounts CONTROLLED by the evm-babble Service.
+This endpoint returns the list of accounts CONTROLLED by the evm Service.
 These are accounts for which the Service has the private keys and on whose behalf
 it can sign transactions. The list of accounts controlled by the evm-service is
-contained in the Keystore directory defined upon launching the evm-babble application.
+contained in the Keystore directory defined upon launching the evm application.
 */
 func accountsHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	m.logger.Debug("GET accounts")
@@ -144,14 +144,14 @@ This endpoints allows calling SmartContract code for NON-READONLY operations.
 These operations can MODIFY the EVM state.
 
 The data does NOT need to be SIGNED. In fact, this endpoint is meant to be used
-for transactions whose originator is an account CONTROLLED by the evm-babble
+for transactions whose originator is an account CONTROLLED by the evm
 Service (ie. present in the Keystore).
 
 The Nonce field is not necessary either since the Service will fetch it from the
 State.
 
 This is an ASYNCHRONOUS operation. It will return the hash of the transaction that
-was SUBMITTED to evm-babble but there is no guarantee that the transactions will
+was SUBMITTED to evm but there is no guarantee that the transactions will
 get applied to the State.
 
 One should use the /receipt endpoint to retrieve the corresponding receipt and
@@ -212,7 +212,7 @@ is left to compose a transaction, sign it and RLP encode it. The resulting bytes
 represented as a Hex string is passed to this method to be forwarded to the EVM.
 
 This allows executing transactions on behalf of accounts that are NOT CONTROLLED
-by the evm-babble service.
+by the evm service.
 
 Like the /tx endpoint, this is an ASYNCHRONOUS operation and the effect on the
 State should be verified by fetching the transaction' receipt.

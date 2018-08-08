@@ -4,19 +4,18 @@ vendor:
 	glide install
 
 # install compiles and places the binary in GOPATH/bin
-install: 
+install:
 	go install \
 	 	--ldflags '-extldflags "-static"' \
-		./cmd/evm-babble
+		./cmd/evm
 
 # build compiles and places the binary in /build
 build:
 	go build \
 		--ldflags '-extldflags "-static"' \
-		-o build/evm-babble ./cmd/evm-babble/
+		-o build/evm ./cmd/evm/s
 
-test: 
+test:
 	glide novendor | xargs go test
 
 .PHONY: vendor install build test
-	

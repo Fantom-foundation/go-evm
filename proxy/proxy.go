@@ -3,27 +3,27 @@ package proxy
 import (
 	"time"
 
-	bproxy "github.com/mosaicnetworks/babble/proxy/babble"
-	"github.com/mosaicnetworks/evm-babble/service"
-	"github.com/mosaicnetworks/evm-babble/state"
+	bproxy "github.com/andrecronje/lachesis/proxy/lachesis"
+	"github.com/andrecronje/evm/service"
+	"github.com/andrecronje/evm/state"
 	"github.com/sirupsen/logrus"
 )
 
 //------------------------------------------------------------------------------
 
 type Config struct {
-	proxyAddr    string //bind address of this app proxy
-	babbleAddr   string //address of babble node
-	apiAddr      string //address of HTTP API service
-	ethDir       string //directory containing eth config
-	pwdFile      string //file containing password to unlock ethereum accounts
-	databaseFile string //file containing LevelDB database
-	cache        int    //Megabytes of memory allocated to internal caching (min 16MB / database forced)
-	timeout      time.Duration
+	proxyAddr     string //bind address of this app proxy
+	lachesisAddr string //address of  node
+	apiAddr       string //address of HTTP API service
+	ethDir        string //directory containing eth config
+	pwdFile       string //file containing password to unlock ethereum accounts
+	databaseFile  string //file containing LevelDB database
+	cache         int    //Megabytes of memory allocated to internal caching (min 16MB / database forced)
+	timeout       time.Duration
 }
 
 func NewConfig(proxyAddr,
-	babbleAddr,
+	lachesisAddr,
 	apiAddr,
 	ethDir,
 	pwdFile,
@@ -32,25 +32,25 @@ func NewConfig(proxyAddr,
 	timeout time.Duration) Config {
 
 	return Config{
-		proxyAddr:    proxyAddr,
-		babbleAddr:   babbleAddr,
-		apiAddr:      apiAddr,
-		ethDir:       ethDir,
-		pwdFile:      pwdFile,
-		databaseFile: dbFile,
-		cache:        cache,
-		timeout:      timeout,
+		proxyAddr:      proxyAddr,
+		lachesisAddr:  lachesisAddr,
+		apiAddr:        apiAddr,
+		ethDir:         ethDir,
+		pwdFile:        pwdFile,
+		databaseFile:   dbFile,
+		cache:          cache,
+		timeout:        timeout,
 	}
 }
 
 //------------------------------------------------------------------------------
 
 type Proxy struct {
-	service     *service.Service
-	state       *state.State
-	babbleProxy *bproxy.SocketBabbleProxy
-	submitCh    chan []byte
-	logger      *logrus.Logger
+	service       *service.Service
+	state         *state.State
+	lachesisProxy *bproxy.SocketLachesisProxy
+	submitCh      chan []byte
+	logger        *logrus.Logger
 }
 
 func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
@@ -68,7 +68,7 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 		submitCh,
 		logger)
 
-	babbleProxy, err := bproxy.NewSocketBabbleProxy(config.babbleAddr,
+	lachesisProxy, err := bproxy.NewSocketLachesisProxy(config.lachesisAddr,
 		config.proxyAddr,
 		config.timeout,
 		logger)
@@ -77,11 +77,11 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 	}
 
 	return &Proxy{
-		service:     service,
-		state:       state,
-		babbleProxy: babbleProxy,
-		submitCh:    submitCh,
-		logger:      logger,
+		service:       service,
+		state:         state,
+		lachesisProxy: lachesisProxy,
+		submitCh:      submitCh,
+		logger:        logger,
 	}, nil
 }
 
@@ -99,11 +99,11 @@ func (p *Proxy) Serve() {
 		select {
 		case tx := <-p.submitCh:
 			p.logger.Debug("proxy about to submit tx")
-			if err := p.babbleProxy.SubmitTx(tx); err != nil {
+			if err := p.lachesisProxy.SubmitTx(tx); err != nil {
 				p.logger.WithError(err).Error("SubmitTx")
 			}
 			p.logger.Debug("proxy submitted tx")
-		case commit := <-p.babbleProxy.CommitCh():
+		case commit := <-p.lachesisProxy.CommitCh():
 			p.logger.Debug("CommitBlock")
 			stateHash, err := p.state.ProcessBlock(commit.Block)
 			commit.Respond(stateHash.Bytes(), err)
