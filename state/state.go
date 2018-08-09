@@ -163,7 +163,7 @@ func deriveSigner(V *big.Int) ethTypes.Signer {
 	}
 }
 
-func PrintTransaction(tx ethTypes.Transaction) string {
+func PrintTransaction(tx *ethTypes.Transaction) string {
 	var from, to string
 	v, r, s := tx.RawSignatureValues()
 
@@ -185,7 +185,7 @@ func PrintTransaction(tx ethTypes.Transaction) string {
 	} else {
 		to = fmt.Sprintf("%x", tx.To()[:])
 	}
-	enc, _ := rlp.EncodeToBytes(&tx.Data)
+	enc, _ := rlp.EncodeToBytes(&tx.Data())
 	return fmt.Sprintf(`
 	TX(%x)
 	Contract: %v
@@ -226,7 +226,7 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		return err
 	}
 	s.logger.WithField("hash", t.Hash().Hex()).Debug("Decoded tx")
-	s.logger.WithField("tx", PrintTransaction(t)).Debug("Decoded tx")
+	s.logger.WithField("tx", PrintTransaction(&t)).Debug("Decoded tx")
 
 	msg, err := t.AsMessage(s.signer)
 	if err != nil {
