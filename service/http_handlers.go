@@ -311,7 +311,7 @@ func transactionReceiptHandler(w http.ResponseWriter, r *http.Request, m *Servic
 		ContractAddress:   receipt.ContractAddress,
 		Logs:              receipt.Logs,
 		LogsBloom:         receipt.Bloom,
-		Failed:            uint64(0),
+		Failed:            nil,
 	}
 
 	if receipt.Logs == nil {
