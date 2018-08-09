@@ -8,7 +8,6 @@ import (
 	"syscall"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/core"
 	ethState "github.com/ethereum/go-ethereum/core/state"
@@ -134,21 +133,12 @@ func (s *State) ProcessBlock(block hashgraph.Block) (common.Hash, error) {
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-// deriveSigner makes a *best* guess about which signer to use.
-func deriveSigner(V *big.Int) Signer {
-	if V.Sign() != 0 && isProtectedV(V) {
-		return NewEIP155Signer(deriveChainId(V))
-	} else {
-		return HomesteadSigner{}
-	}
-}
-
-func printTransaction(tx *Transaction) string {
+func printTransaction(tx *ethTypes.Transaction) string {
 	var from, to string
 	if tx.data.V != nil {
 		// make a best guess about the signer and use that to derive
 		// the sender.
-		signer := deriveSigner(tx.data.V)
+		signer := ethTypes.deriveSigner(tx.data.V)
 		if f, err := Sender(signer, tx); err != nil { // derive but don't cache
 			from = "[invalid sender: invalid sig]"
 		} else {
