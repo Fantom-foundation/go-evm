@@ -23,7 +23,7 @@ type WriteAheadState struct {
 	receipts     []*ethTypes.Receipt
 	allLogs      []*ethTypes.Log
 
-	totalUsedGas *big.Int
+	totalUsedGas uint64
 	gp           *core.GasPool
 
 	logger *logrus.Logger

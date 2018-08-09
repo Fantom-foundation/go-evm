@@ -60,7 +60,7 @@ func NewState(logger *logrus.Logger, dbFile string, dbCache int) (*State, error)
 	s.logger = logger
 	s.db = db
 	s.signer = ethTypes.NewEIP155Signer(chainID)
-	s.chainConfig = params.ChainConfig{ChainId: chainID}
+	s.chainConfig = params.ChainConfig{ChainID: chainID}
 	s.vmConfig = vm.Config{Tracer: vm.NewStructLogger(nil)}
 
 	if err := s.InitState(); err != nil {
@@ -141,8 +141,7 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		return err
 	}
 	s.logger.WithField("hash", t.Hash().Hex()).Debug("Decoded tx")
-	s.logger.WithField("tx", t.String()).Debug()
-
+	
 	msg, err := t.AsMessage(s.signer)
 	if err != nil {
 		s.logger.WithError(err).Error("Converting Transaction to Message")
