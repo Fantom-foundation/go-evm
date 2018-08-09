@@ -264,6 +264,72 @@ func rawTransactionHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 }
 
 /*
+GET /transactions/{tx_hash}
+ex: /transactions/0xbfe1aa80eb704d6342c553ac9f423024f448f7c74b3e38559429d4b7c98ffb99
+returns: JSON JsonReceipt
+
+This endpoint allows to retrieve the EVM receipt of a specific transactions if it
+exists. When a transaction is applied to the EVM , a receipt is saved to allow
+checking if/how the transaction affected the state. This is where one can see such
+information as the address of a newly created contract, how much gas was use and
+the EVM Logs produced by the execution of the transaction.
+*/
+func transactionReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+	param := r.URL.Path[len("/transactions/"):]
+	txHash := common.HexToHash(param)
+	m.logger.WithField("tx_hash", txHash.Hex()).Debug("GET tx")
+
+	tx, err := m.state.GetTransaction(txHash)
+	if err != nil {
+		m.logger.WithError(err).Error("Getting Transaction")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	receipt, err := m.state.GetReceipt(txHash)
+	if err != nil {
+		m.logger.WithError(err).Error("Getting Receipt")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+	from, err := ethTypes.Sender(signer, tx)
+	if err != nil {
+		m.logger.WithError(err).Error("Getting Tx Sender")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	jsonReceipt := JsonReceipt{
+		Root:              common.BytesToHash(receipt.PostState),
+		TransactionHash:   txHash,
+		From:              from,
+		To:                tx.To(),
+		GasUsed:           new(big.Int).SetUint64(receipt.GasUsed),
+		CumulativeGasUsed: new(big.Int).SetUint64(receipt.CumulativeGasUsed),
+		ContractAddress:   receipt.ContractAddress,
+		Logs:              receipt.Logs,
+		LogsBloom:         receipt.Bloom,
+		Failed:            false,
+	}
+
+	if receipt.Logs == nil {
+		jsonReceipt.Logs = []*ethTypes.Log{}
+	}
+
+	js, err := json.Marshal(jsonReceipt)
+	if err != nil {
+		m.logger.WithError(err).Error("Marshaling JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
+/*
 GET /tx/{tx_hash}
 ex: /tx/0xbfe1aa80eb704d6342c553ac9f423024f448f7c74b3e38559429d4b7c98ffb99
 returns: JSON JsonReceipt
@@ -274,7 +340,7 @@ checking if/how the transaction affected the state. This is where one can see su
 information as the address of a newly created contract, how much gas was use and
 the EVM Logs produced by the execution of the transaction.
 */
-func transactionReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	param := r.URL.Path[len("/tx/"):]
 	txHash := common.HexToHash(param)
 	m.logger.WithField("tx_hash", txHash.Hex()).Debug("GET tx")
