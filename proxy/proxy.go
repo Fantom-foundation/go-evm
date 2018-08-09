@@ -7,7 +7,7 @@ import (
 	bproxy "github.com/andrecronje/lachesis/proxy/lachesis"
 	"github.com/andrecronje/evm/service"
 	"github.com/andrecronje/evm/state"
-	
+
 )
 
 //------------------------------------------------------------------------------
