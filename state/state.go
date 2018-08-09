@@ -170,7 +170,7 @@ func PrintTransaction(tx ethTypes.Transaction) string {
 	if v != nil {
 		// make a best guess about the signer and use that to derive
 		// the sender.
-		signer := ethTypes.deriveSigner(v)
+		signer := deriveSigner(v)
 		if f, err := ethTypes.Sender(signer, tx); err != nil { // derive but don't cache
 			from = "[invalid sender: invalid sig]"
 		} else {
