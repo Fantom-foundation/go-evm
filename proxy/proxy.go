@@ -3,10 +3,11 @@ package proxy
 import (
 	"time"
 
+	"github.com/sirupsen/logrus"
 	bproxy "github.com/andrecronje/lachesis/proxy/lachesis"
 	"github.com/andrecronje/evm/service"
 	"github.com/andrecronje/evm/state"
-	"github.com/sirupsen/logrus"
+	
 )
 
 //------------------------------------------------------------------------------
