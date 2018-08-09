@@ -133,14 +133,23 @@ func (s *State) ProcessBlock(block hashgraph.Block) (common.Hash, error) {
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-func PrintTransaction(tx *ethTypes.Transaction) string {
+// deriveSigner makes a *best* guess about which signer to use.
+func deriveSigner(V *big.Int) Signer {
+	if V.Sign() != 0 && isProtectedV(V) {
+		return ethTypes.NewEIP155Signer(deriveChainId(V))
+	} else {
+		return ethTypes.HomesteadSigner{}
+	}
+}
+
+func PrintTransaction(tx ethTypes.Transaction) string {
 	var from, to string
 	v, r, s := tx.RawSignatureValues()
 
 	if v != nil {
 		// make a best guess about the signer and use that to derive
 		// the sender.
-		signer := ethTypes.deriveSigner(v)
+		signer := deriveSigner(v)
 		if f, err := ethTypes.Sender(signer, tx); err != nil { // derive but don't cache
 			from = "[invalid sender: invalid sig]"
 		} else {
