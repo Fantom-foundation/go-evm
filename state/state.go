@@ -185,7 +185,6 @@ func PrintTransaction(tx *ethTypes.Transaction) string {
 	} else {
 		to = fmt.Sprintf("%x", tx.To()[:])
 	}
-	enc, _ := rlp.EncodeToBytes(&tx.Data())
 	return fmt.Sprintf(`
 	TX(%x)
 	Contract: %v
@@ -199,7 +198,6 @@ func PrintTransaction(tx *ethTypes.Transaction) string {
 	V:        %#x
 	R:        %#x
 	S:        %#x
-	Hex:      %x
 `,
 		tx.Hash(),
 		tx.To() == nil,
@@ -213,7 +211,6 @@ func PrintTransaction(tx *ethTypes.Transaction) string {
 		v,
 		r,
 		s,
-		enc,
 	)
 }
 
