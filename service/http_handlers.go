@@ -275,7 +275,7 @@ information as the address of a newly created contract, how much gas was use and
 the EVM Logs produced by the execution of the transaction.
 */
 func transactionReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
-	param := r.URL.Path[len("/transactions/"):]
+	param := r.URL.Path[len("/transaction/"):]
 	txHash := common.HexToHash(param)
 	m.logger.WithField("tx_hash", txHash.Hex()).Debug("GET tx")
 
