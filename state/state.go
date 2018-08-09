@@ -132,11 +132,19 @@ func (s *State) ProcessBlock(block hashgraph.Block) (common.Hash, error) {
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+func isProtectedV(V *big.Int) bool {
+	if V.BitLen() <= 8 {
+		v := V.Uint64()
+		return v != 27 && v != 28
+	}
+	// anything not 27 or 28 are considered unprotected
+	return true
+}
 
 // deriveSigner makes a *best* guess about which signer to use.
 func deriveSigner(V *big.Int) ethTypes.Signer {
-	if V.Sign() != 0 && ethTypes.isProtectedV(V) {
-		return ethTypes.NewEIP155Signer(deriveChainId(V))
+	if V.Sign() != 0 && isProtectedV(V) {
+		return ethTypes.NewEIP155Signer(ethTypes.deriveChainId(V))
 	} else {
 		return ethTypes.HomesteadSigner{}
 	}
