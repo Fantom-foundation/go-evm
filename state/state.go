@@ -165,7 +165,7 @@ func deriveSigner(V *big.Int) ethTypes.Signer {
 
 func (s *State) PrintTransaction(tx *ethTypes.Transaction) string {
 	var from, to string
-	v, r, s := tx.RawSignatureValues()
+	//v, _, _ := tx.RawSignatureValues()
 
 	if v != nil {
 		// make a best guess about the signer and use that to derive
