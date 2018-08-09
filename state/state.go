@@ -133,13 +133,15 @@ func (s *State) ProcessBlock(block hashgraph.Block) (common.Hash, error) {
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-func printTransaction(tx *ethTypes.Transaction) string {
+func PrintTransaction(tx *ethTypes.Transaction) string {
 	var from, to string
-	if tx.data.V != nil {
+	v, r, s := tx.RawSignatureValues()
+
+	if v != nil {
 		// make a best guess about the signer and use that to derive
 		// the sender.
-		signer := ethTypes.deriveSigner(tx.data.V)
-		if f, err := Sender(signer, tx); err != nil { // derive but don't cache
+		signer := ethTypes.deriveSigner(v)
+		if f, err := ethTypes.Sender(signer, tx); err != nil { // derive but don't cache
 			from = "[invalid sender: invalid sig]"
 		} else {
 			from = fmt.Sprintf("%x", f[:])
@@ -148,12 +150,12 @@ func printTransaction(tx *ethTypes.Transaction) string {
 		from = "[invalid sender: nil V field]"
 	}
 
-	if tx.data.Recipient == nil {
+	if tx.To() == nil {
 		to = "[contract creation]"
 	} else {
-		to = fmt.Sprintf("%x", tx.data.Recipient[:])
+		to = fmt.Sprintf("%x", tx.To()[:])
 	}
-	enc, _ := rlp.EncodeToBytes(&tx.data)
+	enc, _ := rlp.EncodeToBytes(&tx.Data)
 	return fmt.Sprintf(`
 	TX(%x)
 	Contract: %v
@@ -170,17 +172,17 @@ func printTransaction(tx *ethTypes.Transaction) string {
 	Hex:      %x
 `,
 		tx.Hash(),
-		tx.data.Recipient == nil,
+		tx.To() == nil,
 		from,
 		to,
-		tx.data.AccountNonce,
-		tx.data.Price,
-		tx.data.GasLimit,
-		tx.data.Amount,
-		tx.data.Payload,
-		tx.data.V,
-		tx.data.R,
-		tx.data.S,
+		tx.Nonce(),
+		tx.GasPrice(),
+		tx.Gas(),
+		tx.Value(),
+		tx.Data(),
+		v,
+		r,
+		s,
 		enc,
 	)
 }
@@ -194,7 +196,7 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		return err
 	}
 	s.logger.WithField("hash", t.Hash().Hex()).Debug("Decoded tx")
-	s.logger.WithField("tx", printTransaction(t)).Debug("Decoded tx")
+	s.logger.WithField("tx", PrintTransaction(t)).Debug("Decoded tx")
 
 	msg, err := t.AsMessage(s.signer)
 	if err != nil {
