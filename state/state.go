@@ -163,15 +163,15 @@ func deriveSigner(V *big.Int) ethTypes.Signer {
 	}
 }
 
-func PrintTransaction(tx *ethTypes.Transaction) string {
+func (s *State) PrintTransaction(tx *ethTypes.Transaction) string {
 	var from, to string
 	v, r, s := tx.RawSignatureValues()
 
 	if v != nil {
 		// make a best guess about the signer and use that to derive
 		// the sender.
-		signer := deriveSigner(v)
-		if f, err := ethTypes.Sender(signer, tx); err != nil { // derive but don't cache
+		//signer := deriveSigner(v)
+		if f, err := ethTypes.Sender(s.signer, tx); err != nil { // derive but don't cache
 			from = "[invalid sender: invalid sig]"
 		} else {
 			from = fmt.Sprintf("%x", f[:])
@@ -223,7 +223,7 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		return err
 	}
 	s.logger.WithField("hash", t.Hash().Hex()).Debug("Decoded tx")
-	s.logger.WithField("tx", PrintTransaction(&t)).Debug("Decoded tx")
+	s.logger.WithField("tx", s.PrintTransaction(&t)).Debug("Decoded tx")
 
 	msg, err := t.AsMessage(s.signer)
 	if err != nil {
