@@ -195,9 +195,6 @@ func (s *State) PrintTransaction(tx *ethTypes.Transaction) string {
 	GasLimit  %#x
 	Value:    %#x
 	Data:     0x%x
-	V:        %#x
-	R:        %#x
-	S:        %#x
 `,
 		tx.Hash(),
 		tx.To() == nil,
@@ -208,9 +205,6 @@ func (s *State) PrintTransaction(tx *ethTypes.Transaction) string {
 		tx.Gas(),
 		tx.Value(),
 		tx.Data(),
-		v,
-		r,
-		s,
 	)
 }
 
