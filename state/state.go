@@ -224,7 +224,7 @@ func (s *State) resetWAS() {
 		ethState:     state,
 		txIndex:      0,
 		totalUsedGas: big.NewInt(0),
-		gp:           new(core.GasPool).AddGas(new(big.Int).SetUint64(gasLimit)),
+		gp:           new(core.GasPool).AddGas(gasLimit),
 		logger:       s.logger,
 	}
 	s.logger.Debug("Reset Write Ahead State")
