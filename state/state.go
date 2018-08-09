@@ -167,17 +167,13 @@ func (s *State) PrintTransaction(tx *ethTypes.Transaction) string {
 	var from, to string
 	//v, _, _ := tx.RawSignatureValues()
 
-	if v != nil {
-		// make a best guess about the signer and use that to derive
-		// the sender.
-		//signer := deriveSigner(v)
-		if f, err := ethTypes.Sender(s.signer, tx); err != nil { // derive but don't cache
-			from = "[invalid sender: invalid sig]"
-		} else {
-			from = fmt.Sprintf("%x", f[:])
-		}
+	// make a best guess about the signer and use that to derive
+	// the sender.
+	//signer := deriveSigner(v)
+	if f, err := ethTypes.Sender(s.signer, tx); err != nil { // derive but don't cache
+		from = "[invalid sender: invalid sig]"
 	} else {
-		from = "[invalid sender: nil V field]"
+		from = fmt.Sprintf("%x", f[:])
 	}
 
 	if tx.To() == nil {
