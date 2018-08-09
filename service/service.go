@@ -126,7 +126,7 @@ func (m *Service) serveAPI() {
 	r.HandleFunc("/rawtx", m.makeHandler(rawTransactionHandler)).Methods("POST")
 	r.HandleFunc("/sendRawTransaction", m.makeHandler(rawTransactionHandler)).Methods("POST")
 	r.HandleFunc("/tx/{tx_hash}", m.makeHandler(txReceiptHandler)).Methods("GET")
-	r.HandleFunc("/transactions/{tx_hash}", m.makeHandler(transactionReceiptHandler)).Methods("GET")
+	r.HandleFunc("/transaction/{tx_hash}", m.makeHandler(transactionReceiptHandler)).Methods("GET")
 	http.Handle("/", &CORSServer{r})
 	http.ListenAndServe(m.apiAddr, nil)
 }
