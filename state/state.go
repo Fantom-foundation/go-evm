@@ -141,10 +141,23 @@ func isProtectedV(V *big.Int) bool {
 	return true
 }
 
+// deriveChainId derives the chain id from the given v parameter
+func deriveChainId(v *big.Int) *big.Int {
+	if v.BitLen() <= 64 {
+		v := v.Uint64()
+		if v == 27 || v == 28 {
+			return new(big.Int)
+		}
+		return new(big.Int).SetUint64((v - 35) / 2)
+	}
+	v = new(big.Int).Sub(v, big.NewInt(35))
+	return v.Div(v, big.NewInt(2))
+}
+
 // deriveSigner makes a *best* guess about which signer to use.
 func deriveSigner(V *big.Int) ethTypes.Signer {
 	if V.Sign() != 0 && isProtectedV(V) {
-		return ethTypes.NewEIP155Signer(ethTypes.deriveChainId(V))
+		return ethTypes.NewEIP155Signer(deriveChainId(V))
 	} else {
 		return ethTypes.HomesteadSigner{}
 	}
