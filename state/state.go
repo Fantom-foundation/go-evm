@@ -141,7 +141,7 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		return err
 	}
 	s.logger.WithField("hash", t.Hash().Hex()).Debug("Decoded tx")
-	
+
 	msg, err := t.AsMessage(s.signer)
 	if err != nil {
 		s.logger.WithError(err).Error("Converting Transaction to Message")
@@ -173,12 +173,12 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		return err
 	}
 
-	s.was.totalUsedGas.Add(s.was.totalUsedGas, gas)
+	s.was.totalUsedGas.Add(s.was.totalUsedGas, new(big.Int).SetUint64(gas))
 
 	// Create a new receipt for the transaction, storing the intermediate root and gas used by the tx
 	// based on the eip phase, we're passing wether the root touch-delete accounts.
 	root := s.was.ethState.IntermediateRoot(true) //this has side effects. It updates StateObjects (SmartContract memory)
-	receipt := ethTypes.NewReceipt(root.Bytes(), failed, s.was.totalUsedGas)
+	receipt := ethTypes.NewReceipt(root.Bytes(), failed, s.was.totalUsedGas.Uint64())
 	receipt.TxHash = t.Hash()
 	receipt.GasUsed = new(big.Int).Set(gas)
 	// if the transaction created a contract, store the creation address in the receipt.
