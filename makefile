@@ -13,7 +13,7 @@ install:
 build:
 	go build \
 		--ldflags '-extldflags "-static"' \
-		-o build/evm ./cmd/evm/s
+		-o build/evm ./cmd/evm/
 
 test:
 	glide novendor | xargs go test
