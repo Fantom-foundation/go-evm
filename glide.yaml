@@ -1,6 +1,9 @@
 package: github.com/andrecronje/evm
 import:
 - package: github.com/andrecronje/lachesis
+  subpackages:
+    - version
+    - proxy
 - package: github.com/sirupsen/logrus
 - package: github.com/ethereum/go-ethereum
   version: =1.7.0
