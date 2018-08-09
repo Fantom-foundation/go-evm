@@ -180,7 +180,7 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 	root := s.was.ethState.IntermediateRoot(true) //this has side effects. It updates StateObjects (SmartContract memory)
 	receipt := ethTypes.NewReceipt(root.Bytes(), failed, s.was.totalUsedGas.Uint64())
 	receipt.TxHash = t.Hash()
-	receipt.GasUsed = new(big.Int).Set(gas)
+	receipt.GasUsed = gas
 	// if the transaction created a contract, store the creation address in the receipt.
 	if msg.To() == nil {
 		receipt.ContractAddress = crypto.CreateAddress(vmenv.Context.Origin, t.Nonce())
@@ -224,7 +224,7 @@ func (s *State) resetWAS() {
 		ethState:     state,
 		txIndex:      0,
 		totalUsedGas: big.NewInt(0),
-		gp:           new(core.GasPool).AddGas(gasLimit),
+		gp:           new(core.GasPool).AddGas(new(big.Int).SetUint64(gasLimit)),
 		logger:       s.logger,
 	}
 	s.logger.Debug("Reset Write Ahead State")
