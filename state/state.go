@@ -134,8 +134,8 @@ func (s *State) ProcessBlock(block hashgraph.Block) (common.Hash, error) {
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 // deriveSigner makes a *best* guess about which signer to use.
-func deriveSigner(V *big.Int) Signer {
-	if V.Sign() != 0 && isProtectedV(V) {
+func deriveSigner(V *big.Int) ethTypes.Signer {
+	if V.Sign() != 0 && ethTypes.isProtectedV(V) {
 		return ethTypes.NewEIP155Signer(deriveChainId(V))
 	} else {
 		return ethTypes.HomesteadSigner{}
@@ -149,7 +149,7 @@ func PrintTransaction(tx ethTypes.Transaction) string {
 	if v != nil {
 		// make a best guess about the signer and use that to derive
 		// the sender.
-		signer := deriveSigner(v)
+		signer := ethTypes.deriveSigner(v)
 		if f, err := ethTypes.Sender(signer, tx); err != nil { // derive but don't cache
 			from = "[invalid sender: invalid sig]"
 		} else {
