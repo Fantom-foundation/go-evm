@@ -13,8 +13,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/andrecronje/lachesis/version"
 	"github.com/andrecronje/evm/proxy"
+	"github.com/andrecronje/lachesis/version"
 )
 
 var (
@@ -102,12 +102,12 @@ func run(c *cli.Context) error {
 	dbCache := c.Int(CacheFlag.Name)
 
 	logger.WithFields(logrus.Fields{
-		"datadir":     datadir,
+		"datadir":       datadir,
 		"lachesis_addr": lachesisAddress,
-		"proxy_addr":  proxyAddress,
-		"api_addr":    apiAddress,
-		"db":          databaseFile,
-		"cache":       dbCache,
+		"proxy_addr":    proxyAddress,
+		"api_addr":      apiAddress,
+		"db":            databaseFile,
+		"cache":         dbCache,
 	}).Debug("RUN")
 
 	config := proxy.NewConfig(
@@ -122,7 +122,7 @@ func run(c *cli.Context) error {
 
 	proxy, err := proxy.NewProxy(config, logger)
 	if err != nil {
-		return fmt.Errorf("Error building proxy: %s", err)
+		return fmt.Errorf("error building proxy: %s", err)
 	}
 
 	proxy.Run()

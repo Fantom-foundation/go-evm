@@ -55,6 +55,7 @@ Example Ethereum genesis.json defining two account:
         }
    }
 }
+```
 
 ### Get controlled accounts
 
