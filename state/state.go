@@ -2,11 +2,12 @@ package state
 
 import (
 	"bytes"
+	"fmt"
 	"math/big"
 	"sync"
-	"fmt"
 	"syscall"
 
+	"github.com/andrecronje/lachesis/hashgraph"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/core"
@@ -17,7 +18,6 @@ import (
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/andrecronje/lachesis/hashgraph"
 	"github.com/sirupsen/logrus"
 
 	bcommon "github.com/andrecronje/evm/common"
@@ -61,7 +61,7 @@ func NewState(logger *logrus.Logger, dbFile string, dbCache int) (*State, error)
 	s.logger = logger
 	s.db = db
 	s.signer = ethTypes.NewEIP155Signer(chainID)
-	s.chainConfig = params.ChainConfig{ChainID: chainID}
+	s.chainConfig = params.ChainConfig{ChainId: chainID}
 	s.vmConfig = vm.Config{Tracer: vm.NewStructLogger(nil)}
 
 	if err := s.InitState(); err != nil {
@@ -100,7 +100,7 @@ func (s *State) Call(callMsg ethTypes.Message) ([]byte, error) {
 	}
 
 	// The EVM should never be reused and is not thread safe.
-	// Call is done on a copy of the state...we dont want any changes to be persisted
+	// Call is done on a copy of the state...we don't want any changes to be persisted
 	// Call is a readonly operation
 	vmenv := vm.NewEVM(context, s.was.ethState.Copy(), &s.chainConfig, s.vmConfig)
 
@@ -246,12 +246,12 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		return err
 	}
 
-	s.was.totalUsedGas.Add(s.was.totalUsedGas, new(big.Int).SetUint64(gas))
+	s.was.totalUsedGas.Add(s.was.totalUsedGas, gas)
 
 	// Create a new receipt for the transaction, storing the intermediate root and gas used by the tx
-	// based on the eip phase, we're passing wether the root touch-delete accounts.
+	// based on the eip phase, we're passing whether the root touch-delete accounts.
 	root := s.was.ethState.IntermediateRoot(true) //this has side effects. It updates StateObjects (SmartContract memory)
-	receipt := ethTypes.NewReceipt(root.Bytes(), failed, s.was.totalUsedGas.Uint64())
+	receipt := ethTypes.NewReceipt(root.Bytes(), failed, big.NewInt(0).SetUint64(s.was.totalUsedGas.Uint64()))
 	receipt.TxHash = t.Hash()
 	receipt.GasUsed = gas
 	// if the transaction created a contract, store the creation address in the receipt.
@@ -297,7 +297,7 @@ func (s *State) resetWAS() {
 		ethState:     state,
 		txIndex:      0,
 		totalUsedGas: big.NewInt(0),
-		gp:           new(core.GasPool).AddGas(gasLimit.Uint64()),
+		gp:           new(core.GasPool).AddGas(big.NewInt(0).SetUint64(gasLimit.Uint64())),
 		logger:       s.logger,
 	}
 	s.logger.Debug("Reset Write Ahead State")
