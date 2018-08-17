@@ -120,17 +120,17 @@ func run(c *cli.Context) error {
 		dbCache,
 		1*time.Second)
 
-	proxy, err := proxy.NewProxy(config, logger)
+	proxy_, err := proxy.NewProxy(config, logger)
 	if err != nil {
 		return fmt.Errorf("error building proxy: %s", err)
 	}
 
-	proxy.Run()
+	proxy_.Run()
 
 	return nil
 }
 
-func printVersion(c *cli.Context) error {
+func printVersion(_ *cli.Context) error {
 	fmt.Println(version.Version)
 	return nil
 }
