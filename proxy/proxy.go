@@ -3,24 +3,23 @@ package proxy
 import (
 	"time"
 
-	"github.com/sirupsen/logrus"
-	bproxy "github.com/andrecronje/lachesis/proxy/lachesis"
 	"github.com/andrecronje/evm/service"
 	"github.com/andrecronje/evm/state"
-
+	bproxy "github.com/andrecronje/lachesis/proxy/lachesis"
+	"github.com/sirupsen/logrus"
 )
 
 //------------------------------------------------------------------------------
 
 type Config struct {
-	proxyAddr     string //bind address of this app proxy
+	proxyAddr    string //bind address of this app proxy
 	lachesisAddr string //address of  node
-	apiAddr       string //address of HTTP API service
-	ethDir        string //directory containing eth config
-	pwdFile       string //file containing password to unlock ethereum accounts
-	databaseFile  string //file containing LevelDB database
-	cache         int    //Megabytes of memory allocated to internal caching (min 16MB / database forced)
-	timeout       time.Duration
+	apiAddr      string //address of HTTP API service
+	ethDir       string //directory containing eth config
+	pwdFile      string //file containing password to unlock ethereum accounts
+	databaseFile string //file containing LevelDB database
+	cache        int    //Megabytes of memory allocated to internal caching (min 16MB / database forced)
+	timeout      time.Duration
 }
 
 func NewConfig(proxyAddr,
@@ -33,14 +32,14 @@ func NewConfig(proxyAddr,
 	timeout time.Duration) Config {
 
 	return Config{
-		proxyAddr:      proxyAddr,
-		lachesisAddr:  lachesisAddr,
-		apiAddr:        apiAddr,
-		ethDir:         ethDir,
-		pwdFile:        pwdFile,
-		databaseFile:   dbFile,
-		cache:          cache,
-		timeout:        timeout,
+		proxyAddr:    proxyAddr,
+		lachesisAddr: lachesisAddr,
+		apiAddr:      apiAddr,
+		ethDir:       ethDir,
+		pwdFile:      pwdFile,
+		databaseFile: dbFile,
+		cache:        cache,
+		timeout:      timeout,
 	}
 }
 
@@ -57,15 +56,15 @@ type Proxy struct {
 func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 	submitCh := make(chan []byte)
 
-	state, err := state.NewState(logger, config.databaseFile, config.cache)
+	state_, err := state.NewState(logger, config.databaseFile, config.cache)
 	if err != nil {
 		return nil, err
 	}
 
-	service := service.NewService(config.ethDir,
+	service_ := service.NewService(config.ethDir,
 		config.apiAddr,
 		config.pwdFile,
-		state,
+		state_,
 		submitCh,
 		logger)
 
@@ -78,8 +77,8 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 	}
 
 	return &Proxy{
-		service:       service,
-		state:         state,
+		service:       service_,
+		state:         state_,
 		lachesisProxy: lachesisProxy,
 		submitCh:      submitCh,
 		logger:        logger,

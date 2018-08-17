@@ -61,7 +61,7 @@ func NewState(logger *logrus.Logger, dbFile string, dbCache int) (*State, error)
 	s.logger = logger
 	s.db = db
 	s.signer = ethTypes.NewEIP155Signer(chainID)
-	s.chainConfig = params.ChainConfig{ChainId: chainID}
+	s.chainConfig = params.ChainConfig{ChainID: chainID}
 	s.vmConfig = vm.Config{Tracer: vm.NewStructLogger(nil)}
 
 	if err := s.InitState(); err != nil {
@@ -246,12 +246,12 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		return err
 	}
 
-	s.was.totalUsedGas.Add(s.was.totalUsedGas, gas)
+	s.was.totalUsedGas.Add(s.was.totalUsedGas, big.NewInt(0).SetUint64(gas))
 
 	// Create a new receipt for the transaction, storing the intermediate root and gas used by the tx
 	// based on the eip phase, we're passing whether the root touch-delete accounts.
 	root := s.was.ethState.IntermediateRoot(true) //this has side effects. It updates StateObjects (SmartContract memory)
-	receipt := ethTypes.NewReceipt(root.Bytes(), failed, big.NewInt(0).SetUint64(s.was.totalUsedGas.Uint64()))
+	receipt := ethTypes.NewReceipt(root.Bytes(), failed, bcommon.BigintToUInt64(s.was.totalUsedGas))
 	receipt.TxHash = t.Hash()
 	receipt.GasUsed = gas
 	// if the transaction created a contract, store the creation address in the receipt.
@@ -297,7 +297,7 @@ func (s *State) resetWAS() {
 		ethState:     state,
 		txIndex:      0,
 		totalUsedGas: big.NewInt(0),
-		gp:           new(core.GasPool).AddGas(big.NewInt(0).SetUint64(gasLimit.Uint64())),
+		gp:           new(core.GasPool).AddGas(gasLimit.Uint64()),
 		logger:       s.logger,
 	}
 	s.logger.Debug("Reset Write Ahead State")
