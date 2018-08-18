@@ -2,13 +2,8 @@
 set -e
 
 # Get the version from the environment, or try to figure it out.
-if [ -z "$VERSION" ]; then
-	VERSION=$(awk -F\" '/Version =/ { print $2; exit }' < version/version.go)
-fi
-if [ -z "$VERSION" ]; then
-    echo "Please specify a version."
-    exit 1
-fi
+VERSION=$(sed -n '7{ N; N; s/\n/./g; s/[^."]*"\([^"]*\)"/\1/g; p; }' version/version.go)
+
 echo "==> Building version $VERSION..."
 
 # Get the parent directory of where this script is.
@@ -30,7 +25,7 @@ docker run --rm  \
     -e "BUILD_TAGS=$BUILD_TAGS" \
     -v "$(pwd)":/go/src/github.com/andrecronje/evm \
     -w /go/src/github.com/andrecronje/evm \
-    mosaicnetworks/glider:0.0.2 ./scripts/dist_build.sh
+    offscale/go-glider:latest ./scripts/dist_build.sh
 
 # Add "evm" and $VERSION prefix to package name.
 rm -rf ./build/dist
