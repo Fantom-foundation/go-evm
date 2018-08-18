@@ -18,11 +18,13 @@ GIT_IMPORT="github.com/andrecronje/evm/version"
 XC_ARCH=${XC_ARCH:-"386 amd64 arm"}
 XC_OS=${XC_OS:-"solaris darwin freebsd linux windows"}
 
+# Geth contains some C libraries
+export CGO_ENABLED=1
+
 # Get Go deps
-echo "USER: `id -u $USER`"
-mkdir -p glide_cache
-glide --home "glide_cache" install
-rm -rf glide_cache
+echo "USER: $(id -u $USER)"
+glide --home "$glide_cache" install
+rm -rf "$glide_cache"
 
 # Build!
 echo "==> Building..."
