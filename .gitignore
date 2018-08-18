@@ -9,6 +9,9 @@
 # Build output
 build
 
+# Binary output
+bin
+
 # Dependencies
 vendor
 
