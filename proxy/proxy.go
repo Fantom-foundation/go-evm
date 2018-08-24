@@ -58,12 +58,14 @@ type Proxy struct {
 func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 	submitCh := make(chan []byte)
 
+	logger.Debug("state.NewState")
 	state_, err := state.NewState(logger, config.databaseFile, config.cache)
 	if err != nil {
 		fmt.Errorf("Error building state: %s", err)
 		return nil, err
 	}
 
+	logger.Debug("service.NewService")
 	service_ := service.NewService(config.ethDir,
 		config.apiAddr,
 		config.pwdFile,
@@ -71,6 +73,7 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 		submitCh,
 		logger)
 
+	logger.Debug("bproxy.NewSocketLachesisProxy")
 	lachesisProxy, err := bproxy.NewSocketLachesisProxy(config.lachesisAddr,
 		config.proxyAddr,
 		config.timeout,
@@ -80,6 +83,7 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 		return nil, err
 	}
 
+	logger.Debug("Return &Proxy")
 	return &Proxy{
 		service:       service_,
 		state:         state_,
@@ -102,11 +106,11 @@ func (p *Proxy) Serve() {
 	for {
 		select {
 		case tx := <-p.submitCh:
-			p.logger.Debug("proxy about to submit tx")
+			p.logger.Debug("Proxy about to submit tx")
 			if err := p.lachesisProxy.SubmitTx(tx); err != nil {
 				p.logger.WithError(err).Error("SubmitTx")
 			}
-			p.logger.Debug("proxy submitted tx")
+			p.logger.Debug("Proxy submitted tx")
 		case commit := <-p.lachesisProxy.CommitCh():
 			p.logger.Debug("CommitBlock")
 			stateHash, err := p.state.ProcessBlock(commit.Block)
