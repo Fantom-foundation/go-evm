@@ -58,6 +58,7 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 
 	state_, err := state.NewState(logger, config.databaseFile, config.cache)
 	if err != nil {
+		return fmt.Errorf("Error building state: %s", err)
 		return nil, err
 	}
 
@@ -73,6 +74,7 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 		config.timeout,
 		logger)
 	if err != nil {
+		return fmt.Errorf("Error building socket proxy: %s", err)
 		return nil, err
 	}
 
