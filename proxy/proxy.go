@@ -3,6 +3,8 @@ package proxy
 import (
 	"time"
 
+	"fmt"
+
 	"github.com/andrecronje/evm/service"
 	"github.com/andrecronje/evm/state"
 	bproxy "github.com/andrecronje/lachesis/proxy/lachesis"
