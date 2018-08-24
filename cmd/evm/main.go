@@ -108,7 +108,7 @@ func run(c *cli.Context) error {
 		"api_addr":    apiAddress,
 		"db":          databaseFile,
 		"cache":       dbCache,
-	}).Debug("RUN")
+	}).Debug("Run")
 
 	config := proxy.NewConfig(
 		proxyAddress,
@@ -119,6 +119,15 @@ func run(c *cli.Context) error {
 		databaseFile,
 		dbCache,
 		1*time.Second)
+
+	logger.WithFields(logrus.Fields{
+		"datadir":     datadir,
+		"lachesis_addr": lachesisAddress,
+		"proxy_addr":  proxyAddress,
+		"api_addr":    apiAddress,
+		"db":          databaseFile,
+		"cache":       dbCache,
+	}).Debug("Started")
 
 	proxy, err := proxy.NewProxy(config, logger)
 	if err != nil {
