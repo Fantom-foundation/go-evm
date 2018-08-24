@@ -7,13 +7,13 @@ import (
 	"math/big"
 	"net/http"
 
+	"github.com/andrecronje/evm/state"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/andrecronje/evm/state"
 )
 
 /*
@@ -59,7 +59,7 @@ These are accounts for which the Service has the private keys and on whose behal
 it can sign transactions. The list of accounts controlled by the evm-service is
 contained in the Keystore directory defined upon launching the evm application.
 */
-func accountsHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+func accountsHandler(w http.ResponseWriter, _ *http.Request, m *Service) {
 	m.logger.Debug("GET accounts")
 
 	var al JsonAccountList
@@ -123,7 +123,7 @@ func callHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		return
 	}
 
-	res := JsonCallRes{Data: common.ToHex(data)}
+	res := JsonCallRes{Data: hexutil.Encode(data)}
 	js, err := json.Marshal(res)
 	if err != nil {
 		m.logger.WithError(err).Error("Marshaling JSON response")
@@ -306,8 +306,8 @@ func transactionReceiptHandler(w http.ResponseWriter, r *http.Request, m *Servic
 		TransactionHash:   txHash,
 		From:              from,
 		To:                tx.To(),
-		GasUsed:           new(big.Int).SetUint64(receipt.GasUsed),
-		CumulativeGasUsed: new(big.Int).SetUint64(receipt.CumulativeGasUsed),
+		GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
+		CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
 		ContractAddress:   receipt.ContractAddress,
 		Logs:              receipt.Logs,
 		LogsBloom:         receipt.Bloom,
@@ -372,8 +372,8 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		TransactionHash:   txHash,
 		From:              from,
 		To:                tx.To(),
-		GasUsed:           new(big.Int).SetUint64(receipt.GasUsed),
-		CumulativeGasUsed: new(big.Int).SetUint64(receipt.CumulativeGasUsed),
+		GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
+		CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
 		ContractAddress:   receipt.ContractAddress,
 		Logs:              receipt.Logs,
 		LogsBloom:         receipt.Bloom,
@@ -396,7 +396,7 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 }
 
 //------------------------------------------------------------------------------
-func prepareCallMessage(args SendTxArgs, ks *keystore.KeyStore) (*ethTypes.Message, error) {
+func prepareCallMessage(args SendTxArgs, _ *keystore.KeyStore) (*ethTypes.Message, error) {
 	var err error
 	args, err = prepareSendTxArgs(args)
 	if err != nil {

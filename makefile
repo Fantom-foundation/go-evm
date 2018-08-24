@@ -15,6 +15,10 @@ build:
 		--ldflags '-extldflags "-static"' \
 		-o build/evm ./cmd/evm/
 
+# dist builds binaries for all platforms and packages them for distribution
+dist:
+	@BUILD_TAGS='$(BUILD_TAGS)' sh -c "'$(CURDIR)/scripts/dist.sh'"
+
 test:
 	glide novendor | xargs go test
 

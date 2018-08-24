@@ -17,7 +17,7 @@ type JsonAccountList struct {
 	Accounts []JsonAccount `json:"accounts"`
 }
 
-// SendTxArgs represents the arguments to sumbit a new transaction into the transaction pool.
+// SendTxArgs represents the arguments to submit a new transaction into the transaction pool.
 type SendTxArgs struct {
 	From     common.Address  `json:"from"`
 	To       *common.Address `json:"to"`

@@ -13,8 +13,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/andrecronje/lachesis/version"
 	"github.com/andrecronje/evm/proxy"
+	"github.com/andrecronje/lachesis/version"
 )
 
 var (
@@ -102,12 +102,12 @@ func run(c *cli.Context) error {
 	dbCache := c.Int(CacheFlag.Name)
 
 	logger.WithFields(logrus.Fields{
-		"datadir":     datadir,
+		"datadir":       datadir,
 		"lachesis_addr": lachesisAddress,
-		"proxy_addr":  proxyAddress,
-		"api_addr":    apiAddress,
-		"db":          databaseFile,
-		"cache":       dbCache,
+		"proxy_addr":    proxyAddress,
+		"api_addr":      apiAddress,
+		"db":            databaseFile,
+		"cache":         dbCache,
 	}).Debug("Run")
 
 	config := proxy.NewConfig(
@@ -120,26 +120,26 @@ func run(c *cli.Context) error {
 		dbCache,
 		1*time.Second)
 
-	logger.WithFields(logrus.Fields{
-		"datadir":     datadir,
-		"lachesis_addr": lachesisAddress,
-		"proxy_addr":  proxyAddress,
-		"api_addr":    apiAddress,
-		"db":          databaseFile,
-		"cache":       dbCache,
-	}).Debug("Started")
-
-	proxy, err := proxy.NewProxy(config, logger)
+	proxy_, err := proxy.NewProxy(config, logger)
 	if err != nil {
-		return fmt.Errorf("Error building proxy: %s", err)
+		return fmt.Errorf("error building proxy: %s", err)
 	}
 
-	proxy.Run()
+	logger.WithFields(logrus.Fields{
+		"datadir":       datadir,
+		"lachesis_addr": lachesisAddress,
+		"proxy_addr":    proxyAddress,
+		"api_addr":      apiAddress,
+		"db":            databaseFile,
+		"cache":         dbCache,
+	}).Debug("Started")
+
+	proxy_.Run()
 
 	return nil
 }
 
-func printVersion(c *cli.Context) error {
+func printVersion(_ *cli.Context) error {
 	fmt.Println(version.Version)
 	return nil
 }

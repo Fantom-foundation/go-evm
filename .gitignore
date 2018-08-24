@@ -1,3 +1,22 @@
+# IDE
+.vscode
+.idea/
+
+# Go test output
+*/*.test
+*/*.out
+
+# Build output
 build
 
+# Binary output
+bin
+
+# Dependencies
 vendor
+
+# gomobile compilation output
+*.aar
+*.jar
+
+glide_cache/

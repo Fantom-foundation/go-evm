@@ -1,0 +1,6 @@
+FROM alpine
+ADD evm /bin
+EXPOSE 1337 1338 80
+ENV HOME=/
+ENTRYPOINT ["evm"]
+CMD [] 

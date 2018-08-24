@@ -18,8 +18,9 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/sirupsen/logrus"
 
-	"github.com/andrecronje/lachesis/hashgraph"
 	bcommon "github.com/andrecronje/evm/common"
+	"github.com/andrecronje/lachesis/hashgraph"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
 var (
@@ -150,14 +151,14 @@ func (test *Test) prepareTransaction(from, to *accounts.Account,
 	if to == nil {
 		tx = ethTypes.NewContractCreation(nonce,
 			value,
-			gas,
+			gas.Uint64(),
 			gasPrice,
 			data)
 	} else {
 		tx = ethTypes.NewTransaction(nonce,
 			to.Address,
 			value,
-			gas,
+			gas.Uint64(),
 			gasPrice,
 			data)
 	}
@@ -335,7 +336,7 @@ func callDummyContractTest(test *Test, from accounts.Account, contract *Contract
 		&contract.address,
 		0,
 		_defaultValue,
-		_defaultGas,
+		_defaultGas.Uint64(),
 		_defaultGasPrice,
 		callData,
 		false)
@@ -453,7 +454,7 @@ func TestDB(t *testing.T) {
 	test.deployContract(from, contract, t)
 
 	code := test.state.statedb.GetCode(contract.address)
-	t.Logf("code: %s", common.ToHex(code))
+	t.Logf("code: %s", hexutil.Encode(code))
 
 	contract.parseABI(t)
 
@@ -473,7 +474,7 @@ func TestDB(t *testing.T) {
 
 	//check that contract code is there
 	code2 := test2.state.statedb.GetCode(contract.address)
-	t.Logf("code2: %s", common.ToHex(code2))
+	t.Logf("code2: %s", hexutil.Encode(code2))
 	if !reflect.DeepEqual(code2, code) {
 		t.Fatalf("contract code should be equal")
 	}
