@@ -15,10 +15,6 @@ builds:
   - android
   goarch:
   - amd64
-  - mips
-  - mips64
-  - mips64le
-  - mipsle
   - 386
 archive:
   replacements:
