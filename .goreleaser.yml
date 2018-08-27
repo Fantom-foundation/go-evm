@@ -9,9 +9,21 @@ builds:
 
   env:
   - CGO_ENABLED=1
+  goos:
+  - linux
+  - windows
+  - android
+  goarch:
+  - amd64
+  - arm
+  - arm64
+  - mips
+  - mips64
+  - mips64le
+  - mipsle
+  - 386
 archive:
   replacements:
-    darwin: Darwin
     linux: Linux
     windows: Windows
     386: i386
