@@ -34,6 +34,8 @@ nfpm:
 
   maintainer: Samuel Marks <samuel@offscale.io>
 
+  license: Apache 2.0
+
   formats:
   - deb
   - rpm
