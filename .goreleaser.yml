@@ -1,7 +1,13 @@
 # This is an example goreleaser.yaml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
 builds:
-- env:
+# You can have multiple builds defined as a yaml list
+-
+  # Path to main.go file or main package.
+  # Default is `.`.
+  main: ./cmd/evm/main.go
+
+  env:
   - CGO_ENABLED=1
 archive:
   replacements:
