@@ -15,7 +15,6 @@ builds:
   - android
   goarch:
   - amd64
-  - 386
 archive:
   replacements:
     linux: Linux
