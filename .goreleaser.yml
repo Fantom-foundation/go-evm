@@ -20,6 +20,24 @@ archive:
     windows: Windows
     386: i386
     amd64: x86_64
+nfpm:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+  replacements:
+    amd64: 64-bit
+    386: 32-bit
+    darwin: macOS
+    linux: Tux
+
+  vendor: Fantom Operations Ltd
+  homepage: https://fantom.foundation
+
+  maintainer: Samuel Marks <samuel@offscale.io>
+
+  formats:
+  - deb
+  - rpm
+
 checksum:
   name_template: 'checksums.txt'
 snapshot:

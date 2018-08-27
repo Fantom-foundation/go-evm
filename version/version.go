@@ -6,7 +6,7 @@ import (
 
 const Maj = "0"
 const Min = "0"
-const Fix = "2"
+const Fix = "3"
 
 var (
 	// The full version string
