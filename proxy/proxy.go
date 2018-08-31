@@ -3,13 +3,13 @@ package proxy
 import (
 	"time"
 
-	"fmt"
-
 	"github.com/andrecronje/evm/service"
 	"github.com/andrecronje/evm/state"
 	bproxy "github.com/andrecronje/lachesis/proxy/lachesis"
 	"github.com/sirupsen/logrus"
 )
+
+var log = logrus.New()
 
 //------------------------------------------------------------------------------
 
@@ -61,7 +61,7 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 	logger.Debug("state.NewState")
 	state_, err := state.NewState(logger, config.databaseFile, config.cache)
 	if err != nil {
-		fmt.Errorf("Error building state: %s", err)
+		log.WithError(err).Error("error building state")
 		return nil, err
 	}
 
@@ -79,7 +79,7 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 		config.timeout,
 		logger)
 	if err != nil {
-		fmt.Errorf("Error building socket proxy: %s", err)
+		log.WithError(err).Error("error building socket proxy")
 		return nil, err
 	}
 
