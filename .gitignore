@@ -12,6 +12,7 @@ build
 # Binary output
 bin
 dist
+usr_bins
 
 # Dependencies
 vendor
