@@ -1,0 +1,52 @@
+# This is an example goreleaser.yaml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+builds:
+# You can have multiple builds defined as a yaml list
+-
+  # Path to main.go file or main package.
+  # Default is `.`.
+  main: ./cmd/evm/main.go
+
+  env:
+  - CGO_ENABLED=1
+  goos:
+  - linux
+  - android
+  goarch:
+  - amd64
+archive:
+  replacements:
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
+nfpm:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+  replacements:
+    amd64: 64-bit
+    386: 32-bit
+    darwin: macOS
+    linux: Tux
+
+  vendor: Fantom Operations Ltd
+  homepage: https://fantom.foundation
+
+  maintainer: Samuel Marks <samuel@offscale.io>
+
+  license: Apache 2.0
+
+  formats:
+  - deb
+  - rpm
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'

@@ -6,7 +6,7 @@ import:
     - proxy
 - package: github.com/sirupsen/logrus
 - package: github.com/ethereum/go-ethereum
-  version: =1.8.13
+  version: =1.8.14
   subpackages:
   - accounts
   - accounts/keystore

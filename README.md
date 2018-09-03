@@ -13,13 +13,13 @@ USAGE:
    evm run [command options] [arguments...]
 
 OPTIONS:
-   --datadir value        Directory for the databases and keystore (default: "/home/<user>/.evm")
+   --datadir value        Directory for the databases and keystore (default: "$HOME/.evm")
    --lachesis_addr value  IP:Port of consensus node (default: "127.0.0.1:1338")
    --proxy_addr value     IP:Port to bind Proxy server (default: "127.0.0.1:1339")
    --api_addr value       IP:Port to bind API server (default: ":8080")
    --log_level value      Debug, info, warn, error, fatal, panic (default: "debug")
-   --pwd value            Password file to unlock accounts (default: "/home/<user>/.evm/pwd.txt")
-   --db value             Database file (default: "/home/<user>/.evm/chaindata")
+   --pwd value            Password file to unlock accounts (default: "$HOME/.evm/pwd.txt")
+   --db value             Database file (default: "$HOME/.evm/chaindata")
    --cache value          Megabytes of memory allocated to internal caching (min 16MB / database forced) (default: 128)
 ```
 

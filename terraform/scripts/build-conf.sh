@@ -21,7 +21,7 @@ do
 	echo "$IPBASE$((9 +i)):$PORT" > $dest/addr
 done
 
-PFILE=$DEST/peers.json
+PFILE="$DEST/peers.json"
 echo "[" > $PFILE 
 for i in $(seq 1 $N)
 do
@@ -40,8 +40,8 @@ echo "]" >> $PFILE
 
 for i in $(seq 1 $N) 
 do
-	dest=$DEST/node$i
-	cp $DEST/peers.json $dest/
-	rm $dest/addr $dest/pub
+	dest="$DEST/node$i"
+	cp "$DEST/peers.json" "$dest"/
+	rm "$dest/addr" "$dest/pub"
 done
 

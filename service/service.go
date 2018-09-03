@@ -10,10 +10,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/gorilla/mux"
 	"github.com/andrecronje/evm/common"
 	"github.com/andrecronje/evm/state"
+	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
 
