@@ -22,3 +22,4 @@ vendor
 *.jar
 
 glide_cache/
+docker/builder/certs

@@ -17,4 +17,8 @@ mkdir -p "$BINDIR" "$extract_to"
 
 for bin in ls mv rm mkdir sh; do
   [ -f "$BINDIR/$bin" ] || cp "$extract_to/bin/$bin" "$BINDIR/";
-done 
+done
+
+for bin in env; do
+  [ -f "$BINDIR/$bin" ] || cp "$extract_to/usr/bin/$bin" "$BINDIR/"; 
+done
