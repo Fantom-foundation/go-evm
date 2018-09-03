@@ -12,6 +12,7 @@ build
 # Binary output
 bin
 dist
+usr_bins
 
 # Dependencies
 vendor
@@ -21,3 +22,4 @@ vendor
 *.jar
 
 glide_cache/
+docker/builder/certs
