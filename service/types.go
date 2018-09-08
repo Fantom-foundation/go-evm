@@ -41,7 +41,7 @@ type JsonReceipt struct {
 	TransactionHash   common.Hash     `json:"transactionHash"`
 	From              common.Address  `json:"from"`
 	To                *common.Address `json:"to"`
-	Value           *big.Int        `json:"gasUsed"`
+	Value             *big.Int        `json:"value"`
 	GasUsed           *big.Int        `json:"gasUsed"`
 	CumulativeGasUsed *big.Int        `json:"cumulativeGasUsed"`
 	ContractAddress   common.Address  `json:"contractAddress"`
