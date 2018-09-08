@@ -7,7 +7,7 @@ import (
 
 	"github.com/andrecronje/evm/service"
 	"github.com/andrecronje/evm/state"
-	bproxy "github.com/andrecronje/lachesis/proxy/lachesis"
+	proxy "github.com/andrecronje/lachesis/proxy/lachesis"
 	"github.com/sirupsen/logrus"
 )
 
@@ -50,7 +50,7 @@ func NewConfig(proxyAddr,
 type Proxy struct {
 	service       *service.Service
 	state         *state.State
-	lachesisProxy *bproxy.SocketLachesisProxy
+	lachesisProxy *proxy.SocketLachesisProxy
 	submitCh      chan []byte
 	logger        *logrus.Logger
 }
@@ -73,8 +73,8 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 		submitCh,
 		logger)
 
-	logger.Debug("bproxy.NewSocketLachesisProxy")
-	lachesisProxy, err := bproxy.NewSocketLachesisProxy(config.lachesisAddr,
+	logger.Debug("proxy.NewSocketLachesisProxy")
+	lachesisProxy, err := proxy.NewSocketLachesisProxy(config.lachesisAddr,
 		config.proxyAddr,
 		config.timeout,
 		logger)
