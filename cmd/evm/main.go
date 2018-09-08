@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/user"
+	"path"
 	"path/filepath"
 	"runtime"
 
@@ -46,12 +47,12 @@ var (
 	PwdFlag = cli.StringFlag{
 		Name:  "pwd",
 		Usage: "Password file to unlock accounts",
-		Value: fmt.Sprintf("%s/pwd.txt", defaultDataDir()),
+		Value: path.Join(path.Dir(defaultDataDir()), "pwd.txt"),
 	}
 	DatabaseFlag = cli.StringFlag{
 		Name:  "db",
 		Usage: "Database file",
-		Value: fmt.Sprintf("%s/chaindata", defaultDataDir()),
+		Value: path.Join(path.Dir(defaultDataDir()), "chaindata"),
 	}
 	CacheFlag = cli.IntFlag{
 		Name:  "cache",

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"math/big"
 	"os"
+	"path"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -26,8 +27,10 @@ import (
 var (
 	_defaultValue    = big.NewInt(0)
 	_defaultGas      = big.NewInt(1000000)
-	_defaultGasPrice = big.NewInt(0)
+	_defaultGasPrice = big.NewInt(0),
 )
+
+var _testDataDir = path.Join(path.Dir("test_data"))
 
 type Test struct {
 	dataDir string
@@ -215,11 +218,9 @@ func (test *Test) deployContract(from accounts.Account, contract *Contract, t *t
 
 //------------------------------------------------------------------------------
 func TestTransfer(t *testing.T) {
+	defer os.RemoveAll(path.Join(_testDataDir, "eth", "chaindata"))
 
-	os.RemoveAll("test_data/eth/chaindata")
-	defer os.RemoveAll("test_data/eth/chaindata")
-
-	test := NewTest("test_data/eth", bcommon.NewTestLogger(t), t)
+	test := NewTest(path.Join(_testDataDir, "eth"), bcommon.NewTestLogger(t), t)
 	defer test.state.db.Close()
 
 	err := test.Init()
@@ -404,11 +405,9 @@ func callDummyContractTestAsync(test *Test, from accounts.Account, contract *Con
 }
 
 func TestCreateContract(t *testing.T) {
+	defer os.RemoveAll(path.Join(_testDataDir, "eth", "chaindata"))
 
-	os.RemoveAll("test_data/eth/chaindata")
-	defer os.RemoveAll("test_data/eth/chaindata")
-
-	test := NewTest("test_data/eth", bcommon.NewTestLogger(t), t)
+	test := NewTest(path.Join(_testDataDir, "eth"), bcommon.NewTestLogger(t), t)
 	defer test.state.db.Close()
 
 	err := test.Init()
@@ -437,12 +436,10 @@ func TestCreateContract(t *testing.T) {
 }
 
 func TestDB(t *testing.T) {
-
-	os.RemoveAll("test_data/eth/chaindata")
-	defer os.RemoveAll("test_data/eth/chaindata")
+	defer os.RemoveAll(path.Join(_testDataDir, "eth", "chaindata"))
 
 	//initialise a fresh instance and commit stuff to the db
-	test := NewTest("test_data/eth", bcommon.NewTestLogger(t), t)
+	test := NewTest(path.Join(_testDataDir, "eth"), bcommon.NewTestLogger(t), t)
 	if err := test.Init(); err != nil {
 		t.Fatal(err)
 	}
@@ -465,7 +462,7 @@ func TestDB(t *testing.T) {
 	test.state.db.Close()
 
 	//initialise another instance from the existing db
-	test2 := NewTest("test_data/eth", bcommon.NewTestLogger(t), t)
+	test2 := NewTest(path.Join(_testDataDir, "eth"), bcommon.NewTestLogger(t), t)
 	if err := test2.Init(); err != nil {
 		t.Fatal(err)
 	}

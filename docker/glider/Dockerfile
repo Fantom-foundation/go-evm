@@ -1,4 +1,4 @@
-FROM golang:1.10.3-alpine3.8
+FROM golang:1.11.0-alpine3.8
 
 # We want to ensure that release builds have cgo dependencies so we
 # switch this on at the highest level.
