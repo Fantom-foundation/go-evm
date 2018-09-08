@@ -373,6 +373,7 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		TransactionHash:   txHash,
 		From:              from,
 		To:                tx.To(),
+		Value:             tx.Value(),
 		GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
 		CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
 		ContractAddress:   receipt.ContractAddress,
