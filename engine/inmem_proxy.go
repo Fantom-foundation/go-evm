@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//InmemProxy implements the Babble AppProxy interface
+//InmemProxy implements the AppProxy interface
 type InmemProxy struct {
 	service  *service.Service
 	state    *state.State

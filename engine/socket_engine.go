@@ -12,7 +12,7 @@ import (
 type SocketEngine struct {
 	service  *service.Service
 	state    *state.State
-	proxy    *proxy.SocketBabbleProxy
+	proxy    *proxy.SocketLachesisProxy
 	submitCh chan []byte
 	logger   *logrus.Logger
 }
@@ -35,7 +35,7 @@ func NewSocketEngine(config Config, logger *logrus.Logger) (*SocketEngine, error
 		submitCh,
 		logger)
 
-	lproxy, err := proxy.NewSocketBabbleProxy(config.Lachesis.ProxyAddr,
+	lproxy, err := proxy.NewSocketLachesisProxy(config.Lachesis.ProxyAddr,
 		config.Lachesis.ClientAddr,
 		time.Duration(config.Lachesis.TCPTimeout)*time.Millisecond,
 		logger)

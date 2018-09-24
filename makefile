@@ -23,7 +23,3 @@ test:
 	glide novendor | xargs go test
 
 .PHONY: vendor install build test
-<<<<<<< HEAD
-=======
-	
->>>>>>> remotes/babble/inmem
