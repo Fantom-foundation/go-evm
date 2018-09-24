@@ -7,7 +7,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/andrecronje/lachesis/hashgraph"
+	"github.com/andrecronje/lachesis/poset"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/core"
@@ -114,7 +114,7 @@ func (s *State) Call(callMsg ethTypes.Message) ([]byte, error) {
 	return res, err
 }
 
-func (s *State) ProcessBlock(block hashgraph.Block) (common.Hash, error) {
+func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	s.logger.Debug("Process Block")
 	s.commitMutex.Lock()
 	defer s.commitMutex.Unlock()
