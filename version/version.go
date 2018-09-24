@@ -5,7 +5,7 @@ import (
 )
 
 const Maj = "0"
-const Min = "0"
+const Min = "3"
 const Fix = "4"
 
 var (

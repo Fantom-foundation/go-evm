@@ -1,5 +1,0 @@
-evm.pem
-terraform.tfstate*
-secret.tfvars
-conf/*
-ips.dat

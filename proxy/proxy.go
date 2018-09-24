@@ -15,7 +15,7 @@ var log = logrus.New()
 
 type Config struct {
 	proxyAddr    string //bind address of this app proxy
-	lachesisAddr string //address of  node
+	lachesisAddr string //address of node
 	apiAddr      string //address of HTTP API service
 	ethDir       string //directory containing eth config
 	pwdFile      string //file containing password to unlock ethereum accounts
