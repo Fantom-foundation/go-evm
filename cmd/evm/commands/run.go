@@ -53,8 +53,8 @@ func NewRunCmd() *cobra.Command {
 
 func run(cmd *cobra.Command, args []string) error {
 
-	// engine, err := engine.NewLachesisSocketEngine(*config, logger)
-	engine, err := engine.NewLachesisInmemEngine(*config, logger)
+	// engine, err := engine.NewSocketEngine(*config, logger)
+	engine, err := engine.NewInmemEngine(*config, logger)
 	if err != nil {
 		return fmt.Errorf("Error building Engine: %s", err)
 	}

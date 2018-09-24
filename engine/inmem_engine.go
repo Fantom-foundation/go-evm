@@ -129,9 +129,9 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 		return nil, fmt.Errorf("Initializing node: %s", err)
 	}
 
-	lserv := serv.NewService(config.Lachesis.LachesisAPIAddr, node, logger)
+	lserv := serv.NewService(config.Lachesis.APIAddr, node, logger)
 
-	return &LachesisInmemEngine{
+	return &InmemEngine{
 		ethState:   state,
 		ethService: service,
 		node:       node,
