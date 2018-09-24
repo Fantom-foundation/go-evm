@@ -46,7 +46,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 	//------------------------------------------------------------------------------
 
 	// Create the PEM key
-	pemKey := crypto.NewPemKey(config.Lachesis.LachesisDir)
+	pemKey := crypto.NewPemKey(config.Lachesis.Dir)
 
 	// Try a read
 	key, err := pemKey.ReadKey()
@@ -55,7 +55,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 	}
 
 	// Create the peer store
-	peerStore := net.NewJSONPeers(config.Lachesis.LachesisDir)
+	peerStore := net.NewJSONPeers(config.Lachesis.Dir)
 	// Try a read
 	peers, err := peerStore.Peers()
 	if err != nil {

@@ -27,9 +27,9 @@ func AddRunFlags(cmd *cobra.Command) {
 	cmd.Flags().String("lachesis.client_addr", config.Lachesis.ClientAddr, "IP:PORT to bind client proxy")
 
 	//Lachesis Inmem
-	cmd.Flags().String("lachesis.dir", config.Lachesis.LachesisDir, "Directory contaning priv_key.pem and peers.json files")
+	cmd.Flags().String("lachesis.dir", config.Lachesis.Dir, "Directory contaning priv_key.pem and peers.json files")
 	cmd.Flags().String("lachesis.node_addr", config.Lachesis.NodeAddr, "IP:PORT of Lachesis node")
-	cmd.Flags().String("lachesis.api_addr", config.Lachesis.LachesisAPIAddr, "IP:PORT of Lachesis HTTP API service")
+	cmd.Flags().String("lachesis.api_addr", config.Lachesis.APIAddr, "IP:PORT of Lachesis HTTP API service")
 	cmd.Flags().Int("lachesis.heartbeat", config.Lachesis.Heartbeat, "Heartbeat time milliseconds (time between gossips)")
 	cmd.Flags().Int("lachesis.tcp_timeout", config.Lachesis.TCPTimeout, "TCP timeout milliseconds")
 	cmd.Flags().Int("lachesis.cache_size", config.Lachesis.CacheSize, "Number of items in LRU caches")
