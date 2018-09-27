@@ -8,9 +8,9 @@ import (
 )
 
 type JsonAccount struct {
-	Address string   `json:"address"`
-	Balance *big.Int `json:"balance"`
-	Nonce   uint64   `json:"nonce"`
+	Address  string                `json:"address"`
+	Balances map[*big.Int]*big.Int `json:"balances"`
+	Nonces   map[*big.Int]uint64   `json:"nonces"`
 }
 
 type JsonAccountList struct {
@@ -48,4 +48,9 @@ type JsonReceipt struct {
 	Logs              []*ethTypes.Log `json:"logs"`
 	LogsBloom         ethTypes.Bloom  `json:"logsBloom"`
 	Failed            bool            `json:"failed"`
+}
+
+type BlockProcessResult struct {
+	Hash common.Hash
+	Err error
 }

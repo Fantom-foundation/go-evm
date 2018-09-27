@@ -1,12 +1,14 @@
 package proxy
 
 import (
+	"io/ioutil"
+	"math/big"
 	"time"
 
 	"github.com/andrecronje/evm/service"
-	"github.com/andrecronje/evm/state"
 	proxy "github.com/andrecronje/lachesis/proxy/lachesis"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v2"
 )
 
 var log = logrus.New()
@@ -22,14 +24,21 @@ type Config struct {
 	databaseFile string //file containing LevelDB database
 	cache        int    //Megabytes of memory allocated to internal caching (min 16MB / database forced)
 	timeout      time.Duration
+	configFile   string
+	StateConfig  StateConfig `yaml:"state"`
+}
+
+type StateConfig struct {
+	//ChainIDs for state config
+	ChainIDs []*big.Int `yaml:"chainIDs"`
 }
 
 func NewConfig(proxyAddr,
-	lachesisAddr,
-	apiAddr,
-	ethDir,
-	pwdFile,
-	dbFile string,
+lachesisAddr,
+apiAddr,
+ethDir,
+pwdFile,
+dbFile string,
 	cache int,
 	timeout time.Duration) Config {
 
@@ -45,33 +54,44 @@ func NewConfig(proxyAddr,
 	}
 }
 
+func (c *Config) Load() error {
+	if len(c.configFile) < 1 {
+		return nil
+	}
+
+	b, err := ioutil.ReadFile(c.configFile)
+	if err != nil {
+		return err
+	}
+	return yaml.Unmarshal(b, c)
+}
+
 //------------------------------------------------------------------------------
 
 type Proxy struct {
 	service       *service.Service
-	state         *state.State
 	lachesisProxy *proxy.SocketLachesisProxy
 	submitCh      chan []byte
 	logger        *logrus.Logger
 }
 
 func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
-	submitCh := make(chan []byte)
-
-	logger.Debug("state.NewState")
-	state_, err := state.NewState(logger, config.databaseFile, config.cache)
+	err := config.Load()
 	if err != nil {
-		log.WithError(err).Error("error building state")
 		return nil, err
 	}
+
+	submitCh := make(chan []byte)
 
 	logger.Debug("service.NewService")
 	service_ := service.NewService(config.ethDir,
 		config.apiAddr,
 		config.pwdFile,
-		state_,
 		submitCh,
 		logger)
+
+	logger.Debug("state.NewState")
+	service_.NewStates(config.StateConfig.ChainIDs, config.databaseFile, config.cache)
 
 	logger.Debug("proxy.NewSocketLachesisProxy")
 	lachesisProxy, err := proxy.NewSocketLachesisProxy(config.lachesisAddr,
@@ -86,7 +106,6 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 	logger.Debug("Return &Proxy")
 	return &Proxy{
 		service:       service_,
-		state:         state_,
 		lachesisProxy: lachesisProxy,
 		submitCh:      submitCh,
 		logger:        logger,
@@ -113,7 +132,7 @@ func (p *Proxy) Serve() {
 			p.logger.Debug("Proxy submitted tx")
 		case commit := <-p.lachesisProxy.CommitCh():
 			p.logger.Debug("CommitBlock")
-			stateHash, err := p.state.ProcessBlock(commit.Block)
+			stateHash, err := p.service.ProcessBlock(commit.Block)
 			commit.Respond(stateHash.Bytes(), err)
 		}
 	}

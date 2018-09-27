@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"math/big"
 	"net/http"
+	"net/url"
 
 	"github.com/andrecronje/evm/state"
 	"github.com/ethereum/go-ethereum/accounts"
@@ -31,12 +32,10 @@ func accountHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	address := common.HexToAddress(param)
 	m.logger.WithField("address", address.Hex()).Debug("GET account")
 
-	balance := m.state.GetBalance(address)
-	nonce := m.state.GetNonce(address)
 	account := JsonAccount{
 		Address: address.Hex(),
-		Balance: balance,
-		Nonce:   nonce,
+		Balances: m.GetBalance(address),
+		Nonces:   m.GetNonce(address),
 	}
 
 	js, err := json.Marshal(account)
@@ -65,13 +64,11 @@ func accountsHandler(w http.ResponseWriter, _ *http.Request, m *Service) {
 	var al JsonAccountList
 
 	for _, account := range m.keyStore.Accounts() {
-		balance := m.state.GetBalance(account.Address)
-		nonce := m.state.GetNonce(account.Address)
 		al.Accounts = append(al.Accounts,
 			JsonAccount{
 				Address: account.Address.Hex(),
-				Balance: balance,
-				Nonce:   nonce,
+				Balances: m.GetBalance(account.Address),
+				Nonces:   m.GetNonce(account.Address),
 			})
 	}
 
@@ -99,9 +96,19 @@ The data does NOT need to be signed.
 func callHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	m.logger.WithField("request", r).Debug("POST call")
 
+	values, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		m.logger.WithError(err).Error("ParseQuery")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	id := values.Get("chainID")
+	state := m.GetState(id)
+
 	decoder := json.NewDecoder(r.Body)
 	var txArgs SendTxArgs
-	err := decoder.Decode(&txArgs)
+	err = decoder.Decode(&txArgs)
 	if err != nil {
 		m.logger.WithError(err).Error("Decoding JSON txArgs")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -116,7 +123,7 @@ func callHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		return
 	}
 
-	data, err := m.state.Call(*callMessage)
+	data, err := state.Call(*callMessage)
 	if err != nil {
 		m.logger.WithError(err).Error("Executing Call")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -160,9 +167,19 @@ verify if/how the State was modified.
 func transactionHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	m.logger.WithField("request", r).Debug("POST tx")
 
+	values, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		m.logger.WithError(err).Error("ParseQuery")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	id := values.Get("chainID")
+	state := m.GetState(id)
+
 	decoder := json.NewDecoder(r.Body)
 	var txArgs SendTxArgs
-	err := decoder.Decode(&txArgs)
+	err = decoder.Decode(&txArgs)
 	if err != nil {
 		m.logger.WithError(err).Error("Decoding JSON txArgs")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -170,7 +187,7 @@ func transactionHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	}
 	defer r.Body.Close()
 
-	tx, err := prepareTransaction(txArgs, m.state, m.keyStore)
+	tx, err := prepareTransaction(txArgs, state, m.keyStore)
 	if err != nil {
 		m.logger.WithError(err).Error("Preparing Transaction")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -277,23 +294,34 @@ the EVM Logs produced by the execution of the transaction.
 func transactionReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	param := r.URL.Path[len("/transaction/"):]
 	txHash := common.HexToHash(param)
-	m.logger.WithField("tx_hash", txHash.Hex()).Debug("GET tx")
 
-	tx, err := m.state.GetTransaction(txHash)
+	values, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		m.logger.WithError(err).Error("ParseQuery")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	id := values.Get("chainID")
+	state := m.GetState(id)
+
+	m.logger.WithField("chainID", id).WithField("tx_hash", txHash.Hex()).Debug("GET tx")
+
+	tx, err := state.GetTransaction(txHash)
 	if err != nil {
 		m.logger.WithError(err).Error("Getting Transaction")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	receipt, err := m.state.GetReceipt(txHash)
+	receipt, err := state.GetReceipt(txHash)
 	if err != nil {
 		m.logger.WithError(err).Error("Getting Receipt")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+	signer := ethTypes.NewEIP155Signer(state.GetChainID())
 	from, err := ethTypes.Sender(signer, tx)
 	if err != nil {
 		m.logger.WithError(err).Error("Getting Tx Sender")
@@ -344,23 +372,33 @@ the EVM Logs produced by the execution of the transaction.
 func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	param := r.URL.Path[len("/tx/"):]
 	txHash := common.HexToHash(param)
-	m.logger.WithField("tx_hash", txHash.Hex()).Debug("GET tx")
+	values, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+		m.logger.WithError(err).Error("ParseQuery")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	tx, err := m.state.GetTransaction(txHash)
+	id := values.Get("chainID")
+	state := m.GetState(id)
+
+	m.logger.WithField("chainID", id).WithField("tx_hash", txHash.Hex()).Debug("GET tx")
+
+	tx, err := state.GetTransaction(txHash)
 	if err != nil {
 		m.logger.WithError(err).Error("Getting Transaction")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	receipt, err := m.state.GetReceipt(txHash)
+	receipt, err := state.GetReceipt(txHash)
 	if err != nil {
 		m.logger.WithError(err).Error("Getting Receipt")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+	signer := ethTypes.NewEIP155Signer(state.GetChainID())
 	from, err := ethTypes.Sender(signer, tx)
 	if err != nil {
 		m.logger.WithError(err).Error("Getting Tx Sender")
@@ -449,7 +487,7 @@ func prepareTransaction(args SendTxArgs, state *state.State, ks *keystore.KeySto
 			common.FromHex(args.Data))
 	}
 
-	signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+	signer := ethTypes.NewEIP155Signer(state.GetChainID())
 
 	account, err := ks.Find(accounts.Account{Address: args.From})
 	if err != nil {

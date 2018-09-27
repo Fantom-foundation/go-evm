@@ -9,7 +9,6 @@ import (
 
 	"github.com/andrecronje/lachesis/hashgraph"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/core"
 	ethState "github.com/ethereum/go-ethereum/core/state"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
@@ -46,6 +45,27 @@ type State struct {
 }
 
 func NewState(logger *logrus.Logger, dbFile string, dbCache int) (*State, error) {
+	return NewStateWithChainID(chainID, logger, dbFile, dbCache)
+}
+
+func CopyStateWithChainID(state *State, chainID *big.Int) (*State, error) {
+	s := new(State)
+	s.logger = state.logger
+	s.db = state.db
+	s.signer = ethTypes.NewEIP155Signer(chainID)
+	s.chainConfig = params.ChainConfig{ChainID: chainID}
+	s.vmConfig = vm.Config{Tracer: vm.NewStructLogger(nil)}
+
+	if err := s.InitState(); err != nil {
+		return nil, err
+	}
+
+	s.resetWAS()
+
+	return s, nil
+}
+
+func NewStateWithChainID(chainID *big.Int, logger *logrus.Logger, dbFile string, dbCache int) (*State, error) {
 
 	handles, err := getFdLimit()
 	if err != nil {
@@ -123,12 +143,12 @@ func (s *State) ProcessBlock(block hashgraph.Block) (common.Hash, error) {
 	blockHash := common.BytesToHash(blockHashBytes)
 
 	for txIndex, txBytes := range block.Transactions() {
-		if err := s.applyTransaction(txBytes, txIndex, blockHash); err != nil {
+		if err := s.ApplyTransaction(txBytes, txIndex, blockHash); err != nil {
 			return common.Hash{}, err
 		}
 	}
 
-	return s.commit()
+	return s.Commit()
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -204,8 +224,8 @@ func (s *State) PrintTransaction(tx *ethTypes.Transaction) string {
 	)
 }
 
-//applyTransaction applies a transaction to the WAS
-func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.Hash) error {
+//ApplyTransaction applies a transaction to the WAS
+func (s *State) ApplyTransaction(txBytes []byte, txIndex int, blockHash common.Hash) error {
 
 	var t ethTypes.Transaction
 	if err := rlp.Decode(bytes.NewReader(txBytes), &t); err != nil {
@@ -273,7 +293,7 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 	return nil
 }
 
-func (s *State) commit() (common.Hash, error) {
+func (s *State) Commit() (common.Hash, error) {
 	//commit all state changes to the database
 	root, err := s.was.Commit()
 	if err != nil {
@@ -335,21 +355,20 @@ func (s *State) InitState() error {
 	return err
 }
 
-func (s *State) CreateAccounts(accounts bcommon.AccountMap) error {
+func (s *State) CreateAccounts(accounts core.GenesisAlloc) error {
 	s.commitMutex.Lock()
 	defer s.commitMutex.Unlock()
 
-	for addr, account := range accounts {
-		address := common.HexToAddress(addr)
-		s.was.ethState.AddBalance(address, math.MustParseBig256(account.Balance))
-		s.was.ethState.SetCode(address, common.Hex2Bytes(account.Code))
+	for address, account := range accounts {
+		s.was.ethState.AddBalance(address, account.Balance)
+		s.was.ethState.SetCode(address, account.Code)
 		for key, value := range account.Storage {
-			s.was.ethState.SetState(address, common.HexToHash(key), common.HexToHash(value))
+			s.was.ethState.SetState(address, key, value)
 		}
-		s.logger.WithField("address", addr).Debug("Adding account")
+		s.logger.WithField("address", address.Hex()).Debug("Adding account")
 	}
 
-	_, err := s.commit()
+	_, err := s.Commit()
 
 	return err
 }
@@ -391,4 +410,12 @@ func (s *State) GetReceipt(txHash common.Hash) (*ethTypes.Receipt, error) {
 	}
 
 	return (*ethTypes.Receipt)(&receipt), nil
+}
+
+func (s *State) GetChainID() *big.Int {
+	return s.chainConfig.ChainID
+}
+
+func (s *State) GetCommitMutex() *sync.Mutex {
+	return &s.commitMutex
 }

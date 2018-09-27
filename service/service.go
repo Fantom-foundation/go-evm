@@ -1,16 +1,20 @@
 package service
 
 import (
-	"encoding/json"
+	"errors"
+	"github.com/andrecronje/lachesis/hashgraph"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core"
+	"github.com/ethereum/go-ethereum/core/types"
 	"io/ioutil"
 	"math/big"
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 
-	"github.com/andrecronje/evm/common"
 	"github.com/andrecronje/evm/state"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/gorilla/mux"
@@ -21,26 +25,48 @@ var defaultGas = big.NewInt(90000)
 
 type Service struct {
 	sync.Mutex
-	state    *state.State
-	submitCh chan []byte
-	dataDir  string
-	apiAddr  string
-	keyStore *keystore.KeyStore
-	pwdFile  string
-	logger   *logrus.Logger
+	defaultState *state.State
+	states       map[*big.Int]*state.State
+	chainIDs     []*big.Int
+	submitCh     chan []byte
+	dataDir      string
+	apiAddr      string
+	keyStore     *keystore.KeyStore
+	pwdFile      string
+	logger       *logrus.Logger
 }
 
 func NewService(dataDir, apiAddr, pwdFile string,
-	state *state.State,
 	submitCh chan []byte,
 	logger *logrus.Logger) *Service {
 	return &Service{
 		dataDir:  dataDir,
 		apiAddr:  apiAddr,
 		pwdFile:  pwdFile,
-		state:    state,
 		submitCh: submitCh,
 		logger:   logger}
+}
+
+func (m *Service) NewStates(chainIDs []*big.Int, dbFile string, dbCache int) error {
+	if len(chainIDs) < 1 {
+		return nil
+	}
+	ds, err := state.NewStateWithChainID(chainIDs[0], m.logger, dbFile, dbCache)
+	if err != nil {
+		return err
+	}
+	m.defaultState = ds
+	m.states[chainIDs[0]] = ds
+
+	m.states = make(map[*big.Int]*state.State)
+	for _, id := range chainIDs[1:] {
+		s, err := state.NewStateWithChainID(chainIDs[0], m.logger, dbFile, dbCache)
+		if err != nil {
+			return err
+		}
+		m.states[id] = s
+	}
+	return nil
 }
 
 func (m *Service) Run() {
@@ -49,6 +75,8 @@ func (m *Service) Run() {
 	m.checkErr(m.unlockAccounts())
 
 	m.checkErr(m.createGenesisAccounts())
+
+	m.sortChainIDs()
 
 	m.logger.Info("serving api...")
 	m.serveAPI()
@@ -91,29 +119,66 @@ func (m *Service) unlockAccounts() error {
 }
 
 func (m *Service) createGenesisAccounts() error {
-	genesisFile := filepath.Join(m.dataDir, "genesis.json")
-
-	if _, err := os.Stat(genesisFile); os.IsNotExist(err) {
-		return nil
+	genesisFilesDir := filepath.Join(m.dataDir, "genesis")
+	if err := os.MkdirAll(genesisFilesDir, 0700); err != nil {
+		return err
 	}
 
-	contents, err := ioutil.ReadFile(genesisFile)
+	fileInfos, err := ioutil.ReadDir(genesisFilesDir)
 	if err != nil {
 		return err
 	}
 
-	var genesis struct {
-		Alloc common.AccountMap
+	for _, info := range fileInfos {
+		if info.IsDir() {
+			continue
+		}
+
+		fileName := filepath.Join(genesisFilesDir, info.Name())
+		contents, err := ioutil.ReadFile(fileName)
+		if err != nil {
+			return err
+		}
+
+		genesis := &core.Genesis{}
+		err = genesis.UnmarshalJSON(contents)
+		if err != nil {
+			return err
+		}
+
+		config := genesis.Config
+		if config == nil {
+			return errors.New("genesis.Config == nil")
+		}
+		chainID := config.ChainID
+		if chainID == nil {
+			return errors.New("genesis.Config.ChainID == nil")
+		}
+		s, ok := m.states[chainID]
+		if !ok {
+			s, err = state.CopyStateWithChainID(m.defaultState, chainID)
+			if err != nil {
+				return err
+			}
+			m.states[chainID] = s
+		}
+		if err := s.CreateAccounts(genesis.Alloc); err != nil {
+			return err
+		}
 	}
 
-	if err := json.Unmarshal(contents, &genesis); err != nil {
-		return err
-	}
-
-	if err := m.state.CreateAccounts(genesis.Alloc); err != nil {
-		return err
-	}
 	return nil
+}
+
+func (m *Service) sortChainIDs() {
+	var ids []*big.Int
+	for id := range m.states {
+		ids = append(ids, id)
+	}
+	sort.Slice(ids, func(i, j int) bool {
+		return ids[i].Cmp(ids[j]) < 0
+	})
+	m.chainIDs = ids
 }
 
 func (m *Service) serveAPI() {
@@ -176,4 +241,69 @@ func (m *Service) readPwd() (pwd string, err error) {
 		lines[i] = strings.TrimRight(lines[i], "\r")
 	}
 	return lines[0], nil
+}
+
+func (m *Service) GetBalance(addr common.Address) map[*big.Int]*big.Int {
+	result := make(map[*big.Int]*big.Int)
+	for key, value := range m.states {
+		result[key] = value.GetBalance(addr)
+	}
+	return result
+}
+
+func (m *Service) GetNonce(addr common.Address) map[*big.Int]uint64 {
+	result := make(map[*big.Int]uint64)
+	for key, value := range m.states {
+		result[key] = value.GetNonce(addr)
+	}
+	return result
+}
+
+func (m *Service) GetState(id string) *state.State {
+	var i big.Int
+	i.SetString(id, 10)
+	s, ok := m.states[&i]
+	if !ok {
+		return m.defaultState
+	}
+	return s
+}
+
+func (m *Service) ProcessBlock(block hashgraph.Block) (hs common.Hash, err error) {
+	m.logger.Debug("Process Block")
+
+	blockHashBytes, _ := block.Hash()
+	blockHash := common.BytesToHash(blockHashBytes)
+
+	lazyCommit := make(map[*state.State]*BlockProcessResult)
+	defer func() {
+		for s, r := range lazyCommit {
+			if r.Err != nil {
+				continue
+			}
+			r.Hash, r.Err = s.Commit()
+			s.GetCommitMutex().Unlock()
+		}
+	}()
+	for txIndex, txBytes := range block.Transactions() {
+		tx := &types.Transaction{}
+		tx.UnmarshalJSON(txBytes)
+		s, ok := m.states[tx.ChainId()]
+		if !ok {
+			m.logger.WithField("ChainID", tx.ChainId().String()).Debug("state not exists")
+			continue
+		}
+
+		_, ok = lazyCommit[s]
+		if !ok {
+			lazyCommit[s] = &BlockProcessResult{}
+			s.GetCommitMutex().Lock()
+		}
+
+		if err = s.ApplyTransaction(txBytes, txIndex, blockHash); err != nil {
+			lazyCommit[s].Err = err
+		}
+	}
+
+	return
 }
