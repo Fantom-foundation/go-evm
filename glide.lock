@@ -8,7 +8,7 @@ imports:
   subpackages:
   - common
   - crypto
-  - hashgraph
+  - poset
   - proxy
   - proxy/lachesis
   - version

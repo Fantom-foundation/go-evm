@@ -20,7 +20,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	bcommon "github.com/andrecronje/evm/common"
-	"github.com/andrecronje/lachesis/hashgraph"
+	"github.com/andrecronje/lachesis/poset"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
@@ -200,7 +200,7 @@ func (test *Test) deployContract(from accounts.Account, contract *Contract, t *t
 		t.Fatal(err)
 	}
 
-	block := hashgraph.NewBlock(0, 1, [][]byte{data})
+	block := poset.NewBlock(0, 1, [][]byte{data})
 
 	//try to process the block
 	_, err = test.state.ProcessBlock(block)
@@ -256,7 +256,7 @@ func TestTransfer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	block := hashgraph.NewBlock(0, 1, [][]byte{data})
+	block := poset.NewBlock(0, 1, [][]byte{data})
 
 	//try to process the block
 	_, err = test.state.ProcessBlock(block)
@@ -388,7 +388,7 @@ func callDummyContractTestAsync(test *Test, from accounts.Account, contract *Con
 		t.Fatal(err)
 	}
 
-	block := hashgraph.NewBlock(0, 1, [][]byte{data})
+	block := poset.NewBlock(0, 1, [][]byte{data})
 
 	//try to process the block
 	_, err = test.state.ProcessBlock(block)

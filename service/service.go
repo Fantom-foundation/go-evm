@@ -25,26 +25,31 @@ var defaultGas = big.NewInt(90000)
 
 type Service struct {
 	sync.Mutex
+	state       *state.State
+	submitCh    chan []byte
+	genesisFile string
+	keystoreDir string
+	apiAddr     string
+	keyStore    *keystore.KeyStore
+	pwdFile     string
+	logger      *logrus.Logger
 	defaultState *state.State
 	states       map[*big.Int]*state.State
 	chainIDs     []*big.Int
-	submitCh     chan []byte
-	dataDir      string
-	apiAddr      string
-	keyStore     *keystore.KeyStore
-	pwdFile      string
-	logger       *logrus.Logger
 }
 
-func NewService(dataDir, apiAddr, pwdFile string,
+func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
+	state *state.State,
 	submitCh chan []byte,
 	logger *logrus.Logger) *Service {
 	return &Service{
-		dataDir:  dataDir,
-		apiAddr:  apiAddr,
-		pwdFile:  pwdFile,
-		submitCh: submitCh,
-		logger:   logger}
+		genesisFile: genesisFile,
+		keystoreDir: keystoreDir,
+		apiAddr:     apiAddr,
+		pwdFile:     pwdFile,
+		state:       state,
+		submitCh:    submitCh,
+		logger:      logger}
 }
 
 func (m *Service) NewStates(chainIDs []*big.Int, dbFile string, dbCache int) error {
@@ -87,12 +92,11 @@ func (m *Service) makeKeyStore() error {
 	scryptN := keystore.StandardScryptN
 	scryptP := keystore.StandardScryptP
 
-	keydir := filepath.Join(m.dataDir, "keystore")
-	if err := os.MkdirAll(keydir, 0700); err != nil {
+	if err := os.MkdirAll(m.keystoreDir, 0700); err != nil {
 		return err
 	}
 
-	m.keyStore = keystore.NewKeyStore(keydir, scryptN, scryptP)
+	m.keyStore = keystore.NewKeyStore(m.keystoreDir, scryptN, scryptP)
 
 	return nil
 }
@@ -119,7 +123,7 @@ func (m *Service) unlockAccounts() error {
 }
 
 func (m *Service) createGenesisAccounts() error {
-	genesisFilesDir := filepath.Join(m.dataDir, "genesis")
+	genesisFilesDir := filepath.Join(m.genesisFile)
 	if err := os.MkdirAll(genesisFilesDir, 0700); err != nil {
 		return err
 	}
