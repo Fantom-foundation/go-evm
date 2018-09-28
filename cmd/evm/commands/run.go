@@ -15,7 +15,7 @@ func AddRunFlags(cmd *cobra.Command) {
 	cmd.Flags().String("log_level", config.BaseConfig.LogLevel, "debug, info, warn, error, fatal, panic")
 
 	//Eth
-	cmd.Flags().String("eth.genesis", config.Eth.Genesis, "Location of genesis file")
+	cmd.Flags().String("eth.states", config.Eth.States, "Location of states config file")
 	cmd.Flags().String("eth.keystore", config.Eth.Keystore, "Location of Ethereum account keys")
 	cmd.Flags().String("eth.pwd", config.Eth.PwdFile, "Password file to unlock accounts")
 	cmd.Flags().String("eth.db", config.Eth.DbFile, "Eth database file")

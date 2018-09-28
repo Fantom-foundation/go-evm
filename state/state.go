@@ -7,6 +7,8 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/ethereum/go-ethereum/common/math"
+
 	"github.com/andrecronje/lachesis/poset"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
@@ -355,17 +357,18 @@ func (s *State) InitState() error {
 	return err
 }
 
-func (s *State) CreateAccounts(accounts core.GenesisAlloc) error {
+func (s *State) CreateAccounts(accounts bcommon.AccountMap) error {
 	s.commitMutex.Lock()
 	defer s.commitMutex.Unlock()
 
-	for address, account := range accounts {
-		s.was.ethState.AddBalance(address, account.Balance)
-		s.was.ethState.SetCode(address, account.Code)
+	for addr, account := range accounts {
+		address := common.HexToAddress(addr)
+		s.was.ethState.AddBalance(address, math.MustParseBig256(account.Balance))
+		s.was.ethState.SetCode(address, common.Hex2Bytes(account.Code))
 		for key, value := range account.Storage {
-			s.was.ethState.SetState(address, key, value)
+			s.was.ethState.SetState(address, common.HexToHash(key), common.HexToHash(value))
 		}
-		s.logger.WithField("address", address.Hex()).Debug("Adding account")
+		s.logger.WithField("address", addr).Debug("Adding account")
 	}
 
 	_, err := s.Commit()

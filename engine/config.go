@@ -18,24 +18,24 @@ var (
 	defaultCache        = 128
 	defaultEthDir       = fmt.Sprintf("%s/eth", defaultDataDir)
 	defaultKeystoreFile = fmt.Sprintf("%s/keystore", defaultEthDir)
-	defaultGenesisFile  = fmt.Sprintf("%s/genesis.json", defaultEthDir)
+	defaultStatesFile   = fmt.Sprintf("%s/states.yaml", defaultEthDir)
 	defaultPwdFile      = fmt.Sprintf("%s/pwd.txt", defaultEthDir)
 	defaultDbFile       = fmt.Sprintf("%s/chaindata", defaultEthDir)
 
 	//Lachesis
-	defaultProxyAddr   = ":1339"
-	defaultClientAddr  = ":1338"
-	defaultNodeAddr    = ":1337"
-	defaultAPIAddr     = ":8000"
-	defaultHeartbeat   = 500
-	defaultTCPTimeout  = 1000
-	defaultCacheSize   = 50000
-	defaultSyncLimit   = 1000
-	defaultMaxPool     = 2
-	defaultStoreType   = "badger"
-	defaultDir         = fmt.Sprintf("%s/lachesis", defaultDataDir)
-	defaultPeersFile   = fmt.Sprintf("%s/peers.json", defaultDir)
-	defaultStorePath   = fmt.Sprintf("%s/db", defaultDir)
+	defaultProxyAddr  = ":1339"
+	defaultClientAddr = ":1338"
+	defaultNodeAddr   = ":1337"
+	defaultAPIAddr    = ":8000"
+	defaultHeartbeat  = 500
+	defaultTCPTimeout = 1000
+	defaultCacheSize  = 50000
+	defaultSyncLimit  = 1000
+	defaultMaxPool    = 2
+	defaultStoreType  = "badger"
+	defaultDir        = fmt.Sprintf("%s/lachesis", defaultDataDir)
+	defaultPeersFile  = fmt.Sprintf("%s/peers.json", defaultDir)
+	defaultStorePath  = fmt.Sprintf("%s/db", defaultDir)
 )
 
 //Config contains the configuration for an EVM node
@@ -54,9 +54,9 @@ type Config struct {
 //DefaultConfig returns the default configuration for an EVM node
 func DefaultConfig() *Config {
 	return &Config{
-		BaseConfig:   DefaultBaseConfig(),
-		Eth:          DefaultEthConfig(),
-		Lachesis:     DefaultLachesisConfig(),
+		BaseConfig: DefaultBaseConfig(),
+		Eth:        DefaultEthConfig(),
+		Lachesis:   DefaultLachesisConfig(),
 	}
 }
 
@@ -90,8 +90,8 @@ ETH CONFIG
 //and service API
 type EthConfig struct {
 
-	//Genesis file
-	Genesis string `mapstructure:"genesis"`
+	//States file
+	States string `mapstructure:"genesis"`
 
 	//Location of ethereum account keys
 	Keystore string `mapstructure:"keystore"`
@@ -112,7 +112,7 @@ type EthConfig struct {
 //DefaultEthConfig return the default configuration for Eth services
 func DefaultEthConfig() *EthConfig {
 	return &EthConfig{
-		Genesis:    defaultGenesisFile,
+		States:     defaultStatesFile,
 		Keystore:   defaultKeystoreFile,
 		PwdFile:    defaultPwdFile,
 		DbFile:     defaultDbFile,

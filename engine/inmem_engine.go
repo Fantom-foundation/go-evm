@@ -6,13 +6,13 @@ import (
 	"sort"
 	"time"
 
-	"github.com/andrecronje/lachesis/crypto"
-	"github.com/andrecronje/lachesis/poset"
-	"github.com/andrecronje/lachesis/net"
-	"github.com/andrecronje/lachesis/node"
-	serv "github.com/andrecronje/lachesis/service"
 	"github.com/andrecronje/evm/service"
 	"github.com/andrecronje/evm/state"
+	"github.com/andrecronje/lachesis/crypto"
+	"github.com/andrecronje/lachesis/net"
+	"github.com/andrecronje/lachesis/node"
+	"github.com/andrecronje/lachesis/poset"
+	serv "github.com/andrecronje/lachesis/service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,11 +33,12 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 		return nil, err
 	}
 
-	service := service.NewService(config.Eth.Genesis,
+	service := service.NewService(config.Eth.States,
 		config.Eth.Keystore,
 		config.Eth.EthAPIAddr,
 		config.Eth.PwdFile,
-		state,
+		config.Eth.DbFile,
+		config.Eth.Cache,
 		submitCh,
 		logger)
 

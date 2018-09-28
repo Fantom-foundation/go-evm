@@ -3,15 +3,13 @@ package engine
 import (
 	"time"
 
-	proxy "github.com/andrecronje/lachesis/proxy/lachesis"
 	"github.com/andrecronje/evm/service"
-	"github.com/andrecronje/evm/state"
+	proxy "github.com/andrecronje/lachesis/proxy/lachesis"
 	"github.com/sirupsen/logrus"
 )
 
 type SocketEngine struct {
 	service  *service.Service
-	state    *state.State
 	proxy    *proxy.SocketLachesisProxy
 	submitCh chan []byte
 	logger   *logrus.Logger
@@ -20,18 +18,12 @@ type SocketEngine struct {
 func NewSocketEngine(config Config, logger *logrus.Logger) (*SocketEngine, error) {
 	submitCh := make(chan []byte)
 
-	state, err := state.NewState(logger,
-		config.Eth.DbFile,
-		config.Eth.Cache)
-	if err != nil {
-		return nil, err
-	}
-
-	service := service.NewService(config.Eth.Genesis,
+	service := service.NewService(config.Eth.States,
 		config.Eth.Keystore,
 		config.Eth.EthAPIAddr,
 		config.Eth.PwdFile,
-		state,
+		config.Eth.DbFile,
+		config.Eth.Cache,
 		submitCh,
 		logger)
 
@@ -45,7 +37,6 @@ func NewSocketEngine(config Config, logger *logrus.Logger) (*SocketEngine, error
 
 	return &SocketEngine{
 		service:  service,
-		state:    state,
 		proxy:    lproxy,
 		submitCh: submitCh,
 		logger:   logger,
@@ -63,8 +54,8 @@ func (s *SocketEngine) serve() {
 			s.logger.Debug("proxy submitted tx")
 		case commit := <-s.proxy.CommitCh():
 			s.logger.Debug("CommitBlock")
-			stateHash, err := s.state.ProcessBlock(commit.Block)
-			commit.Respond(stateHash.Bytes(), err)
+			stateHash, err := s.service.ProcessBlock(commit.Block)
+			commit.Respond(stateHash, err)
 		}
 	}
 }

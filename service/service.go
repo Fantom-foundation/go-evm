@@ -1,77 +1,60 @@
 package service
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
-	"github.com/andrecronje/lachesis/hashgraph"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/types"
+	"fmt"
 	"io/ioutil"
 	"math/big"
 	"net/http"
 	"os"
-	"path/filepath"
-	"sort"
 	"strings"
 	"sync"
 
+	"github.com/andrecronje/evm/common"
 	"github.com/andrecronje/evm/state"
+	"github.com/andrecronje/lachesis/poset"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	ethcommon "github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v2"
 )
 
 var defaultGas = big.NewInt(90000)
 
 type Service struct {
 	sync.Mutex
-	state       *state.State
-	submitCh    chan []byte
-	genesisFile string
-	keystoreDir string
-	apiAddr     string
-	keyStore    *keystore.KeyStore
-	pwdFile     string
-	logger      *logrus.Logger
+	state        *state.State
+	submitCh     chan []byte
+	statesFile   string
+	keystoreDir  string
+	apiAddr      string
+	keyStore     *keystore.KeyStore
+	pwdFile      string
+	logger       *logrus.Logger
+	dbFile       string
+	dbCache      int
 	defaultState *state.State
-	states       map[*big.Int]*state.State
+	states       map[string]*state.State
 	chainIDs     []*big.Int
 }
 
-func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
-	state *state.State,
+func NewService(statesFile, keystoreDir, apiAddr, pwdFile string,
+	dbFile string, dbCache int,
 	submitCh chan []byte,
 	logger *logrus.Logger) *Service {
 	return &Service{
-		genesisFile: genesisFile,
+		statesFile:  statesFile,
 		keystoreDir: keystoreDir,
 		apiAddr:     apiAddr,
 		pwdFile:     pwdFile,
-		state:       state,
+		dbFile:      dbFile,
+		dbCache:     dbCache,
 		submitCh:    submitCh,
 		logger:      logger}
-}
-
-func (m *Service) NewStates(chainIDs []*big.Int, dbFile string, dbCache int) error {
-	if len(chainIDs) < 1 {
-		return nil
-	}
-	ds, err := state.NewStateWithChainID(chainIDs[0], m.logger, dbFile, dbCache)
-	if err != nil {
-		return err
-	}
-	m.defaultState = ds
-	m.states[chainIDs[0]] = ds
-
-	m.states = make(map[*big.Int]*state.State)
-	for _, id := range chainIDs[1:] {
-		s, err := state.NewStateWithChainID(chainIDs[0], m.logger, dbFile, dbCache)
-		if err != nil {
-			return err
-		}
-		m.states[id] = s
-	}
-	return nil
 }
 
 func (m *Service) Run() {
@@ -80,8 +63,6 @@ func (m *Service) Run() {
 	m.checkErr(m.unlockAccounts())
 
 	m.checkErr(m.createGenesisAccounts())
-
-	m.sortChainIDs()
 
 	m.logger.Info("serving api...")
 	m.serveAPI()
@@ -123,66 +104,61 @@ func (m *Service) unlockAccounts() error {
 }
 
 func (m *Service) createGenesisAccounts() error {
-	genesisFilesDir := filepath.Join(m.genesisFile)
-	if err := os.MkdirAll(genesisFilesDir, 0700); err != nil {
-		return err
+	if _, err := os.Stat(m.statesFile); os.IsNotExist(err) {
+		return nil
 	}
 
-	fileInfos, err := ioutil.ReadDir(genesisFilesDir)
+	contents, err := ioutil.ReadFile(m.statesFile)
 	if err != nil {
 		return err
 	}
 
-	for _, info := range fileInfos {
-		if info.IsDir() {
+	c := &States{}
+	err = yaml.Unmarshal(contents, c)
+	if err != nil {
+		return err
+	}
+
+	m.states = make(map[string]*state.State)
+
+	for _, info := range c.StateConfigs {
+		s, err := state.NewStateWithChainID(info.ChainID, m.logger, m.dbFile, m.dbCache)
+		if err != nil {
+			return err
+		}
+		m.states[info.ChainID.String()] = s
+
+		if m.defaultState == nil {
+			m.defaultState = s
+		}
+
+		if len(info.GenesisFile) < 1 {
 			continue
 		}
 
-		fileName := filepath.Join(genesisFilesDir, info.Name())
-		contents, err := ioutil.ReadFile(fileName)
+		if _, err := os.Stat(info.GenesisFile); os.IsNotExist(err) {
+			continue
+		}
+
+		contents, err := ioutil.ReadFile(info.GenesisFile)
 		if err != nil {
 			return err
 		}
 
-		genesis := &core.Genesis{}
-		err = genesis.UnmarshalJSON(contents)
-		if err != nil {
+		var genesis struct {
+			Alloc common.AccountMap
+		}
+
+		if err := json.Unmarshal(contents, &genesis); err != nil {
 			return err
 		}
 
-		config := genesis.Config
-		if config == nil {
-			return errors.New("genesis.Config == nil")
-		}
-		chainID := config.ChainID
-		if chainID == nil {
-			return errors.New("genesis.Config.ChainID == nil")
-		}
-		s, ok := m.states[chainID]
-		if !ok {
-			s, err = state.CopyStateWithChainID(m.defaultState, chainID)
-			if err != nil {
-				return err
-			}
-			m.states[chainID] = s
-		}
 		if err := s.CreateAccounts(genesis.Alloc); err != nil {
 			return err
 		}
 	}
 
 	return nil
-}
-
-func (m *Service) sortChainIDs() {
-	var ids []*big.Int
-	for id := range m.states {
-		ids = append(ids, id)
-	}
-	sort.Slice(ids, func(i, j int) bool {
-		return ids[i].Cmp(ids[j]) < 0
-	})
-	m.chainIDs = ids
 }
 
 func (m *Service) serveAPI() {
@@ -247,16 +223,16 @@ func (m *Service) readPwd() (pwd string, err error) {
 	return lines[0], nil
 }
 
-func (m *Service) GetBalance(addr common.Address) map[*big.Int]*big.Int {
-	result := make(map[*big.Int]*big.Int)
+func (m *Service) GetBalance(addr ethcommon.Address) map[string]*big.Int {
+	result := make(map[string]*big.Int)
 	for key, value := range m.states {
 		result[key] = value.GetBalance(addr)
 	}
 	return result
 }
 
-func (m *Service) GetNonce(addr common.Address) map[*big.Int]uint64 {
-	result := make(map[*big.Int]uint64)
+func (m *Service) GetNonce(addr ethcommon.Address) map[string]uint64 {
+	result := make(map[string]uint64)
 	for key, value := range m.states {
 		result[key] = value.GetNonce(addr)
 	}
@@ -264,35 +240,50 @@ func (m *Service) GetNonce(addr common.Address) map[*big.Int]uint64 {
 }
 
 func (m *Service) GetState(id string) *state.State {
-	var i big.Int
-	i.SetString(id, 10)
-	s, ok := m.states[&i]
+	s, ok := m.states[id]
 	if !ok {
 		return m.defaultState
 	}
 	return s
 }
 
-func (m *Service) ProcessBlock(block hashgraph.Block) (hs common.Hash, err error) {
+func (m *Service) ProcessBlock(block poset.Block) (hs []byte, err error) {
 	m.logger.Debug("Process Block")
 
 	blockHashBytes, _ := block.Hash()
-	blockHash := common.BytesToHash(blockHashBytes)
+	blockHash := ethcommon.BytesToHash(blockHashBytes)
 
+	var fifo []*state.State
 	lazyCommit := make(map[*state.State]*BlockProcessResult)
 	defer func() {
 		for s, r := range lazyCommit {
+			s.GetCommitMutex().Unlock()
 			if r.Err != nil {
 				continue
 			}
 			r.Hash, r.Err = s.Commit()
-			s.GetCommitMutex().Unlock()
+		}
+		hs = make([]byte, len(fifo)*ethcommon.HashLength)
+		var errStr bytes.Buffer
+		hasErr := false
+		errStr.WriteString("Process Block Error:\n")
+		for i, s := range fifo {
+			result := lazyCommit[s]
+			if result.Err != nil {
+				hasErr = true
+			} else {
+				copy(hs[i*ethcommon.HashLength:], result.Hash[:])
+			}
+			errStr.WriteString(fmt.Sprintf("chain:%s err:%v\n", s.GetChainID().String(), result.Err))
+		}
+		if hasErr {
+			err = errors.New(errStr.String())
 		}
 	}()
 	for txIndex, txBytes := range block.Transactions() {
 		tx := &types.Transaction{}
 		tx.UnmarshalJSON(txBytes)
-		s, ok := m.states[tx.ChainId()]
+		s, ok := m.states[tx.ChainId().String()]
 		if !ok {
 			m.logger.WithField("ChainID", tx.ChainId().String()).Debug("state not exists")
 			continue
@@ -300,8 +291,13 @@ func (m *Service) ProcessBlock(block hashgraph.Block) (hs common.Hash, err error
 
 		_, ok = lazyCommit[s]
 		if !ok {
+			fifo = append(fifo, s)
 			lazyCommit[s] = &BlockProcessResult{}
 			s.GetCommitMutex().Lock()
+		}
+
+		if lazyCommit[s].Err != nil {
+			continue
 		}
 
 		if err = s.ApplyTransaction(txBytes, txIndex, blockHash); err != nil {

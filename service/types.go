@@ -8,9 +8,9 @@ import (
 )
 
 type JsonAccount struct {
-	Address  string                `json:"address"`
-	Balances map[*big.Int]*big.Int `json:"balances"`
-	Nonces   map[*big.Int]uint64   `json:"nonces"`
+	Address  string              `json:"address"`
+	Balances map[string]*big.Int `json:"balances"`
+	Nonces   map[string]uint64   `json:"nonces"`
 }
 
 type JsonAccountList struct {
@@ -50,7 +50,16 @@ type JsonReceipt struct {
 	Failed            bool            `json:"failed"`
 }
 
+type States struct {
+	StateConfigs []StateConfig `yaml:"stateConfigs"`
+}
+
+type StateConfig struct {
+	ChainID     *big.Int
+	GenesisFile string
+}
+
 type BlockProcessResult struct {
 	Hash common.Hash
-	Err error
+	Err  error
 }
