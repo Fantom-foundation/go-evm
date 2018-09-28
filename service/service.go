@@ -137,7 +137,7 @@ func (m *Service) createGenesisAccounts() error {
 		}
 
 		if _, err := os.Stat(info.GenesisFile); os.IsNotExist(err) {
-			continue
+			return err
 		}
 
 		contents, err := ioutil.ReadFile(info.GenesisFile)
