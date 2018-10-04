@@ -30,7 +30,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 		config.Eth.Keystore,
 		config.Eth.EthAPIAddr,
 		config.Eth.PwdFile,
-		config.Eth.DbFile,
+		config.Eth.DbDir,
 		config.Eth.Cache,
 		submitCh,
 		logger)

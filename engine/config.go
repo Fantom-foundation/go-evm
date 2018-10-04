@@ -20,7 +20,7 @@ var (
 	defaultKeystoreFile = fmt.Sprintf("%s/keystore", defaultEthDir)
 	defaultStatesFile   = fmt.Sprintf("%s/states.yaml", defaultEthDir)
 	defaultPwdFile      = fmt.Sprintf("%s/pwd.txt", defaultEthDir)
-	defaultDbFile       = fmt.Sprintf("%s/chaindata", defaultEthDir)
+	defaultDbDir        = fmt.Sprintf("%s/chaindata", defaultEthDir)
 
 	//Lachesis
 	defaultProxyAddr  = ":1339"
@@ -99,8 +99,8 @@ type EthConfig struct {
 	//File containing passwords to unlock ethereum accounts
 	PwdFile string `mapstructure:"pwd"`
 
-	//File containing the levelDB database
-	DbFile string `mapstructure:"db"`
+	//Directory containing the levelDB database
+	DbDir string `mapstructure:"dbdir"`
 
 	//Address of HTTP API Service
 	EthAPIAddr string `mapstructure:"api_addr"`
@@ -115,7 +115,7 @@ func DefaultEthConfig() *EthConfig {
 		States:     defaultStatesFile,
 		Keystore:   defaultKeystoreFile,
 		PwdFile:    defaultPwdFile,
-		DbFile:     defaultDbFile,
+		DbDir:      defaultDbDir,
 		EthAPIAddr: defaultEthAPIAddr,
 		Cache:      defaultCache,
 	}

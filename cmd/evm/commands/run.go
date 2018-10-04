@@ -18,7 +18,7 @@ func AddRunFlags(cmd *cobra.Command) {
 	cmd.Flags().String("eth.states", config.Eth.States, "Location of states config file")
 	cmd.Flags().String("eth.keystore", config.Eth.Keystore, "Location of Ethereum account keys")
 	cmd.Flags().String("eth.pwd", config.Eth.PwdFile, "Password file to unlock accounts")
-	cmd.Flags().String("eth.db", config.Eth.DbFile, "Eth database file")
+	cmd.Flags().String("eth.dbdir", config.Eth.DbDir, "Directory for Eth databases")
 	cmd.Flags().String("eth.api_addr", config.Eth.EthAPIAddr, "Address of HTTP API service")
 	cmd.Flags().Int("eth.cache", config.Eth.Cache, "Megabytes of memory allocated to internal caching (min 16MB / database forced)")
 

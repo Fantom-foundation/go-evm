@@ -35,7 +35,7 @@ type Service struct {
 	keyStore     *keystore.KeyStore
 	pwdFile      string
 	logger       *logrus.Logger
-	dbFile       string
+	dbDir        string
 	dbCache      int
 	defaultState *state.State
 	states       map[string]*state.State
@@ -43,7 +43,7 @@ type Service struct {
 }
 
 func NewService(statesFile, keystoreDir, apiAddr, pwdFile string,
-	dbFile string, dbCache int,
+	dbDir string, dbCache int,
 	submitCh chan []byte,
 	logger *logrus.Logger) *Service {
 	return &Service{
@@ -51,7 +51,7 @@ func NewService(statesFile, keystoreDir, apiAddr, pwdFile string,
 		keystoreDir: keystoreDir,
 		apiAddr:     apiAddr,
 		pwdFile:     pwdFile,
-		dbFile:      dbFile,
+		dbDir:       dbDir,
 		dbCache:     dbCache,
 		submitCh:    submitCh,
 		logger:      logger,
@@ -106,13 +106,13 @@ func (m *Service) unlockAccounts() error {
 }
 
 func (m *Service) createGenesisAccounts() error {
-	if err := os.MkdirAll(m.dbFile, 0700); err != nil {
+	if err := os.MkdirAll(m.dbDir, 0700); err != nil {
 		return err
 	}
 	// if states config file not exists, then create default state with chainID 1
 	if _, err := os.Stat(m.statesFile); os.IsNotExist(err) {
 		var e error
-		m.defaultState, e = state.NewState(m.logger, m.dbFile, m.dbCache)
+		m.defaultState, e = state.NewState(m.logger, m.dbDir, m.dbCache)
 		if e != nil {
 			return e
 		}
@@ -150,7 +150,7 @@ func (m *Service) createGenesisAccounts() error {
 			continue
 		}
 
-		s, err := state.NewStateWithChainID(chainID, m.logger, m.dbFile, m.dbCache)
+		s, err := state.NewStateWithChainID(chainID, m.logger, m.dbDir, m.dbCache)
 		if err != nil {
 			return err
 		}
