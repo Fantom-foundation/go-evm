@@ -26,13 +26,6 @@ type InmemEngine struct {
 func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) {
 	submitCh := make(chan []byte)
 
-	state, err := state.NewState(logger,
-		config.Eth.DbFile,
-		config.Eth.Cache)
-	if err != nil {
-		return nil, err
-	}
-
 	service := service.NewService(config.Eth.States,
 		config.Eth.Keystore,
 		config.Eth.EthAPIAddr,
@@ -42,7 +35,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 		submitCh,
 		logger)
 
-	appProxy := NewInmemProxy(state, service, submitCh, logger)
+	appProxy := NewInmemProxy(service, submitCh, logger)
 
 	//------------------------------------------------------------------------------
 
@@ -133,7 +126,6 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 	lserv := serv.NewService(config.Lachesis.APIAddr, node, logger)
 
 	return &InmemEngine{
-		ethState:   state,
 		ethService: service,
 		node:       node,
 		service:    lserv,

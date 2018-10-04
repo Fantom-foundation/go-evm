@@ -106,6 +106,9 @@ func (m *Service) unlockAccounts() error {
 }
 
 func (m *Service) createGenesisAccounts() error {
+	if err := os.MkdirAll(m.dbFile, 0700); err != nil {
+		return err
+	}
 	// if states config file not exists, then create default state with chainID 1
 	if _, err := os.Stat(m.statesFile); os.IsNotExist(err) {
 		var e error
@@ -116,6 +119,7 @@ func (m *Service) createGenesisAccounts() error {
 		chainID := m.defaultState.GetChainID()
 		m.states[chainID.String()] = m.defaultState
 		m.chainIDs = append(m.chainIDs, chainID)
+		m.logger.WithField("states.yaml", "not exists").Debug("create default state with chainID 1")
 		return nil
 	} else if err != nil {
 		return err
@@ -126,24 +130,36 @@ func (m *Service) createGenesisAccounts() error {
 		return err
 	}
 
+	m.logger.WithField("states.yaml", string(contents)).Debug("read states.yaml")
+
 	c := &States{}
 	err = yaml.Unmarshal(contents, c)
 	if err != nil {
 		return err
 	}
 
+	m.logger.Debugf("yaml Unmarshal %#v", c)
+
 	for _, info := range c.StateConfigs {
 		chainID := info.ChainID
+
+		// continue if state which has same chainID exists
+		_, ok := m.states[chainID.String()]
+		if ok {
+			m.logger.WithField("chainID", chainID.String()).Debug("same chainID state exists, skip this one")
+			continue
+		}
+
 		s, err := state.NewStateWithChainID(chainID, m.logger, m.dbFile, m.dbCache)
 		if err != nil {
 			return err
 		}
-		m.states[chainID.String()] = s
-		m.chainIDs = append(m.chainIDs, chainID)
-
 		if m.defaultState == nil {
 			m.defaultState = s
 		}
+		m.states[chainID.String()] = s
+		m.chainIDs = append(m.chainIDs, chainID)
+		m.logger.WithField("chainID", chainID.String()).Debug("added state")
 
 		if len(info.GenesisFile) < 1 {
 			continue
@@ -169,6 +185,7 @@ func (m *Service) createGenesisAccounts() error {
 		if err := s.CreateAccounts(genesis.Alloc); err != nil {
 			return err
 		}
+		m.logger.WithField("chainID", chainID.String()).Debug("CreateAccounts")
 	}
 
 	return nil
@@ -302,19 +319,20 @@ func (m *Service) ProcessBlock(block poset.Block) (hs []byte, err error) {
 			continue
 		}
 
-		_, ok = lazyCommit[s]
+		pr, ok := lazyCommit[s]
 		if !ok {
 			fifo = append(fifo, s)
-			lazyCommit[s] = &BlockProcessResult{}
+			pr = &BlockProcessResult{}
+			lazyCommit[s] = pr
 			s.GetCommitMutex().Lock()
 		}
 
-		if lazyCommit[s].Err != nil {
+		if pr.Err != nil {
 			continue
 		}
 
 		if err = s.ApplyTransaction(txBytes, txIndex, blockHash); err != nil {
-			lazyCommit[s].Err = err
+			pr.Err = err
 		}
 	}
 

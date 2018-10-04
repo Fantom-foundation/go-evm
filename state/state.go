@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"math/big"
+	"path/filepath"
 	"sync"
 	"syscall"
 
@@ -50,23 +51,6 @@ func NewState(logger *logrus.Logger, dbFile string, dbCache int) (*State, error)
 	return NewStateWithChainID(chainID, logger, dbFile, dbCache)
 }
 
-func CopyStateWithChainID(state *State, chainID *big.Int) (*State, error) {
-	s := new(State)
-	s.logger = state.logger
-	s.db = state.db
-	s.signer = ethTypes.NewEIP155Signer(chainID)
-	s.chainConfig = params.ChainConfig{ChainID: chainID}
-	s.vmConfig = vm.Config{Tracer: vm.NewStructLogger(nil)}
-
-	if err := s.InitState(); err != nil {
-		return nil, err
-	}
-
-	s.resetWAS()
-
-	return s, nil
-}
-
 func NewStateWithChainID(chainID *big.Int, logger *logrus.Logger, dbFile string, dbCache int) (*State, error) {
 
 	handles, err := getFdLimit()
@@ -74,7 +58,7 @@ func NewStateWithChainID(chainID *big.Int, logger *logrus.Logger, dbFile string,
 		return nil, err
 	}
 
-	db, err := ethdb.NewLDBDatabase(dbFile, dbCache, handles)
+	db, err := ethdb.NewLDBDatabase(filepath.Join(dbFile, chainID.String()), dbCache, handles)
 	if err != nil {
 		return nil, err
 	}

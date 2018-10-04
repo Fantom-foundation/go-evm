@@ -91,7 +91,7 @@ ETH CONFIG
 type EthConfig struct {
 
 	//States file
-	States string `mapstructure:"genesis"`
+	States string `mapstructure:"states"`
 
 	//Location of ethereum account keys
 	Keystore string `mapstructure:"keystore"`
