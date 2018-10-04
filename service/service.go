@@ -54,7 +54,9 @@ func NewService(statesFile, keystoreDir, apiAddr, pwdFile string,
 		dbFile:      dbFile,
 		dbCache:     dbCache,
 		submitCh:    submitCh,
-		logger:      logger}
+		logger:      logger,
+		states:      make(map[string]*state.State),
+	}
 }
 
 func (m *Service) Run() {
@@ -104,8 +106,19 @@ func (m *Service) unlockAccounts() error {
 }
 
 func (m *Service) createGenesisAccounts() error {
+	// if states config file not exists, then create default state with chainID 1
 	if _, err := os.Stat(m.statesFile); os.IsNotExist(err) {
+		var e error
+		m.defaultState, e = state.NewState(m.logger, m.dbFile, m.dbCache)
+		if e != nil {
+			return e
+		}
+		chainID := m.defaultState.GetChainID()
+		m.states[chainID.String()] = m.defaultState
+		m.chainIDs = append(m.chainIDs, chainID)
 		return nil
+	} else if err != nil {
+		return err
 	}
 
 	contents, err := ioutil.ReadFile(m.statesFile)
@@ -119,14 +132,14 @@ func (m *Service) createGenesisAccounts() error {
 		return err
 	}
 
-	m.states = make(map[string]*state.State)
-
 	for _, info := range c.StateConfigs {
-		s, err := state.NewStateWithChainID(info.ChainID, m.logger, m.dbFile, m.dbCache)
+		chainID := info.ChainID
+		s, err := state.NewStateWithChainID(chainID, m.logger, m.dbFile, m.dbCache)
 		if err != nil {
 			return err
 		}
-		m.states[info.ChainID.String()] = s
+		m.states[chainID.String()] = s
+		m.chainIDs = append(m.chainIDs, chainID)
 
 		if m.defaultState == nil {
 			m.defaultState = s
