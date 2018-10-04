@@ -1,0 +1,5 @@
+stateConfigs:
+- chainid: "1"
+  genesisfile: "/evm/evm/testdata/1.json"
+- chainid: "2"
+  genesisfile: "/evm/evm/testdata/2.json"
