@@ -49,7 +49,7 @@ type JsonReceipt struct {
 	ContractAddress   common.Address  `json:"contractAddress"`
 	Logs              []*ethTypes.Log `json:"logs"`
 	LogsBloom         ethTypes.Bloom  `json:"logsBloom"`
-	Error             String          `json:"error"`
+	Error             string          `json:"error"`
 	Failed            bool            `json:"failed"`
 }
 
