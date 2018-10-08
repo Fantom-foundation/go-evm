@@ -51,6 +51,37 @@ func accountHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 }
 
 /*
+GET /block/{hash}
+example: /block/0x50bd8a037442af4cdf631495bcaa5443de19685d
+returns: JSON JsonBlock
+
+This endpoint should be used to fetch information about ANY block.
+*/
+func blockHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+	param := r.URL.Path[len("/block/"):]
+	m.logger.WithField("param", param).Debug("GET account")
+	hash := param
+	m.logger.WithField("hash", address.Hex()).Debug("GET block")
+
+	blockData := m.state.db.Get(hash)
+	newBlock := new(blockData)
+
+	block := JsonBlock{
+		Hash: newBlock.Hash(),
+	}
+
+	js, err := json.Marshal(block)
+	if err != nil {
+		m.logger.WithError(err).Error("Marshaling JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
+/*
 GET /accounts
 returns: JSON JsonAccountList
 
