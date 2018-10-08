@@ -508,7 +508,7 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 			To:                tx.To(),
 			Value:             tx.Value(),
 			Gas:               new(big.Int).SetUint64(tx.Gas()),
-			GasPrice:          new(big.Int).SetUint64(tx.GasPrice()),
+			GasPrice:          tx.GasPrice(),
 			Error:             txFailed.GetError(),
 			Failed:            true,
 		}
@@ -536,7 +536,7 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 			From:              from,
 			To:                tx.To(),
 			Value:             tx.Value(),
-			Gas:               tx.Gas(),
+			Gas:               new(big.Int).SetUint64(tx.Gas()),
 			GasPrice:          tx.GasPrice(),
 			GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
 			CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
