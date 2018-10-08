@@ -374,6 +374,7 @@ func (s *State) GetBlock(hash common.Hash) (*poset.Block, error) {
 	}
 	newBlock := new(poset.Block)
 	if err := newBlock.Unmarshal(data); err != nil {
+		s.logger.WithError(err).Error("newBlock := new(poset.Block)")
 		return nil, err
 	}
 
