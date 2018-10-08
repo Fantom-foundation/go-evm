@@ -117,8 +117,8 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	blockIndex := block.Index() //int
 	blockTx := block.Transactions() //[][]byte
 	blockRound := block.RoundReceived() //int
-	blockStateHash := common.Encode(block.StateHash()) //[]byte
-	blockFrameHash := common.Encode(block.FrameHash()) //[]byte
+	blockStateHash := hexutil.Encode(block.StateHash()) //[]byte
+	blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
 
 	jsBlock := JsonBlock{
 		Hash: blockHash,
@@ -131,10 +131,10 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	for txIndex, txBytes := range block.Transactions() {
 		var t ethTypes.Transaction
 		if err := rlp.Decode(bytes.NewReader(txBytes), &t); err != nil {
-			s.logger.WithError(err).Error("Decoding Transaction")
+			m.logger.WithError(err).Error("Decoding Transaction")
 			return err
 		}
-		s.logger.WithField("hash", t.Hash().Hex()).Debug("Decoded tx")
+		m.logger.WithField("hash", t.Hash().Hex()).Debug("Decoded tx")
 
 		tx, err := m.state.GetTransaction(t.Hash())
 		if err != nil {
@@ -175,6 +175,7 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		if receipt.Logs == nil {
 			jsonReceipt.Logs = []*ethTypes.Log{}
 		}
+		jsBlock.Transactions = append(jsBlock.Transactions, jsonReceipt)
 	}
 
 	js, err := json.Marshal(jsBlock)
