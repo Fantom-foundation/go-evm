@@ -115,7 +115,6 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 
 	blockHash := block.Hex() //string
 	blockIndex := block.Index() //int
-	blockTx := block.Transactions() //[][]byte
 	blockRound := block.RoundReceived() //int
 	blockStateHash := hexutil.Encode(block.StateHash()) //[]byte
 	blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
@@ -128,7 +127,7 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		FrameHash: blockFrameHash,
 	}
 
-	for txIndex, txBytes := range block.Transactions() {
+	for _, txBytes := range block.Transactions() {
 		var t ethTypes.Transaction
 		if err := rlp.Decode(bytes.NewReader(txBytes), &t); err != nil {
 			m.logger.WithError(err).Error("Decoding Transaction")
