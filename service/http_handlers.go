@@ -113,10 +113,68 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		return
 	}
 
-	blockHash := block.Hex()
+	blockHash := block.Hex() //string
+	blockIndex := block.Index() //int
+	blockTx := block.Transactions() //[][]byte
+	blockRound := block.RoundReceived() //int
+	blockStateHash := common.Encode(block.StateHash()) //[]byte
+	blockFrameHash := common.Encode(block.FrameHash()) //[]byte
 
 	jsBlock := JsonBlock{
 		Hash: blockHash,
+		Index: blockIndex,
+		Round: blockRound,
+		StateHash: blockStateHash,
+		FrameHash: blockFrameHash,
+	}
+
+	for txIndex, txBytes := range block.Transactions() {
+		var t ethTypes.Transaction
+		if err := rlp.Decode(bytes.NewReader(txBytes), &t); err != nil {
+			s.logger.WithError(err).Error("Decoding Transaction")
+			return err
+		}
+		s.logger.WithField("hash", t.Hash().Hex()).Debug("Decoded tx")
+
+		tx, err := m.state.GetTransaction(t.Hash())
+		if err != nil {
+			m.logger.WithError(err).Error("Getting Transaction")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		receipt, err := m.state.GetReceipt(t.Hash())
+		if err != nil {
+			m.logger.WithError(err).Error("Getting Receipt")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+		from, err := ethTypes.Sender(signer, tx)
+		if err != nil {
+			m.logger.WithError(err).Error("Getting Tx Sender")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		jsonReceipt := JsonReceipt{
+			Root:              common.BytesToHash(receipt.PostState),
+			TransactionHash:   t.Hash(),
+			From:              from,
+			To:                tx.To(),
+			Value:             tx.Value(),
+			GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
+			CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
+			ContractAddress:   receipt.ContractAddress,
+			Logs:              receipt.Logs,
+			LogsBloom:         receipt.Bloom,
+			Failed:            false,
+		}
+
+		if receipt.Logs == nil {
+			jsonReceipt.Logs = []*ethTypes.Log{}
+		}
 	}
 
 	js, err := json.Marshal(jsBlock)
