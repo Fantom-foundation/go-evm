@@ -2,7 +2,7 @@ package engine
 
 import (
 	"fmt"
-	"os"
+	//"os"
 	"time"
 
 	"github.com/andrecronje/lachesis/src/crypto"
@@ -125,7 +125,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 		return nil, fmt.Errorf("Creating TCP Transport: %s", err)
 	}
 
-	node := node.NewNode(conf, nodeID, key, peers, store, trans, appProxy)
+	node := node.NewNode(conf, nodeID, key, participants, store, trans, appProxy)
 	if err := node.Init(); err != nil {
 		return nil, fmt.Errorf("Initializing node: %s", err)
 	}
