@@ -60,10 +60,11 @@ This endpoint should be used to fetch information about ANY block.
 func blockHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	param := r.URL.Path[len("/block/"):]
 	m.logger.WithField("param", param).Debug("GET account")
-	hash := param
-	m.logger.WithField("hash", address.Hex()).Debug("GET block")
+	hash := common.HexToHash(param)
+	m.logger.WithField("hash", hash.Hex()).Debug("GET block")
+	m.logger.WithField("hash", hash.Hex()).Debug("GET block")
 
-	block, err := m.state.GetTransaction(hash)
+	block, err := m.state.GetBlock(hash)
 
 	jsonBlock := JsonBlock{
 		Hash: block.Hash(),
