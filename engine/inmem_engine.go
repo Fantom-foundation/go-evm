@@ -93,7 +93,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 
 	//Instantiate the Store (inmem or badger)
 	var store poset.Store
-	var needBootstrap bool
+	//var needBootstrap bool
 	/* TODO inmem only for now */
 	/*switch conf.StoreType {
 	case "inmem":*/
