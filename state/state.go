@@ -28,6 +28,7 @@ var (
 	gasLimit       = big.NewInt(1000000000000000000)
 	txMetaSuffix   = []byte{0x01}
 	receiptsPrefix = []byte("receipts-")
+	errorPrefix    = []byte("errors-")
 	MIPMapLevels   = []uint64{1000000, 500000, 100000, 50000, 1000}
 	headTxKey      = []byte("LastTx")
 )
@@ -260,6 +261,13 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 	// Apply the transaction to the current state (included in the env)
 	_, gas, failed, err := core.ApplyMessage(vmenv, msg, s.was.gp)
 	if err != nil {
+		txError := TxError{
+			Tx: t,
+			Error: err.Error(),
+		}
+		txHash := t.Hash()
+		txErrorMarshal, _ := txError.Marshal()
+		s.db.Put(append(errorPrefix, txHash[:]...), txErrorMarshal)
 		s.logger.WithError(err).Error("Applying transaction to WAS")
 		return err
 	}
