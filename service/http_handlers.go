@@ -132,7 +132,8 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		var t ethTypes.Transaction
 		if err := rlp.Decode(bytes.NewReader(txBytes), &t); err != nil {
 			m.logger.WithError(err).Error("Decoding Transaction")
-			return err
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 		m.logger.WithField("hash", t.Hash().Hex()).Debug("Decoded tx")
 
