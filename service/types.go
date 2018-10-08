@@ -51,5 +51,5 @@ type JsonReceipt struct {
 }
 
 type JsonBlock struct {
-	Hash              common.Hash     `json:"hash"`
+	Hash              string     `json:"hash"`
 }
