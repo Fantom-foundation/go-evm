@@ -502,7 +502,7 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 			return
 		}
 
-		jsonReceipt := JsonReceipt{
+		jsonReceipt = JsonReceipt{
 			TransactionHash:   txHash,
 			From:              from,
 			To:                tx.To(),
@@ -530,7 +530,7 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 			return
 		}
 
-		jsonReceipt := JsonReceipt{
+		jsonReceipt = JsonReceipt{
 			Root:              common.BytesToHash(receipt.PostState),
 			TransactionHash:   txHash,
 			From:              from,
