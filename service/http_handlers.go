@@ -62,10 +62,9 @@ func blockHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	m.logger.WithField("param", param).Debug("GET account")
 	hash := common.HexToHash(param)
 	m.logger.WithField("hash", hash.Hex()).Debug("GET block")
-	m.logger.WithField("hash", hash.Hex()).Debug("GET block")
 
 	block, err := m.state.GetBlock(hash)
-	blockHash, _ := block.Hash()
+	blockHash := block.Hex()
 
 	jsBlock := JsonBlock{
 		Hash: blockHash,
