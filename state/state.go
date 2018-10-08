@@ -61,7 +61,7 @@ func NewState(logger *logrus.Logger, dbFile string, dbCache int) (*State, error)
 	s.logger = logger
 	s.db = db
 	s.signer = ethTypes.NewEIP155Signer(chainID)
-	s.chainConfig = params.ChainConfig{ChainId: chainID}
+	s.chainConfig = params.ChainConfig{ChainID: chainID}
 	s.vmConfig = vm.Config{Tracer: vm.NewStructLogger(nil)}
 
 	if err := s.InitState(); err != nil {
@@ -121,8 +121,9 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 
 	blockHashBytes, _ := block.Hash()
 	blockHash := common.BytesToHash(blockHashBytes)
-
-	s.ethdb.put(block.Hash(), block.Marshal())
+	blockMarshal, _ := block.Marshal()
+	
+	s.db.put(blockHashBytes, blockMarshal)
 
 	for txIndex, txBytes := range block.Transactions() {
 		if err := s.applyTransaction(txBytes, txIndex, blockHash); err != nil {
