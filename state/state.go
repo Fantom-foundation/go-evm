@@ -372,12 +372,12 @@ func (s *State) GetBlock(hash common.Hash) (*poset.Block, error) {
 		s.logger.WithError(err).Error("GetBlock")
 		return nil, err
 	}
-	newBlock := new(Block)
+	newBlock := new(poset.Block)
 	if err := newBlock.Unmarshal(data); err != nil {
 		return nil, err
 	}
 
-	return &newBlock, nil
+	return newBlock, nil
 }
 
 func (s *State) GetTransaction(hash common.Hash) (*ethTypes.Transaction, error) {
