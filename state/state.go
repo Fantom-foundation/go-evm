@@ -122,8 +122,8 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	blockHashBytes, _ := block.Hash()
 	blockHash := common.BytesToHash(blockHashBytes)
 	blockMarshal, _ := block.Marshal()
-	
-	s.db.put(blockHashBytes, blockMarshal)
+
+	s.db.Put(blockHashBytes, blockMarshal)
 
 	for txIndex, txBytes := range block.Transactions() {
 		if err := s.applyTransaction(txBytes, txIndex, blockHash); err != nil {
