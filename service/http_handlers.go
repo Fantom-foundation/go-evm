@@ -65,10 +65,10 @@ func blockHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	m.logger.WithField("hash", hash.Hex()).Debug("GET block")
 
 	block, err := m.state.GetBlock(hash)
-	hash, _ := block.Hash(),
+	blockHash, _ := block.Hash(),
 
 	jsonBlock := JsonBlock{
-		Hash: hash,
+		Hash: blockHash,
 	}
 
 	js, err := json.Marshal(jsonBlock)
