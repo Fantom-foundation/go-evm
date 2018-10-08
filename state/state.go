@@ -365,6 +365,21 @@ func (s *State) GetNonce(addr common.Address) uint64 {
 	return s.was.ethState.GetNonce(addr)
 }
 
+func (s *State) GetBlock(hash common.Hash) (*poset.Block, error) {
+	// Retrieve the block itself from the database
+	data, err := s.db.Get(hash.Bytes())
+	if err != nil {
+		s.logger.WithError(err).Error("GetBlock")
+		return nil, err
+	}
+	newBlock := new(Block)
+	if err := newBlock.Unmarshal(data); err != nil {
+		return nil, err
+	}
+
+	return &newBlock, nil
+}
+
 func (s *State) GetTransaction(hash common.Hash) (*ethTypes.Transaction, error) {
 	// Retrieve the transaction itself from the database
 	data, err := s.db.Get(hash.Bytes())

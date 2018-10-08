@@ -49,3 +49,7 @@ type JsonReceipt struct {
 	LogsBloom         ethTypes.Bloom  `json:"logsBloom"`
 	Failed            bool            `json:"failed"`
 }
+
+type JsonBlock struct {
+	Hash              common.Hash     `json:"hash"`
+}

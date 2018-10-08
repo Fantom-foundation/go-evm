@@ -63,14 +63,13 @@ func blockHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	hash := param
 	m.logger.WithField("hash", address.Hex()).Debug("GET block")
 
-	blockData := m.state.db.Get(hash)
-	newBlock := new(blockData)
+	block, err := m.state.GetTransaction(hash)
 
-	block := JsonBlock{
-		Hash: newBlock.Hash(),
+	jsonBlock := JsonBlock{
+		Hash: block.Hash(),
 	}
 
-	js, err := json.Marshal(block)
+	js, err := json.Marshal(jsonBlock)
 	if err != nil {
 		m.logger.WithError(err).Error("Marshaling JSON response")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
