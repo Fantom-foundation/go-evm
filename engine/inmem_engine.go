@@ -2,15 +2,15 @@ package engine
 
 import (
 	"fmt"
-	"os"
-	"sort"
+	//"os"
 	"time"
 
-	"github.com/andrecronje/lachesis/crypto"
-	"github.com/andrecronje/lachesis/poset"
-	"github.com/andrecronje/lachesis/net"
-	"github.com/andrecronje/lachesis/node"
-	serv "github.com/andrecronje/lachesis/service"
+	"github.com/andrecronje/lachesis/src/crypto"
+	"github.com/andrecronje/lachesis/src/poset"
+	"github.com/andrecronje/lachesis/src/net"
+	"github.com/andrecronje/lachesis/src/node"
+	"github.com/andrecronje/lachesis/src/peers"
+	serv "github.com/andrecronje/lachesis/src/service"
 	"github.com/andrecronje/evm/service"
 	"github.com/andrecronje/evm/state"
 	"github.com/sirupsen/logrus"
@@ -55,27 +55,29 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 	}
 
 	// Create the peer store
-	peerStore := net.NewJSONPeers(config.Lachesis.Dir)
+	peerStore := peers.NewJSONPeers(config.Lachesis.Dir)
 	// Try a read
-	peers, err := peerStore.Peers()
+	participants, err := peerStore.Peers()
 	if err != nil {
 		return nil, err
 	}
 
 	// There should be at least two peers
-	if len(peers) < 2 {
-		return nil, fmt.Errorf("Should define at least two peers")
+	if participants.Len() < 2 {
+		return nil, fmt.Errorf("peers.json should define at least two peers")
 	}
 
-	sort.Sort(net.ByPubKey(peers))
-	pmap := make(map[string]int)
-	for i, p := range peers {
-		pmap[p.PubKeyHex] = i
-	}
+	pmap := participants
 
 	//Find the ID of this node
 	nodePub := fmt.Sprintf("0x%X", crypto.FromECDSAPub(&key.PublicKey))
-	nodeID := pmap[nodePub]
+	n, ok := pmap.ByPubKey[nodePub]
+
+	if !ok {
+		return nil, fmt.Errorf("Cannot find self pubkey in peers.json")
+	}
+
+	nodeID := n.ID
 
 	logger.WithFields(logrus.Fields{
 		"pmap": pmap,
@@ -87,17 +89,16 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 		time.Duration(config.Lachesis.TCPTimeout)*time.Millisecond,
 		config.Lachesis.CacheSize,
 		config.Lachesis.SyncLimit,
-		config.Lachesis.StoreType,
-		config.Lachesis.StorePath,
 		logger)
 
 	//Instantiate the Store (inmem or badger)
 	var store poset.Store
-	var needBootstrap bool
-	switch conf.StoreType {
-	case "inmem":
+	//var needBootstrap bool
+	/* TODO inmem only for now */
+	/*switch conf.StoreType {
+	case "inmem":*/
 		store = poset.NewInmemStore(pmap, conf.CacheSize)
-	case "badger":
+	/*case "badger":
 		//If the file already exists, load and bootstrap the store using the file
 		if _, err := os.Stat(conf.StorePath); err == nil {
 			logger.Debug("loading badger store from existing database")
@@ -116,7 +117,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 		}
 	default:
 		return nil, fmt.Errorf("Invalid StoreType: %s", conf.StoreType)
-	}
+	}*/
 
 	trans, err := net.NewTCPTransport(
 		config.Lachesis.NodeAddr, nil, 2, conf.TCPTimeout, logger)
@@ -124,8 +125,8 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 		return nil, fmt.Errorf("Creating TCP Transport: %s", err)
 	}
 
-	node := node.NewNode(conf, nodeID, key, peers, store, trans, appProxy)
-	if err := node.Init(needBootstrap); err != nil {
+	node := node.NewNode(conf, nodeID, key, participants, store, trans, appProxy)
+	if err := node.Init(); err != nil {
 		return nil, fmt.Errorf("Initializing node: %s", err)
 	}
 

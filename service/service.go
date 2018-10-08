@@ -118,6 +118,8 @@ func (m *Service) serveAPI() {
 	r := mux.NewRouter()
 	r.HandleFunc("/account/{address}", m.makeHandler(accountHandler)).Methods("GET")
 	r.HandleFunc("/accounts", m.makeHandler(accountsHandler)).Methods("GET")
+	r.HandleFunc("/block/{hash}", m.makeHandler(blockByHashHandler)).Methods("GET")
+	r.HandleFunc("/blockById/{id}", m.makeHandler(blockByIdHandler)).Methods("GET")
 	r.HandleFunc("/call", m.makeHandler(callHandler)).Methods("POST")
 	r.HandleFunc("/tx", m.makeHandler(transactionHandler)).Methods("POST")
 	r.HandleFunc("/transactions", m.makeHandler(transactionHandler)).Methods("POST")

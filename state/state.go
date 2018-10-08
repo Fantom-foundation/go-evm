@@ -7,7 +7,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/andrecronje/lachesis/poset"
+	"github.com/andrecronje/lachesis/src/poset"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/core"
@@ -28,9 +28,23 @@ var (
 	gasLimit       = big.NewInt(1000000000000000000)
 	txMetaSuffix   = []byte{0x01}
 	receiptsPrefix = []byte("receipts-")
+	errorPrefix    = []byte("errors-")
 	MIPMapLevels   = []uint64{1000000, 500000, 100000, 50000, 1000}
 	headTxKey      = []byte("LastTx")
 )
+
+var (
+	participantPrefix = "participant"
+	rootSuffix        = "root"
+	roundPrefix       = "round"
+	topoPrefix        = "topo"
+	blockPrefix       = "block"
+	framePrefix       = "frame"
+)
+
+func blockKey(index int) []byte {
+	return []byte(fmt.Sprintf("%s_%09d", blockPrefix, index))
+}
 
 type State struct {
 	db          ethdb.Database
@@ -120,7 +134,12 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	defer s.commitMutex.Unlock()
 
 	blockHashBytes, _ := block.Hash()
+	blockIndex := block.Index()
 	blockHash := common.BytesToHash(blockHashBytes)
+	blockMarshal, _ := block.Marshal()
+
+	s.db.Put(blockHashBytes, blockMarshal)
+	s.db.Put(blockKey(blockIndex), blockMarshal)
 
 	for txIndex, txBytes := range block.Transactions() {
 		if err := s.applyTransaction(txBytes, txIndex, blockHash); err != nil {
@@ -242,6 +261,13 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 	// Apply the transaction to the current state (included in the env)
 	_, gas, failed, err := core.ApplyMessage(vmenv, msg, s.was.gp)
 	if err != nil {
+		txError := TxError{
+			Tx: t,
+			Error: err.Error(),
+		}
+		txHash := t.Hash()
+		txErrorMarshal, _ := txError.Marshal()
+		s.db.Put(append(errorPrefix, txHash[:]...), txErrorMarshal)
 		s.logger.WithError(err).Error("Applying transaction to WAS")
 		return err
 	}
@@ -362,6 +388,39 @@ func (s *State) GetNonce(addr common.Address) uint64 {
 	return s.was.ethState.GetNonce(addr)
 }
 
+func (s *State) GetBlock(hash common.Hash) (*poset.Block, error) {
+	// Retrieve the block itself from the database
+	data, err := s.db.Get(hash.Bytes())
+	if err != nil {
+		s.logger.WithError(err).Error("GetBlock")
+		return nil, err
+	}
+	newBlock := new(poset.Block)
+	if err := newBlock.Unmarshal(data); err != nil {
+		s.logger.WithError(err).Error("GetBlock.newBlock := new(poset.Block)")
+		return nil, err
+	}
+
+	return newBlock, nil
+}
+
+func (s *State) GetBlockById(id int) (*poset.Block, error) {
+	// Retrieve the block itself from the database
+	key := blockKey(id)
+	data, err := s.db.Get(key)
+	if err != nil {
+		s.logger.WithError(err).Error("GetBlockById")
+		return nil, err
+	}
+	newBlock := new(poset.Block)
+	if err := newBlock.Unmarshal(data); err != nil {
+		s.logger.WithError(err).Error("GetBlockById.newBlock := new(poset.Block)")
+		return nil, err
+	}
+
+	return newBlock, nil
+}
+
 func (s *State) GetTransaction(hash common.Hash) (*ethTypes.Transaction, error) {
 	// Retrieve the transaction itself from the database
 	data, err := s.db.Get(hash.Bytes())
@@ -391,4 +450,19 @@ func (s *State) GetReceipt(txHash common.Hash) (*ethTypes.Receipt, error) {
 	}
 
 	return (*ethTypes.Receipt)(&receipt), nil
+}
+
+func (s *State) GetFailedTx(txHash common.Hash) (*TxError, error) {
+	data, err := s.db.Get(append(errorPrefix, txHash[:]...))
+	if err != nil {
+		s.logger.WithError(err).Error("GetFailedTx")
+		return nil, err
+	}
+	newTx := new(TxError)
+	if err := newTx.Unmarshal(data); err != nil {
+		s.logger.WithError(err).Error("GetFailedTx.newTx := new(TxError)")
+		return nil, err
+	}
+
+	return newTx, nil
 }

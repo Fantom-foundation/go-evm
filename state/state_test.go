@@ -20,7 +20,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	bcommon "github.com/andrecronje/evm/common"
-	"github.com/andrecronje/lachesis/poset"
+	"github.com/andrecronje/lachesis/src/poset"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 

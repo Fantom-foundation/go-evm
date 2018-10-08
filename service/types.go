@@ -42,10 +42,22 @@ type JsonReceipt struct {
 	From              common.Address  `json:"from"`
 	To                *common.Address `json:"to"`
 	Value             *big.Int        `json:"value"`
+	Gas               *big.Int        `json:"gas"`
 	GasUsed           *big.Int        `json:"gasUsed"`
+	GasPrice          *big.Int        `json:"gasPrice"`
 	CumulativeGasUsed *big.Int        `json:"cumulativeGasUsed"`
 	ContractAddress   common.Address  `json:"contractAddress"`
 	Logs              []*ethTypes.Log `json:"logs"`
 	LogsBloom         ethTypes.Bloom  `json:"logsBloom"`
+	Error             string          `json:"error"`
 	Failed            bool            `json:"failed"`
+}
+
+type JsonBlock struct {
+	Hash              string        `json:"hash"`
+	Index             int           `json:"index"`
+	Round             int           `json:"round"`
+	StateHash         string        `json:"stateHash"`
+	FrameHash         string        `json:"frameHash"`
+	Transactions      []JsonReceipt `json:"transactions"`
 }

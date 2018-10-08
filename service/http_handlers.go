@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"math/big"
+	"strconv"
 	"net/http"
 
 	"github.com/andrecronje/evm/state"
@@ -40,6 +41,175 @@ func accountHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	}
 
 	js, err := json.Marshal(account)
+	if err != nil {
+		m.logger.WithError(err).Error("Marshaling JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
+/*
+GET /block/{hash}
+example: /block/0x50bd8a037442af4cdf631495bcaa5443de19685d
+returns: JSON JsonBlock
+
+This endpoint should be used to fetch information about ANY block.
+*/
+func blockByHashHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+	param := r.URL.Path[len("/block/"):]
+	m.logger.WithField("param", param).Debug("GET account")
+	hash := common.HexToHash(param)
+	m.logger.WithField("hash", hash.Hex()).Debug("GET blockByHashHandler")
+
+	block, err := m.state.GetBlock(hash)
+	if err != nil {
+		m.logger.WithError(err).Error("block, err := m.state.GetBlock(hash)")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	blockHash := block.Hex()
+
+	jsBlock := JsonBlock{
+		Hash: blockHash,
+	}
+
+	js, err := json.Marshal(jsBlock)
+	if err != nil {
+		m.logger.WithError(err).Error("Marshaling JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
+/*
+GET /blockById/{id}
+example: /block/0x50bd8a037442af4cdf631495bcaa5443de19685d
+returns: JSON JsonBlock
+
+This endpoint should be used to fetch information about ANY block.
+*/
+func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+	param := r.URL.Path[len("/blockById/"):]
+	m.logger.WithField("param", param).Debug("GET account")
+	id, err := strconv.Atoi(param)
+	if err != nil {
+		m.logger.WithError(err).Errorf("Parsing block_index parameter %s", param)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	m.logger.WithField("id", id).Debug("GET blockByIdHandler")
+
+	block, err := m.state.GetBlockById(id)
+	if err != nil {
+		m.logger.WithError(err).Error("block, err := m.state.GetBlockById(hash)")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	blockHash := block.Hex() //string
+	blockIndex := block.Index() //int
+	blockRound := block.RoundReceived() //int
+	blockStateHash := hexutil.Encode(block.StateHash()) //[]byte
+	blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
+
+	jsBlock := JsonBlock{
+		Hash: blockHash,
+		Index: blockIndex,
+		Round: blockRound,
+		StateHash: blockStateHash,
+		FrameHash: blockFrameHash,
+	}
+
+	for _, txBytes := range block.Transactions() {
+		var t ethTypes.Transaction
+		if err := rlp.Decode(bytes.NewReader(txBytes), &t); err != nil {
+			m.logger.WithError(err).Error("Decoding Transaction")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		m.logger.WithField("hash", t.Hash().Hex()).Debug("blockByIdHandler.decoded")
+		txHash := t.Hash()
+		
+		tx, err := m.state.GetTransaction(txHash)
+		jsonReceipt := JsonReceipt{}
+		if err != nil {
+			m.logger.WithError(err).Error("m.state.GetTransaction(txHash)")
+
+			txFailed, err := m.state.GetFailedTx(txHash)
+			if err != nil {
+				m.logger.WithError(err).Error("m.state.GetFailedTx(txHash)")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			tx = txFailed.GetTx()
+
+			signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+			from, err := ethTypes.Sender(signer, tx)
+			if err != nil {
+				m.logger.WithError(err).Error("Getting Tx Sender")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			jsonReceipt = JsonReceipt{
+				TransactionHash:   txHash,
+				From:              from,
+				To:                tx.To(),
+				Value:             tx.Value(),
+				Gas:               new(big.Int).SetUint64(tx.Gas()),
+				GasPrice:          tx.GasPrice(),
+				Error:             txFailed.GetError(),
+				Failed:            true,
+			}
+
+		} else {
+
+			signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+			from, err := ethTypes.Sender(signer, tx)
+			if err != nil {
+				m.logger.WithError(err).Error("Getting Tx Sender")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			receipt, err := m.state.GetReceipt(txHash)
+			if err != nil {
+				m.logger.WithError(err).Error("Getting Receipt")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			jsonReceipt = JsonReceipt{
+				Root:              common.BytesToHash(receipt.PostState),
+				TransactionHash:   txHash,
+				From:              from,
+				To:                tx.To(),
+				Value:             tx.Value(),
+				Gas:               new(big.Int).SetUint64(tx.Gas()),
+				GasPrice:          tx.GasPrice(),
+				GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
+				CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
+				ContractAddress:   receipt.ContractAddress,
+				Logs:              receipt.Logs,
+				LogsBloom:         receipt.Bloom,
+				Failed:            false,
+			}
+
+			if receipt.Logs == nil {
+				jsonReceipt.Logs = []*ethTypes.Log{}
+			}
+		}
+		jsBlock.Transactions = append(jsBlock.Transactions, jsonReceipt)
+	}
+
+	js, err := json.Marshal(jsBlock)
 	if err != nil {
 		m.logger.WithError(err).Error("Marshaling JSON response")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -280,43 +450,73 @@ func transactionReceiptHandler(w http.ResponseWriter, r *http.Request, m *Servic
 	m.logger.WithField("tx_hash", txHash.Hex()).Debug("GET tx")
 
 	tx, err := m.state.GetTransaction(txHash)
+	jsonReceipt := JsonReceipt{}
 	if err != nil {
-		m.logger.WithError(err).Error("Getting Transaction")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+		m.logger.WithError(err).Error("m.state.GetTransaction(txHash)")
 
-	receipt, err := m.state.GetReceipt(txHash)
-	if err != nil {
-		m.logger.WithError(err).Error("Getting Receipt")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+		txFailed, err := m.state.GetFailedTx(txHash)
+		if err != nil {
+			m.logger.WithError(err).Error("m.state.GetFailedTx(txHash)")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tx = txFailed.GetTx()
 
-	signer := ethTypes.NewEIP155Signer(big.NewInt(1))
-	from, err := ethTypes.Sender(signer, tx)
-	if err != nil {
-		m.logger.WithError(err).Error("Getting Tx Sender")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+		signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+		from, err := ethTypes.Sender(signer, tx)
+		if err != nil {
+			m.logger.WithError(err).Error("Getting Tx Sender")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	jsonReceipt := JsonReceipt{
-		Root:              common.BytesToHash(receipt.PostState),
-		TransactionHash:   txHash,
-		From:              from,
-		To:                tx.To(),
-		Value:             tx.Value(),
-		GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
-		CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
-		ContractAddress:   receipt.ContractAddress,
-		Logs:              receipt.Logs,
-		LogsBloom:         receipt.Bloom,
-		Failed:            false,
-	}
+		jsonReceipt = JsonReceipt{
+			TransactionHash:   txHash,
+			From:              from,
+			To:                tx.To(),
+			Value:             tx.Value(),
+			Gas:               new(big.Int).SetUint64(tx.Gas()),
+			GasPrice:          tx.GasPrice(),
+			Error:             txFailed.GetError(),
+			Failed:            true,
+		}
 
-	if receipt.Logs == nil {
-		jsonReceipt.Logs = []*ethTypes.Log{}
+	} else {
+
+		signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+		from, err := ethTypes.Sender(signer, tx)
+		if err != nil {
+			m.logger.WithError(err).Error("Getting Tx Sender")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		receipt, err := m.state.GetReceipt(txHash)
+		if err != nil {
+			m.logger.WithError(err).Error("Getting Receipt")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		jsonReceipt = JsonReceipt{
+			Root:              common.BytesToHash(receipt.PostState),
+			TransactionHash:   txHash,
+			From:              from,
+			To:                tx.To(),
+			Value:             tx.Value(),
+			Gas:               new(big.Int).SetUint64(tx.Gas()),
+			GasPrice:          tx.GasPrice(),
+			GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
+			CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
+			ContractAddress:   receipt.ContractAddress,
+			Logs:              receipt.Logs,
+			LogsBloom:         receipt.Bloom,
+			Failed:            false,
+		}
+
+		if receipt.Logs == nil {
+			jsonReceipt.Logs = []*ethTypes.Log{}
+		}
 	}
 
 	js, err := json.Marshal(jsonReceipt)
@@ -347,43 +547,73 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	m.logger.WithField("tx_hash", txHash.Hex()).Debug("GET tx")
 
 	tx, err := m.state.GetTransaction(txHash)
+	jsonReceipt := JsonReceipt{}
 	if err != nil {
-		m.logger.WithError(err).Error("Getting Transaction")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+		m.logger.WithError(err).Error("m.state.GetTransaction(txHash)")
 
-	receipt, err := m.state.GetReceipt(txHash)
-	if err != nil {
-		m.logger.WithError(err).Error("Getting Receipt")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+		txFailed, err := m.state.GetFailedTx(txHash)
+		if err != nil {
+			m.logger.WithError(err).Error("m.state.GetFailedTx(txHash)")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		tx = txFailed.GetTx()
 
-	signer := ethTypes.NewEIP155Signer(big.NewInt(1))
-	from, err := ethTypes.Sender(signer, tx)
-	if err != nil {
-		m.logger.WithError(err).Error("Getting Tx Sender")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+		signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+		from, err := ethTypes.Sender(signer, tx)
+		if err != nil {
+			m.logger.WithError(err).Error("Getting Tx Sender")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	jsonReceipt := JsonReceipt{
-		Root:              common.BytesToHash(receipt.PostState),
-		TransactionHash:   txHash,
-		From:              from,
-		To:                tx.To(),
-		Value:             tx.Value(),
-		GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
-		CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
-		ContractAddress:   receipt.ContractAddress,
-		Logs:              receipt.Logs,
-		LogsBloom:         receipt.Bloom,
-		Failed:            false,
-	}
+		jsonReceipt = JsonReceipt{
+			TransactionHash:   txHash,
+			From:              from,
+			To:                tx.To(),
+			Value:             tx.Value(),
+			Gas:               new(big.Int).SetUint64(tx.Gas()),
+			GasPrice:          tx.GasPrice(),
+			Error:             txFailed.GetError(),
+			Failed:            true,
+		}
 
-	if receipt.Logs == nil {
-		jsonReceipt.Logs = []*ethTypes.Log{}
+	} else {
+
+		signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+		from, err := ethTypes.Sender(signer, tx)
+		if err != nil {
+			m.logger.WithError(err).Error("Getting Tx Sender")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		receipt, err := m.state.GetReceipt(txHash)
+		if err != nil {
+			m.logger.WithError(err).Error("Getting Receipt")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		jsonReceipt = JsonReceipt{
+			Root:              common.BytesToHash(receipt.PostState),
+			TransactionHash:   txHash,
+			From:              from,
+			To:                tx.To(),
+			Value:             tx.Value(),
+			Gas:               new(big.Int).SetUint64(tx.Gas()),
+			GasPrice:          tx.GasPrice(),
+			GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
+			CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
+			ContractAddress:   receipt.ContractAddress,
+			Logs:              receipt.Logs,
+			LogsBloom:         receipt.Bloom,
+			Failed:            false,
+		}
+
+		if receipt.Logs == nil {
+			jsonReceipt.Logs = []*ethTypes.Log{}
+		}
 	}
 
 	js, err := json.Marshal(jsonReceipt)
