@@ -509,7 +509,7 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 			Value:             tx.Value(),
 			Gas:               tx.Gas(),
 			GasPrice:          tx.GasPrice(),
-			Error:             txFailed.GetError()
+			Error:             txFailed.GetError(),
 			Failed:            true,
 		}
 
