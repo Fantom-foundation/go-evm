@@ -147,7 +147,7 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		}
 
 		signer := ethTypes.NewEIP155Signer(big.NewInt(1))
-		from, err := ethTypes.Sender(signer, t)
+		from, err := ethTypes.Sender(signer, &t)
 		if err != nil {
 			m.logger.WithError(err).Error("Decode tx Sender")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
