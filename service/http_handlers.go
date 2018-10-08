@@ -68,7 +68,7 @@ func blockHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	blockHash, _ := block.Hash(),
 
 	jsBlock := JsonBlock{
-		Hash: blockHash
+		Hash: blockHash,
 	}
 
 	js, err := json.Marshal(jsBlock)
