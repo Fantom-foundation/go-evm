@@ -61,7 +61,7 @@ func blockByHashHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	param := r.URL.Path[len("/block/"):]
 	m.logger.WithField("param", param).Debug("GET account")
 	hash := common.HexToHash(param)
-	m.logger.WithField("hash", hash.Hex()).Debug("GET block")
+	m.logger.WithField("hash", hash.Hex()).Debug("GET blockByHashHandler")
 
 	block, err := m.state.GetBlock(hash)
 	if err != nil {
@@ -97,8 +97,13 @@ This endpoint should be used to fetch information about ANY block.
 func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	param := r.URL.Path[len("/block/"):]
 	m.logger.WithField("param", param).Debug("GET account")
-	id := param
-	m.logger.WithField("hash", hash.Hex()).Debug("GET block")
+	id, err := strconv.Atoi(param)
+	if err != nil {
+		m.logger.WithError(err).Errorf("Parsing block_index parameter %s", param)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	m.logger.WithField("id", id).Debug("GET blockByIdHandler")
 
 	block, err := m.state.GetBlockById(id)
 	if err != nil {
