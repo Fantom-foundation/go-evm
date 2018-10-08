@@ -96,7 +96,7 @@ returns: JSON JsonBlock
 This endpoint should be used to fetch information about ANY block.
 */
 func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
-	param := r.URL.Path[len("/block/"):]
+	param := r.URL.Path[len("/blockById/"):]
 	m.logger.WithField("param", param).Debug("GET account")
 	id, err := strconv.Atoi(param)
 	if err != nil {
