@@ -32,6 +32,19 @@ var (
 	headTxKey      = []byte("LastTx")
 )
 
+var (
+	participantPrefix = "participant"
+	rootSuffix        = "root"
+	roundPrefix       = "round"
+	topoPrefix        = "topo"
+	blockPrefix       = "block"
+	framePrefix       = "frame"
+)
+
+func blockKey(index int) []byte {
+	return []byte(fmt.Sprintf("%s_%09d", blockPrefix, index))
+}
+
 type State struct {
 	db          ethdb.Database
 	commitMutex sync.Mutex
@@ -120,10 +133,12 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	defer s.commitMutex.Unlock()
 
 	blockHashBytes, _ := block.Hash()
+	blockIndex := block.Index()
 	blockHash := common.BytesToHash(blockHashBytes)
 	blockMarshal, _ := block.Marshal()
 
 	s.db.Put(blockHashBytes, blockMarshal)
+	s.db.Put(blockKey(blockIndex), blockMarshal)
 
 	for txIndex, txBytes := range block.Transactions() {
 		if err := s.applyTransaction(txBytes, txIndex, blockHash); err != nil {
@@ -374,7 +389,24 @@ func (s *State) GetBlock(hash common.Hash) (*poset.Block, error) {
 	}
 	newBlock := new(poset.Block)
 	if err := newBlock.Unmarshal(data); err != nil {
-		s.logger.WithError(err).Error("newBlock := new(poset.Block)")
+		s.logger.WithError(err).Error("GetBlock.newBlock := new(poset.Block)")
+		return nil, err
+	}
+
+	return newBlock, nil
+}
+
+func (s *State) GetBlockById(id int) (*poset.Block, error) {
+	// Retrieve the block itself from the database
+	key := blockKey(id)
+	data, err := s.db.Get(key)
+	if err != nil {
+		s.logger.WithError(err).Error("GetBlockById")
+		return nil, err
+	}
+	newBlock := new(poset.Block)
+	if err := newBlock.Unmarshal(data); err != nil {
+		s.logger.WithError(err).Error("GetBlockById.newBlock := new(poset.Block)")
 		return nil, err
 	}
 

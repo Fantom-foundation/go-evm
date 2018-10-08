@@ -57,7 +57,7 @@ returns: JSON JsonBlock
 
 This endpoint should be used to fetch information about ANY block.
 */
-func blockHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+func blockByHashHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	param := r.URL.Path[len("/block/"):]
 	m.logger.WithField("param", param).Debug("GET account")
 	hash := common.HexToHash(param)
@@ -69,7 +69,44 @@ func blockHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
+
+	blockHash := block.Hex()
+
+	jsBlock := JsonBlock{
+		Hash: blockHash,
+	}
+
+	js, err := json.Marshal(jsBlock)
+	if err != nil {
+		m.logger.WithError(err).Error("Marshaling JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
+
+/*
+GET /blockById/{id}
+example: /block/0x50bd8a037442af4cdf631495bcaa5443de19685d
+returns: JSON JsonBlock
+
+This endpoint should be used to fetch information about ANY block.
+*/
+func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+	param := r.URL.Path[len("/block/"):]
+	m.logger.WithField("param", param).Debug("GET account")
+	id := param
+	m.logger.WithField("hash", hash.Hex()).Debug("GET block")
+
+	block, err := m.state.GetBlockById(id)
+	if err != nil {
+		m.logger.WithError(err).Error("block, err := m.state.GetBlockById(hash)")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	blockHash := block.Hex()
 
 	jsBlock := JsonBlock{
