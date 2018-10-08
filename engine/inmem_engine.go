@@ -3,7 +3,6 @@ package engine
 import (
 	"fmt"
 	"os"
-	"sort"
 	"time"
 
 	"github.com/andrecronje/lachesis/src/crypto"
@@ -95,10 +94,11 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 	//Instantiate the Store (inmem or badger)
 	var store poset.Store
 	var needBootstrap bool
-	switch conf.StoreType {
-	case "inmem":
+	/* TODO inmem only for now */
+	/*switch conf.StoreType {
+	case "inmem":*/
 		store = poset.NewInmemStore(pmap, conf.CacheSize)
-	case "badger":
+	/*case "badger":
 		//If the file already exists, load and bootstrap the store using the file
 		if _, err := os.Stat(conf.StorePath); err == nil {
 			logger.Debug("loading badger store from existing database")
@@ -117,7 +117,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 		}
 	default:
 		return nil, fmt.Errorf("Invalid StoreType: %s", conf.StoreType)
-	}
+	}*/
 
 	trans, err := net.NewTCPTransport(
 		config.Lachesis.NodeAddr, nil, 2, conf.TCPTimeout, logger)
