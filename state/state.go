@@ -451,3 +451,18 @@ func (s *State) GetReceipt(txHash common.Hash) (*ethTypes.Receipt, error) {
 
 	return (*ethTypes.Receipt)(&receipt), nil
 }
+
+func (s *State) GetFailedTx(txHash common.Hash) (*TxError, error) {
+	data, err := s.db.Get(append(errorPrefix, txHash[:]...))
+	if err != nil {
+		s.logger.WithError(err).Error("GetFailedTx")
+		return nil, err
+	}
+	newTx := new(TxError)
+	if err := newTx.Unmarshal(data); err != nil {
+		s.logger.WithError(err).Error("GetFailedTx.newTx := new(TxError)")
+		return nil, err
+	}
+
+	return newTx, nil
+}

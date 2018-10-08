@@ -29,3 +29,12 @@ func (te *TxError) Unmarshal(data []byte) error {
 	}
 	return nil
 }
+
+func (te *TxError) GetTx() *ethTypes.Transaction {
+	return &te.Tx
+}
+
+
+func (te *TxError) GetError() string {
+	return te.Error
+}
