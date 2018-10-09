@@ -51,6 +51,7 @@ type State struct {
 	commitMutex sync.Mutex
 	statedb     *ethState.StateDB
 	was         *WriteAheadState
+	blockIndex  int
 
 	signer      ethTypes.Signer
 	chainConfig params.ChainConfig //vm.env is still tightly coupled with chainConfig
@@ -128,6 +129,10 @@ func (s *State) Call(callMsg ethTypes.Message) ([]byte, error) {
 	return res, err
 }
 
+func (s *State) GetBlockIndex() int  {
+	return s.blockIndex
+}
+
 func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	s.logger.Debug("Process Block")
 	s.commitMutex.Lock()
@@ -137,6 +142,8 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	blockIndex := block.Index()
 	blockHash := common.BytesToHash(blockHashBytes)
 	blockMarshal, _ := block.Marshal()
+
+	s.blockIndex = blockIndex
 
 	s.db.Put(blockHashBytes, blockMarshal)
 	s.db.Put(blockKey(blockIndex), blockMarshal)
