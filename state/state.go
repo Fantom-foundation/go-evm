@@ -111,8 +111,10 @@ func (s *State) Call(callMsg ethTypes.Message) ([]byte, error) {
 		Transfer:    core.Transfer,
 		GetHash:     func(uint64) common.Hash { return common.Hash{} },
 		// Message information
-		Origin:   callMsg.From(),
-		GasPrice: callMsg.GasPrice(),
+		Origin:      callMsg.From(),
+		GasLimit:    callMsg.Gas(),
+		GasPrice:    callMsg.GasPrice(),
+		BlockNumber: big.NewInt(0), //the vm has a dependency on this..
 	}
 
 	s.logger.WithField("From", callMsg.From().Hex()).Debug("Call(callMsg ethTypes.Message)")
@@ -125,11 +127,14 @@ func (s *State) Call(callMsg ethTypes.Message) ([]byte, error) {
 	vmenv := vm.NewEVM(context, s.was.ethState.Copy(), &s.chainConfig, s.vmConfig)
 
 	// Apply the transaction to the current state (included in the env)
-	res, _, _, err := core.ApplyMessage(vmenv, callMsg, s.was.gp)
+	res, gas, failed, err := core.ApplyMessage(vmenv, callMsg, s.was.gp)
 	if err != nil {
 		s.logger.WithError(err).Error("Executing Call on WAS")
 		return nil, err
 	}
+	s.logger.WithField("Failed", failed).Debug("Call(callMsg ethTypes.Message)")
+	s.logger.WithField("Res", res).Debug("Call(callMsg ethTypes.Message)")
+	s.logger.WithField("Gas", gas).Debug("Call(callMsg ethTypes.Message)")
 
 	return res, err
 }
