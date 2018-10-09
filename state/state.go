@@ -115,8 +115,8 @@ func (s *State) Call(callMsg ethTypes.Message) ([]byte, error) {
 		GasPrice: callMsg.GasPrice(),
 	}
 
-	s.logger.WithField("From", hexutil.Encode(callMsg.From())).Debug("Call(callMsg ethTypes.Message)")
-	s.logger.WithField("To", hexutil.Encode(callMsg.To())).Debug("Call(callMsg ethTypes.Message)")
+	s.logger.WithField("From", callMsg.From().Hex()).Debug("Call(callMsg ethTypes.Message)")
+	s.logger.WithField("To", callMsg.To().Hex()).Debug("Call(callMsg ethTypes.Message)")
 	s.logger.WithField("Data", hexutil.Encode(callMsg.Data())).Debug("Call(callMsg ethTypes.Message)")
 
 	// The EVM should never be reused and is not thread safe.
