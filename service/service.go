@@ -120,7 +120,7 @@ func (m *Service) serveAPI() {
 	r.HandleFunc("/accounts", m.makeHandler(accountsHandler)).Methods("GET")
 	r.HandleFunc("/block/{hash}", m.makeHandler(blockByHashHandler)).Methods("GET")
 	r.HandleFunc("/blockById/{id}", m.makeHandler(blockByIdHandler)).Methods("GET")
-	r.HandleFunc("/blockIndex", m.makeHandler(blockIndexHandler)).Methods("GET")
+	//r.HandleFunc("/blockIndex", m.makeHandler(blockIndexHandler)).Methods("GET")
 	r.HandleFunc("/call", m.makeHandler(callHandler)).Methods("POST")
 	r.HandleFunc("/tx", m.makeHandler(transactionHandler)).Methods("POST")
 	r.HandleFunc("/transactions", m.makeHandler(transactionHandler)).Methods("POST")
