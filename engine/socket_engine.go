@@ -3,9 +3,9 @@ package engine
 import (
 	"time"
 
-	proxy "github.com/andrecronje/lachesis/src/proxy/lachesis"
 	"github.com/andrecronje/evm/service"
 	"github.com/andrecronje/evm/state"
+	proxy "github.com/andrecronje/lachesis/src/proxy/lachesis"
 	"github.com/sirupsen/logrus"
 )
 
@@ -59,6 +59,7 @@ func (s *SocketEngine) serve() {
 			s.logger.Debug("proxy about to submit tx")
 			if err := s.proxy.SubmitTx(tx); err != nil {
 				s.logger.WithError(err).Error("SubmitTx")
+				continue
 			}
 			s.logger.Debug("proxy submitted tx")
 		case commit := <-s.proxy.CommitCh():
