@@ -50,7 +50,7 @@ func NewConfig(proxyAddr,
 type Proxy struct {
 	service       *service.Service
 	state         *state.State
-	lachesisProxy *proxy.SocketLachesisProxy
+	lachesisProxy *proxy.WebsocketLachesisProxy
 	submitCh      chan []byte
 	logger        *logrus.Logger
 }
@@ -74,8 +74,7 @@ func NewProxy(config Config, logger *logrus.Logger) (*Proxy, error) {
 		logger)
 
 	logger.Debug("proxy.NewSocketLachesisProxy")
-	lachesisProxy, err := proxy.NewSocketLachesisProxy(config.lachesisAddr,
-		config.proxyAddr,
+	lachesisProxy, err := proxy.NewWebsocketLachesisProxy(config.lachesisAddr,
 		config.timeout,
 		logger)
 	if err != nil {
