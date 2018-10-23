@@ -130,7 +130,7 @@ func (s *State) Call(callMsg ethTypes.Message) ([]byte, error) {
 	vmenv := vm.NewEVM(context, s.was.ethState.Copy(), &s.chainConfig, s.vmConfig)
 
 	// Apply the transaction to the current state (included in the env)
-	res, gas, failed, err := core.ApplyMessage(vmenv, callMsg, new(core.GasPool).AddGas(gasLimit))
+	res, gas, failed, err := core.ApplyMessage(vmenv, callMsg, new(core.GasPool).AddGas(gasLimit.Uint64()))
 	if err != nil {
 		s.logger.WithError(err).Error("Executing Call on WAS")
 		return nil, err
@@ -421,12 +421,12 @@ func (s *State) InitState() error {
 		return err
 	}
 
-	s.was, err = NewWriteAheadState(s.db, rootHash, s.signer, s.chainConfig, s.vmConfig, gasLimit, s.logger)
+	s.was, err = NewWriteAheadState(s.db, rootHash, s.signer, s.chainConfig, s.vmConfig, gasLimit.Uint64(), s.logger)
 	if err != nil {
 		return err
 	}
 
-	s.txPool = NewTxPool(s.ethState.Copy(), s.signer, s.chainConfig, s.vmConfig, gasLimit, s.logger)
+	s.txPool = NewTxPool(s.ethState.Copy(), s.signer, s.chainConfig, s.vmConfig, gasLimit.Uint64(), s.logger)
 
 	return err
 }

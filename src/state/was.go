@@ -73,7 +73,7 @@ func (was *WriteAheadState) Reset(root common.Hash) error {
 	was.receipts = []*ethTypes.Receipt{}
 	was.allLogs = []*ethTypes.Log{}
 
-	was.totalUsedGas = 0
+	was.totalUsedGas = new(big.Int).SetUint64(0)
 	was.gp = new(core.GasPool).AddGas(was.gasLimit)
 
 	return nil
@@ -110,12 +110,12 @@ func (was *WriteAheadState) ApplyTransaction(tx ethTypes.Transaction, txIndex in
 		return err
 	}
 
-	was.totalUsedGas += gas
+	was.totalUsedGas.Add(was.totalUsedGas, new(big.Int).SetUint64(gas))
 
 	// Create a new receipt for the transaction, storing the intermediate root and gas used by the tx
 	// based on the eip phase, we're passing wether the root touch-delete accounts.
 	root := was.ethState.IntermediateRoot(true) //this has side effects. It updates StateObjects (SmartContract memory)
-	receipt := ethTypes.NewReceipt(root.Bytes(), failed, was.totalUsedGas)
+	receipt := ethTypes.NewReceipt(root.Bytes(), failed, was.totalUsedGas.Uint64())
 	receipt.TxHash = tx.Hash()
 	receipt.GasUsed = gas
 	// if the transaction created a contract, store the creation address in the receipt.

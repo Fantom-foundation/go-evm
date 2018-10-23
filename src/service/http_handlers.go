@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"encoding/json"
+	"html/template"
 	"io/ioutil"
 	"math/big"
 	"strconv"

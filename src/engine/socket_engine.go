@@ -3,7 +3,7 @@ package engine
 import (
 	"time"
 
-	proxy "github.com/andrecronje/lachesis/src/proxy/lachesis"
+	proxy "github.com/andrecronje/lachesis/src/proxy/socket/lachesis"
 	"github.com/andrecronje/evm/src/service"
 	"github.com/andrecronje/evm/src/state"
 	"github.com/sirupsen/logrus"
