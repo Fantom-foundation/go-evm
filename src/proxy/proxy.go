@@ -5,7 +5,7 @@ import (
 
 	"github.com/andrecronje/evm/src/service"
 	"github.com/andrecronje/evm/src/state"
-	proxy "github.com/andrecronje/lachesis/src/proxy/lachesis"
+	proxy "github.com/andrecronje/lachesis/src/proxy/socket/lachesis"
 	"github.com/sirupsen/logrus"
 )
 
