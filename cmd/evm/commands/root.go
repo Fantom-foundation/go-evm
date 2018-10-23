@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"path/filepath"
-
 	_config "github.com/andrecronje/evm/src/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

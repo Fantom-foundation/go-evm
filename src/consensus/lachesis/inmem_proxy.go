@@ -47,8 +47,8 @@ func (i *InmemProxy) CommitBlock(block poset.Block) ([]byte, error) {
 	blockHashBytes, err := block.Hash()
 	blockHash := common.BytesToHash(blockHashBytes)
 
-	for i, tx := range block.Transactions() {
-		if err := i.state.ApplyTransaction(tx, i, blockHash); err != nil {
+	for x, tx := range block.Transactions() {
+		if err := i.state.ApplyTransaction(tx, x, blockHash); err != nil {
 			return []byte{}, err
 		}
 	}

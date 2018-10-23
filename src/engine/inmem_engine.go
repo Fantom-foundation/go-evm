@@ -13,6 +13,7 @@ import (
 	serv "github.com/andrecronje/lachesis/src/service"
 	"github.com/andrecronje/evm/src/service"
 	"github.com/andrecronje/evm/src/state"
+	"github.com/andrecronje/evm/src/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -23,7 +24,7 @@ type InmemEngine struct {
 	service    *serv.Service
 }
 
-func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) {
+func NewInmemEngine(config config.Config, logger *logrus.Logger) (*InmemEngine, error) {
 	submitCh := make(chan []byte)
 
 	state, err := state.NewState(logger,
@@ -46,7 +47,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 	//------------------------------------------------------------------------------
 
 	// Create the PEM key
-	pemKey := crypto.NewPemKey(config.Lachesis.Dir)
+	pemKey := crypto.NewPemKey(config.Lachesis.DataDir)
 
 	// Try a read
 	key, err := pemKey.ReadKey()
@@ -55,7 +56,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 	}
 
 	// Create the peer store
-	peerStore := peers.NewJSONPeers(config.Lachesis.Dir)
+	peerStore := peers.NewJSONPeers(config.Lachesis.DataDir)
 	// Try a read
 	participants, err := peerStore.Peers()
 	if err != nil {
@@ -120,7 +121,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 	}*/
 
 	trans, err := net.NewTCPTransport(
-		config.Lachesis.NodeAddr, nil, 2, conf.TCPTimeout, logger)
+		config.Lachesis.BindAddr, nil, 2, conf.TCPTimeout, logger)
 	if err != nil {
 		return nil, fmt.Errorf("Creating TCP Transport: %s", err)
 	}
@@ -130,7 +131,7 @@ func NewInmemEngine(config Config, logger *logrus.Logger) (*InmemEngine, error) 
 		return nil, fmt.Errorf("Initializing node: %s", err)
 	}
 
-	lserv := serv.NewService(config.Lachesis.APIAddr, node, logger)
+	lserv := serv.NewService(config.Lachesis.ServiceAddr, node, logger)
 
 	return &InmemEngine{
 		ethState:   state,

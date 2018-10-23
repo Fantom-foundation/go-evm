@@ -28,6 +28,10 @@ type Config struct {
 
 	// Options for Raft consensus
 	Raft *RaftConfig `mapstructure:"raft"`
+
+	ProxyAddr  string                  `mapstructure:"proxy-listen"`
+	ClientAddr string                  `mapstructure:"client-connect"`
+	Standalone bool                    `mapstructure:"standalone"`
 }
 
 // DefaultConfig returns the default configuration for an EVM-Lite node
@@ -37,6 +41,8 @@ func DefaultConfig() *Config {
 		Eth:          DefaultEthConfig(),
 		Lachesis:     DefaultLachesisConfig(),
 		Raft:         DefaultRaftConfig(),
+		ProxyAddr:    "127.0.0.1:1338",
+		ClientAddr:   "127.0.0.1:1339",
 	}
 }
 
