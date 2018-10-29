@@ -3,18 +3,18 @@ package engine
 import (
 	"time"
 
-	proxy "github.com/andrecronje/lachesis/src/proxy/socket/lachesis"
-	"github.com/andrecronje/lachesis/src/poset"
+	"github.com/andrecronje/evm/src/config"
 	"github.com/andrecronje/evm/src/service"
 	"github.com/andrecronje/evm/src/state"
-	"github.com/andrecronje/evm/src/config"
+	"github.com/andrecronje/lachesis/src/poset"
+	proxy "github.com/andrecronje/lachesis/src/proxy/socket/lachesis"
 	"github.com/sirupsen/logrus"
 )
 
 type SocketEngine struct {
 	service  *service.Service
 	state    *state.State
-	proxy    *proxy.SocketLachesisProxy
+	proxy    *proxy.WebsocketLachesisProxy
 	submitCh chan []byte
 	logger   *logrus.Logger
 }
@@ -37,8 +37,7 @@ func NewSocketEngine(config config.Config, logger *logrus.Logger) (*SocketEngine
 		submitCh,
 		logger)
 
-	lproxy, err := proxy.NewSocketLachesisProxy(config.ProxyAddr,
-		config.ClientAddr,
+	lproxy, err := proxy.NewWebsocketLachesisProxy(config.ProxyAddr,
 		NewHandler(state),
 		time.Duration(config.Lachesis.TCPTimeout)*time.Millisecond,
 		logger)
@@ -64,7 +63,7 @@ func (s *SocketEngine) serve() {
 				s.logger.WithError(err).Error("SubmitTx")
 			}
 			s.logger.Debug("proxy submitted tx")
-		/*case commit := <-s.proxy.CommitCh():
+			/*case commit := <-s.proxy.CommitCh():
 			s.logger.Debug("CommitBlock")
 			stateHash, err := s.state.ProcessBlock(commit.Block)
 			commit.Respond(stateHash.Bytes(), err)*/
@@ -74,44 +73,41 @@ func (s *SocketEngine) serve() {
 
 // Implements proxy.ProxyHandler interface
 type Handler struct {
-      stateHash []byte
-			state     *state.State
+	stateHash []byte
+	state     *state.State
 }
 
 // Called when a new block is comming. This particular example just computes
 // the stateHash incrementaly with incoming blocks
 func (h *Handler) CommitHandler(block poset.Block) (stateHash []byte, err error) {
-      /*hash := h.stateHash
+	/*hash := h.stateHash
 
-      for _, tx := range block.Transactions() {
-              hash = crypto.SimpleHashFromTwoHashes(hash, crypto.SHA256(tx))
-      }
+	  for _, tx := range block.Transactions() {
+	          hash = crypto.SimpleHashFromTwoHashes(hash, crypto.SHA256(tx))
+	  }
 
-      h.stateHash = hash
+	  h.stateHash = hash
 
-      return h.stateHash, nil*/
-			hash, err := h.state.ProcessBlock(block)
-			return hash.Bytes(), nil
+	  return h.stateHash, nil*/
+	hash, err := h.state.ProcessBlock(block)
+	return hash.Bytes(), nil
 }
 
 // Called when syncing with the network
 func (h *Handler) SnapshotHandler(blockIndex int) (snapshot []byte, err error) {
-      return []byte{}, nil
+	return []byte{}, nil
 }
 
 // Called when syncing with the network
 func (h *Handler) RestoreHandler(snapshot []byte) (stateHash []byte, err error) {
-      return []byte{}, nil
+	return []byte{}, nil
 }
 
 func NewHandler(state *state.State) *Handler {
-      return &Handler{
-				state:    state,
-			}
+	return &Handler{
+		state: state,
+	}
 }
-
-
-
 
 /*******************************************************************************
 Implement Engine interface

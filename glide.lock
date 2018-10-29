@@ -1,10 +1,10 @@
 hash: 79c1f409425659d80eb88ba8f5f303fd478286c6697d19be98523338fcb5f40c
-updated: 2018-10-23T17:35:03.3511072+02:00
+updated: 2018-10-29T10:25:23.212018041+02:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 343706a395b76e5ca5c7dca46a5d937b48febc74
 - name: github.com/andrecronje/lachesis
-  version: 5916fe757ebc764a3ba7875b1367ff07e0a8a6de
+  version: b52f04a46916ff93d2a8bc7616ad85dc4dab1bc7
   subpackages:
   - src/common
   - src/crypto
@@ -15,9 +15,11 @@ imports:
   - src/peers
   - src/poset
   - src/proxy
+  - src/proxy/birpc
   - src/proxy/proto
   - src/proxy/socket/lachesis
   - src/service
+  - src/utils
 - name: github.com/aristanetworks/goarista
   version: 33151c4543a79b013e8e6799ef45b2ba88c3cd1c
   subpackages:
@@ -79,10 +81,14 @@ imports:
   - trie
 - name: github.com/fsnotify/fsnotify
   version: ccc981bf80385c528a65fbfdd49bf2d8da22aa23
+- name: github.com/go-chi/chi
+  version: b5294d10673813fac8558e7f47242bc9e61b4c25
+  subpackages:
+  - middleware
 - name: github.com/go-stack/stack
   version: 2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a
 - name: github.com/golang/protobuf
-  version: d7fc20193620986259ffb1f9b9da752114ee14a4
+  version: d3de96c4c28ef8af3aa1a892fc481e0f103c01ff
   subpackages:
   - proto
 - name: github.com/golang/snappy
@@ -90,7 +96,7 @@ imports:
 - name: github.com/google/uuid
   version: 9b3b1e0f5f99ae461456d768e7d301a7acdaa2d8
 - name: github.com/gorilla/mux
-  version: deb579d6e030503f430978ee229008b9bc912d40
+  version: 521ea7b17d02faf8d3afea6737573942ceac59c5
 - name: github.com/gorilla/websocket
   version: 66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d
 - name: github.com/hashicorp/go-immutable-radix
@@ -130,27 +136,27 @@ imports:
 - name: github.com/pelletier/go-toml
   version: 81a861c69d25a841d0c4394f0e6f84bc8c5afae0
 - name: github.com/pkg/errors
-  version: d58f94251046e7f70ac45aceea6cf6f61415ccca
+  version: 059132a15dd08d6704c67711dae0cf35ab991756
 - name: github.com/rjeczalik/notify
-  version: 69d839f37b13a8cb7a78366f7633a4071cb43be7
+  version: 352c463f90a00c0cf83b1148f11ada779308f411
 - name: github.com/rs/cors
   version: a3460e445dd310dbefee993fe449f2ff9c08ae71
 - name: github.com/satori/go.uuid
   version: 36e9d2ebbde5e3f13ab2e25625fd453271d6522e
 - name: github.com/sirupsen/logrus
-  version: 4fabf2fffcecfd47f802869b7b92d75e43c5a095
+  version: ad15b42461921f1fb3529b058c6786c6a45d5162
 - name: github.com/spf13/afero
   version: d40851caa0d747393da1ffb28f7f9d8b4eeffebd
   subpackages:
   - mem
 - name: github.com/spf13/cast
-  version: efb632f0f61348654b631fd11da5ff457a5ca2ef
+  version: 8c9545af88b134710ab1cd196795e7f2388358d7
 - name: github.com/spf13/cobra
   version: ef82de70bb3f60c65fb8eebacbb2d122ef517385
 - name: github.com/spf13/jwalterweatherman
-  version: 103a6da826d08544f49833dabd4f1cdf8a1038bb
+  version: 94f6ae3ed3bceceafa716478c5fbf8d29ca601a1
 - name: github.com/spf13/pflag
-  version: 298182f68c66c05229eb03ac171abe6e309ee79a
+  version: 082b515c9490f4eccc758469c3152b77d139f868
 - name: github.com/spf13/viper
   version: 907c19d40d9a6c9bb55f040ff4ae45271a4754b9
 - name: github.com/syndtr/goleveldb
@@ -173,14 +179,14 @@ imports:
   subpackages:
   - codec
 - name: golang.org/x/crypto
-  version: 0c41d7ab0a0ee717d4590a44bcb987dfd9e183eb
+  version: 45a5f77698d342a8c2ef8423abdf0ba6880b008a
   subpackages:
   - pbkdf2
   - ripemd160
   - scrypt
   - ssh/terminal
 - name: golang.org/x/net
-  version: 04a2e542c03f1d053ab3e4d6e5abcd4b66e2be8e
+  version: c44066c5c816ec500d459a2a324a753f78531ae0
   subpackages:
   - context
   - internal/socks
@@ -189,7 +195,7 @@ imports:
   - trace
   - websocket
 - name: golang.org/x/sys
-  version: 44b849a8bc13eb42e95e6c6c5e360481b73ec710
+  version: 95b1ffbd15a57cc5abb3f04402b9e8ec0016a52c
   subpackages:
   - cpu
   - unix
