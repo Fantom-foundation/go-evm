@@ -1,20 +1,18 @@
 package engine
 
 import (
-	"time"
-
 	"github.com/andrecronje/evm/src/config"
 	"github.com/andrecronje/evm/src/service"
 	"github.com/andrecronje/evm/src/state"
 	"github.com/andrecronje/lachesis/src/poset"
-	proxy "github.com/andrecronje/lachesis/src/proxy/socket/lachesis"
+	"github.com/andrecronje/lachesis/src/proxy"
 	"github.com/sirupsen/logrus"
 )
 
 type SocketEngine struct {
 	service  *service.Service
 	state    *state.State
-	proxy    *proxy.WebsocketLachesisProxy
+	proxy    *proxy.GrpcLachesisProxy
 	submitCh chan []byte
 	logger   *logrus.Logger
 }
@@ -37,10 +35,7 @@ func NewSocketEngine(config config.Config, logger *logrus.Logger) (*SocketEngine
 		submitCh,
 		logger)
 
-	lproxy, err := proxy.NewWebsocketLachesisProxy(config.ProxyAddr,
-		NewHandler(state),
-		time.Duration(config.Lachesis.TCPTimeout)*time.Millisecond,
-		logger)
+	lproxy, err := proxy.NewGrpcLachesisProxy(config.ProxyAddr, logger)
 	if err != nil {
 		return nil, err
 	}
