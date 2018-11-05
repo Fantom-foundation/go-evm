@@ -35,6 +35,9 @@ func NewSocketEngine(config config.Config, logger *logrus.Logger) (*SocketEngine
 		submitCh,
 		logger)
 
+	logger.WithFields(logrus.Fields{
+		"config":   config}).Debug("NewSocketEngine")
+
 	lproxy, err := proxy.NewGrpcLachesisProxy(config.ProxyAddr, logger)
 	if err != nil {
 		return nil, err

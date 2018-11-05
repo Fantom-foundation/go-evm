@@ -37,6 +37,7 @@ func ParseConfig() (*_config.Config, error) {
 	conf := _config.DefaultConfig()
 	err := viper.Unmarshal(conf)
 	if err != nil {
+		logger.WithError(err).Debug("Unmarshal")
 		return nil, err
 	}
 	return conf, err
@@ -48,21 +49,24 @@ var RootCmd = &cobra.Command{
 	Short: "LightWeight EVM",
 	TraverseChildren: true,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) (err error) {
+
+		logger = logrus.New()
+		logger.Level = logLevel(config.BaseConfig.LogLevel)
+
 		if cmd.Name() == VersionCmd.Name() {
 			return nil
 		}
 
 		if err := bindFlagsLoadViper(cmd); err != nil {
+			logger.WithError(err).Debug("bindFlagsLoadViper")
 			return err
 		}
 
 		config, err = ParseConfig()
 		if err != nil {
+			logger.WithError(err).Debug("ParseConfig")
 			return err
 		}
-
-		logger = logrus.New()
-		logger.Level = logLevel(config.BaseConfig.LogLevel)
 
 		config.SetDataDir(config.BaseConfig.DataDir)
 
@@ -79,21 +83,23 @@ var RootCmd = &cobra.Command{
 func bindFlagsLoadViper(cmd *cobra.Command) error {
 	// cmd.Flags() includes flags from this command and all persistent flags from the parent
 	if err := viper.BindPFlags(cmd.Flags()); err != nil {
+		logger.WithError(err).Debug("viper.BindPFlags(cmd.Flags());")
 		return err
 	}
 
 	viper.SetConfigName("config")                                           // name of config file (without extension)
 	viper.AddConfigPath(config.BaseConfig.DataDir)                          // search root directory
 
+	err := viper.ReadInConfig();
+
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
+	if err == nil {
 		// stderr, so if we redirect output to json file, this doesn't appear
 		logger.Debugf("Using config file: ", viper.ConfigFileUsed())
 	} else if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 		logger.Debugf("No config file found in %s", config.DataDir)
-	} else {
-		return err
 	}
+	
 	return nil
 }
 

@@ -29,7 +29,7 @@ type Config struct {
 	// Options for Raft consensus
 	Raft *RaftConfig `mapstructure:"raft"`
 
-	ProxyAddr  string                  `mapstructure:"proxy-listen"`
+	ProxyAddr  string                  `mapstructure:"proxy"`
 	ClientAddr string                  `mapstructure:"client-connect"`
 	Standalone bool                    `mapstructure:"standalone"`
 }
