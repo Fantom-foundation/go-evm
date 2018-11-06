@@ -76,6 +76,11 @@ func (was *WriteAheadState) Reset(root common.Hash) error {
 	was.totalUsedGas = new(big.Int).SetUint64(0)
 	was.gp = new(core.GasPool).AddGas(was.gasLimit)
 
+	was.logger.WithFields(logrus.Fields{
+		"gasLimit":   gasLimit,
+		"was.gp":   was.gp,
+	}).Debug("(was *WriteAheadState) Reset(root common.Hash)")
+
 	return nil
 }
 
@@ -96,6 +101,8 @@ func (was *WriteAheadState) ApplyTransaction(tx ethTypes.Transaction, txIndex in
 		GasPrice:    msg.GasPrice(),
 		BlockNumber: big.NewInt(0), // The vm has a dependency on this..
 	}
+	was.logger.WithFields(logrus.Fields{
+		"GasLimit":   msg.Gas()}).Debug("was.ApplyTransaction")
 
 	//Prepare the ethState with transaction Hash so that it can be used in emitted
 	//logs
@@ -106,7 +113,7 @@ func (was *WriteAheadState) ApplyTransaction(tx ethTypes.Transaction, txIndex in
 	// Apply the transaction to the current state (included in the env)
 	_, gas, failed, err := core.ApplyMessage(vmenv, msg, was.gp)
 	if err != nil {
-		was.logger.WithError(err).Error("Applying transaction to WAS")
+		was.logger.WithError(err).Error("Applying transaction to WriteAheadState")
 		return err
 	}
 

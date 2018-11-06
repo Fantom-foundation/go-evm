@@ -61,10 +61,10 @@ func (s *SocketEngine) serve() {
 				s.logger.WithError(err).Error("SubmitTx")
 			}
 			s.logger.Debug("proxy submitted tx")
-			/*case commit := <-s.proxy.CommitCh():
+		case commit := <-s.proxy.CommitCh():
 			s.logger.Debug("CommitBlock")
 			stateHash, err := s.state.ProcessBlock(commit.Block)
-			commit.Respond(stateHash.Bytes(), err)*/
+			commit.Respond(stateHash.Bytes(), err)
 		}
 	}
 }

@@ -270,6 +270,10 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		GasPrice:    msg.GasPrice(),
 		BlockNumber: big.NewInt(0), //the vm has a dependency on this..
 	}
+	s.logger.WithFields(logrus.Fields{
+		"GasLimit":   msg.Gas(),
+		"s.was.gp":   s.was.gp,
+	}).Debug("state.ApplyTransaction")
 
 	//Prepare the ethState with transaction Hash so that it can be used in emitted
 	//logs
@@ -288,7 +292,7 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		txHash := t.Hash()
 		txErrorMarshal, _ := txError.Marshal()
 		s.db.Put(append(errorPrefix, txHash[:]...), txErrorMarshal)
-		s.logger.WithError(err).Error("Applying transaction to WAS")
+		s.logger.WithError(err).Error("Applying transaction to State")
 		return err
 	}
 
@@ -366,8 +370,12 @@ func (s *State) resetWAS() {
 		totalUsedGas: big.NewInt(0),
 		gp:           new(core.GasPool).AddGas(gasLimit.Uint64()),
 		logger:       s.logger,
+		gasLimit:     gasLimit.Uint64(),
 	}
-	s.logger.Debug("Reset Write Ahead State")
+	s.logger.WithFields(logrus.Fields{
+		"gasLimit":   gasLimit.Uint64(),
+		"s.was.gp":   s.was.gp,
+	}).Debug("Reset Write Ahead State")
 }
 
 //------------------------------------------------------------------------------
