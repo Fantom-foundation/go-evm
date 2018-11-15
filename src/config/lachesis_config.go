@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
+const (
 	defaultNodeAddr        = ":1337"
 	defaultLachesisAPIAddr = ":8000"
 	defaultHeartbeat       = 500 * time.Millisecond
@@ -16,8 +16,11 @@ var (
 	defaultCacheSize       = 50000
 	defaultSyncLimit       = 1000
 	defaultMaxPool         = 2
-	defaultLachesisDir     = fmt.Sprintf("%s/lachesis", DefaultDataDir)
-	defaultPeersFile       = fmt.Sprintf("%s/peers.json", defaultLachesisDir)
+)
+
+var (
+	defaultLachesisDir = fmt.Sprintf("%s/lachesis", DefaultDataDir)
+	defaultPeersFile   = fmt.Sprintf("%s/peers.json", defaultLachesisDir)
 )
 
 // LachesisConfig contains the configuration of a Lachesis node
@@ -42,7 +45,7 @@ type LachesisConfig struct {
 	CacheSize int `mapstructure:"cache-size"`
 
 	// Max number of Event in SyncResponse
-	SyncLimit int `mapstructure:"sync-limit"`
+	SyncLimit int64 `mapstructure:"sync-limit"`
 
 	// Max number of connections in net pool
 	MaxPool int `mapstructure:"max-pool"`
