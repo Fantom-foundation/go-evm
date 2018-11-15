@@ -4,16 +4,20 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"math/big"
+	"net"
 	"net/http"
 	"os"
 	"strings"
 	"sync"
 
-	"github.com/andrecronje/evm/src/common"
-	"github.com/andrecronje/evm/src/state"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
+
+	"github.com/andrecronje/evm/src/common"
+	"github.com/andrecronje/evm/src/config"
+	"github.com/andrecronje/evm/src/state"
 )
 
 var defaultGas = big.NewInt(90000)
@@ -31,6 +35,27 @@ type Service struct {
 	pwdFile     string
 	logger      *logrus.Logger
 
+	rpcConfig *config.RpcConfig
+
+	rpcAPIs       []rpc.API   // List of APIs currently provided by the node
+	inprocHandler *rpc.Server // In-process RPC request handler to process the API requests
+
+	ipcEndpoint string       // IPC endpoint to listen at (empty = IPC disabled)
+	ipcListener net.Listener // IPC RPC listener socket to serve API requests
+	ipcHandler  *rpc.Server  // IPC RPC request handler to process the API requests
+
+	httpEndpoint  string       // HTTP endpoint (interface + port) to listen at (empty = HTTP disabled)
+	httpWhitelist []string     // HTTP RPC modules to allow through this endpoint
+	httpListener  net.Listener // HTTP RPC listener socket to server API requests
+	httpHandler   *rpc.Server  // HTTP RPC request handler to process the API requests
+
+	wsEndpoint string       // Websocket endpoint (interface + port) to listen at (empty = websocket disabled)
+	wsListener net.Listener // Websocket RPC listener socket to server API requests
+	wsHandler  *rpc.Server  // Websocket RPC request handler to process the API requests
+
+	stop chan struct{} // Channel to wait for termination notifications
+	lock sync.RWMutex
+
 	//XXX
 	getInfo infoCallback
 }
@@ -46,7 +71,10 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 		pwdFile:     pwdFile,
 		state:       state,
 		submitCh:    submitCh,
-		logger:      logger}
+		logger:      logger,
+		// TODO: not default rpcConfig required
+		rpcConfig: &config.DefaultRpcConfig,
+	}
 }
 
 func (m *Service) Run() {
@@ -57,6 +85,12 @@ func (m *Service) Run() {
 	m.checkErr(m.createGenesisAccounts())
 
 	m.logger.Info("serving api...")
+
+	err := m.StartRPC()
+	if err != nil {
+		panic(err)
+	}
+
 	m.serveAPI()
 }
 
