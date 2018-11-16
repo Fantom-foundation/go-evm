@@ -73,10 +73,8 @@ func blockByHashHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		return
 	}
 
-	blockHash := block.Hex()
-
 	jsBlock := JsonBlock{
-		Hash: blockHash,
+		Hash: block.Hex,
 	}
 
 	js, err := json.Marshal(jsBlock)
@@ -100,7 +98,7 @@ This endpoint should be used to fetch information about ANY block.
 func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	param := r.URL.Path[len("/blockById/"):]
 	m.logger.WithField("param", param).Debug("GET account")
-	id, err := strconv.Atoi(param)
+	id, err := strconv.ParseInt(param, 10, 64)
 	if err != nil {
 		m.logger.WithError(err).Errorf("Parsing block_index parameter %s", param)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -115,14 +113,13 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		return
 	}
 
-	blockHash := block.Hex() //string
 	blockIndex := block.Index() //int
 	blockRound := block.RoundReceived() //int
 	blockStateHash := hexutil.Encode(block.StateHash()) //[]byte
 	blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
 
 	jsBlock := JsonBlock{
-		Hash: blockHash,
+		Hash: block.Hex,
 		Index: blockIndex,
 		Round: blockRound,
 		StateHash: blockStateHash,

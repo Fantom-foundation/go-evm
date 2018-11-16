@@ -44,17 +44,17 @@ var (
 	framePrefix       = "frame"
 )
 
-func blockKey(index int) []byte {
+func blockKey(index int64) []byte {
 	return []byte(fmt.Sprintf("%s_%09d", blockPrefix, index))
 }
 
 type State struct {
 	db          ethdb.Database
 	commitMutex sync.Mutex
-	ethState     *ethState.StateDB
+	ethState    *ethState.StateDB
 	was         *WriteAheadState
-	txPool   *TxPool
-	blockIndex  int
+	txPool      *TxPool
+	blockIndex  int64
 
 	signer      ethTypes.Signer
 	chainConfig params.ChainConfig //vm.env is still tightly coupled with chainConfig
@@ -142,7 +142,7 @@ func (s *State) Call(callMsg ethTypes.Message) ([]byte, error) {
 	return res, err
 }
 
-func (s *State) GetBlockIndex() int  {
+func (s *State) GetBlockIndex() int64 {
 	return s.blockIndex
 }
 
@@ -151,14 +151,13 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	s.commitMutex.Lock()
 	defer s.commitMutex.Unlock()
 
-	blockHashBytes, _ := block.Hash()
 	blockIndex := block.Index()
-	blockHash := common.BytesToHash(blockHashBytes)
-	blockMarshal, _ := block.Marshal()
+	blockHash := common.BytesToHash(block.Hash)
+	blockMarshal, _ := block.ProtoMarshal()
 
 	s.blockIndex = blockIndex
 
-	s.db.Put(blockHashBytes, blockMarshal)
+	s.db.Put(block.Hash, blockMarshal)
 	s.db.Put(blockKey(blockIndex), blockMarshal)
 
 	for txIndex, txBytes := range block.Transactions() {
@@ -271,8 +270,8 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		BlockNumber: big.NewInt(0), //the vm has a dependency on this..
 	}
 	s.logger.WithFields(logrus.Fields{
-		"GasLimit":   msg.Gas(),
-		"s.was.gp":   s.was.gp,
+		"GasLimit": msg.Gas(),
+		"s.was.gp": s.was.gp,
 	}).Debug("state.ApplyTransaction")
 
 	//Prepare the ethState with transaction Hash so that it can be used in emitted
@@ -286,7 +285,7 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 	_, gas, failed, err := core.ApplyMessage(vmenv, msg, s.was.gp)
 	if err != nil {
 		txError := TxError{
-			Tx: t,
+			Tx:    t,
 			Error: err.Error(),
 		}
 		txHash := t.Hash()
@@ -373,8 +372,8 @@ func (s *State) resetWAS() {
 		gasLimit:     gasLimit.Uint64(),
 	}
 	s.logger.WithFields(logrus.Fields{
-		"gasLimit":   gasLimit.Uint64(),
-		"s.was.gp":   s.was.gp,
+		"gasLimit": gasLimit.Uint64(),
+		"s.was.gp": s.was.gp,
 	}).Debug("Reset Write Ahead State")
 }
 
@@ -508,7 +507,7 @@ func (s *State) GetBlock(hash common.Hash) (*poset.Block, error) {
 		return nil, err
 	}
 	newBlock := new(poset.Block)
-	if err := newBlock.Unmarshal(data); err != nil {
+	if err := newBlock.ProtoUnmarshal(data); err != nil {
 		s.logger.WithError(err).Error("GetBlock.newBlock := new(poset.Block)")
 		return nil, err
 	}
@@ -516,7 +515,7 @@ func (s *State) GetBlock(hash common.Hash) (*poset.Block, error) {
 	return newBlock, nil
 }
 
-func (s *State) GetBlockById(id int) (*poset.Block, error) {
+func (s *State) GetBlockById(id int64) (*poset.Block, error) {
 	// Retrieve the block itself from the database
 	key := blockKey(id)
 	data, err := s.db.Get(key)
@@ -525,7 +524,7 @@ func (s *State) GetBlockById(id int) (*poset.Block, error) {
 		return nil, err
 	}
 	newBlock := new(poset.Block)
-	if err := newBlock.Unmarshal(data); err != nil {
+	if err := newBlock.ProtoUnmarshal(data); err != nil {
 		s.logger.WithError(err).Error("GetBlockById.newBlock := new(poset.Block)")
 		return nil, err
 	}

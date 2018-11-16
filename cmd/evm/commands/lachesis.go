@@ -18,7 +18,7 @@ func AddLachesisFlags(cmd *cobra.Command) {
 	cmd.Flags().Duration("lachesis.heartbeat", config.Lachesis.Heartbeat, "Heartbeat time milliseconds (time between gossips)")
 	cmd.Flags().Duration("lachesis.timeout", config.Lachesis.TCPTimeout, "TCP timeout milliseconds")
 	cmd.Flags().Int("lachesis.cache-size", config.Lachesis.CacheSize, "Number of items in LRU caches")
-	cmd.Flags().Int("lachesis.sync-limit", config.Lachesis.SyncLimit, "Max number of Events per sync")
+	cmd.Flags().Int64("lachesis.sync-limit", config.Lachesis.SyncLimit, "Max number of Events per sync")
 	cmd.Flags().Int("lachesis.max-pool", config.Lachesis.MaxPool, "Max number of pool connections")
 	cmd.Flags().Bool("lachesis.store", config.Lachesis.Store, "use persistent store")
 	viper.BindPFlags(cmd.Flags())
