@@ -64,6 +64,8 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 	state *state.State,
 	submitCh chan []byte,
 	logger *logrus.Logger) *Service {
+	rpcConfig := &config.DefaultRpcConfig
+
 	return &Service{
 		genesisFile: genesisFile,
 		keystoreDir: keystoreDir,
@@ -73,7 +75,10 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 		submitCh:    submitCh,
 		logger:      logger,
 		// TODO: not default rpcConfig required
-		rpcConfig: &config.DefaultRpcConfig,
+		rpcConfig:    rpcConfig,
+		ipcEndpoint:  rpcConfig.IPCEndpoint(),
+		httpEndpoint: rpcConfig.HTTPEndpoint(),
+		wsEndpoint:   rpcConfig.WSEndpoint(),
 	}
 }
 

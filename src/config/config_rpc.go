@@ -108,10 +108,12 @@ const (
 // DefaultRpcConfig contains reasonable default settings.
 var DefaultRpcConfig = RpcConfig{
 	DataDir:          DefaultDataDir,
+	HTTPHost:         "localhost",
 	HTTPPort:         DefaultHTTPPort,
 	HTTPModules:      []string{"net", "web3"},
 	HTTPVirtualHosts: []string{"localhost"},
 	HTTPTimeouts:     rpc.DefaultHTTPTimeouts,
+	WSHost:           "localhost",
 	WSPort:           DefaultWSPort,
 	WSModules:        []string{"net", "web3"},
 }
