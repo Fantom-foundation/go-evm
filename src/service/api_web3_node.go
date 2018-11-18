@@ -16,23 +16,47 @@ import (
 	"github.com/andrecronje/evm/src/config"
 )
 
-var ErrNotImplemented = fmt.Errorf("Not implemented yet")
+// GetNodeAPIs returns the collection of RPC descriptors this node offers.
+func GetNodeAPIs(n *Service) []rpc.API {
+	return []rpc.API{
+		{
+			Namespace: "admin",
+			Version:   "1.0",
+			Service:   NewNodePrivateAdminAPI(n),
+		}, {
+			Namespace: "admin",
+			Version:   "1.0",
+			Service:   NewNodePublicAdminAPI(n),
+			Public:    true,
+		}, {
+			Namespace: "debug",
+			Version:   "1.0",
+			Service:   NewNodePublicDebugAPI(n),
+			Public:    true,
+		}, {
+			Namespace: "web3",
+			Version:   "1.0",
+			Service:   NewNodePublicWeb3API(n),
+			Public:    true,
+		},
+	}
+}
 
 // PrivateAdminAPI is the collection of administrative API methods exposed only
 // over a secure RPC channel.
-type PrivateAdminAPI struct {
+type NodePrivateAdminAPI struct {
 	node *Service // Service interfaced by this API
 }
 
 // NewPrivateAdminAPI creates a new API definition for the private admin methods
 // of the node itself.
-func NewPrivateAdminAPI(node *Service) *PrivateAdminAPI {
-	return &PrivateAdminAPI{node: node}
+func NewNodePrivateAdminAPI(node *Service) *NodePrivateAdminAPI {
+	return &NodePrivateAdminAPI{node: node}
 }
 
 // AddPeer requests connecting to a remote node, and also maintaining the new
 // connection at all times, even reconnecting if it is lost.
-func (api *PrivateAdminAPI) AddPeer(url string) (bool, error) {
+func (api *NodePrivateAdminAPI) AddPeer(url string) (bool, error) {
 	/*
 		// Make sure the server is running, fail otherwise
 		server := api.node.Server()
@@ -51,7 +75,7 @@ func (api *PrivateAdminAPI) AddPeer(url string) (bool, error) {
 }
 
 // RemovePeer disconnects from a remote node if the connection exists
-func (api *PrivateAdminAPI) RemovePeer(url string) (bool, error) {
+func (api *NodePrivateAdminAPI) RemovePeer(url string) (bool, error) {
 	/*
 		// Make sure the server is running, fail otherwise
 		server := api.node.Server()
@@ -70,7 +94,7 @@ func (api *PrivateAdminAPI) RemovePeer(url string) (bool, error) {
 }
 
 // AddTrustedPeer allows a remote node to always connect, even if slots are full
-func (api *PrivateAdminAPI) AddTrustedPeer(url string) (bool, error) {
+func (api *NodePrivateAdminAPI) AddTrustedPeer(url string) (bool, error) {
 	/*
 		// Make sure the server is running, fail otherwise
 		server := api.node.Server()
@@ -89,7 +113,7 @@ func (api *PrivateAdminAPI) AddTrustedPeer(url string) (bool, error) {
 
 // RemoveTrustedPeer removes a remote node from the trusted peer set, but it
 // does not disconnect it automatically.
-func (api *PrivateAdminAPI) RemoveTrustedPeer(url string) (bool, error) {
+func (api *NodePrivateAdminAPI) RemoveTrustedPeer(url string) (bool, error) {
 	/*
 		// Make sure the server is running, fail otherwise
 		server := api.node.Server()
@@ -108,7 +132,7 @@ func (api *PrivateAdminAPI) RemoveTrustedPeer(url string) (bool, error) {
 
 // PeerEvents creates an RPC subscription which receives peer events from the
 // node's p2p.Server
-func (api *PrivateAdminAPI) PeerEvents(ctx context.Context) (*rpc.Subscription, error) {
+func (api *NodePrivateAdminAPI) PeerEvents(ctx context.Context) (*rpc.Subscription, error) {
 	/*
 		// Make sure the server is running, fail otherwise
 		server := api.node.Server()
@@ -148,7 +172,7 @@ func (api *PrivateAdminAPI) PeerEvents(ctx context.Context) (*rpc.Subscription, 
 }
 
 // StartRPC starts the HTTP RPC API server.
-func (api *PrivateAdminAPI) StartRPC(host *string, port *int, cors *string, apis *string, vhosts *string) (bool, error) {
+func (api *NodePrivateAdminAPI) StartRPC(host *string, port *int, cors *string, apis *string, vhosts *string) (bool, error) {
 	api.node.lock.Lock()
 	defer api.node.lock.Unlock()
 
@@ -198,7 +222,7 @@ func (api *PrivateAdminAPI) StartRPC(host *string, port *int, cors *string, apis
 }
 
 // StopRPC terminates an already running HTTP RPC API endpoint.
-func (api *PrivateAdminAPI) StopRPC() (bool, error) {
+func (api *NodePrivateAdminAPI) StopRPC() (bool, error) {
 	api.node.lock.Lock()
 	defer api.node.lock.Unlock()
 
@@ -210,7 +234,7 @@ func (api *PrivateAdminAPI) StopRPC() (bool, error) {
 }
 
 // StartWS starts the websocket RPC API server.
-func (api *PrivateAdminAPI) StartWS(host *string, port *int, allowedOrigins *string, apis *string) (bool, error) {
+func (api *NodePrivateAdminAPI) StartWS(host *string, port *int, allowedOrigins *string, apis *string) (bool, error) {
 	api.node.lock.Lock()
 	defer api.node.lock.Unlock()
 
@@ -252,7 +276,7 @@ func (api *PrivateAdminAPI) StartWS(host *string, port *int, allowedOrigins *str
 }
 
 // StopWS terminates an already running websocket RPC API endpoint.
-func (api *PrivateAdminAPI) StopWS() (bool, error) {
+func (api *NodePrivateAdminAPI) StopWS() (bool, error) {
 	api.node.lock.Lock()
 	defer api.node.lock.Unlock()
 
@@ -265,19 +289,19 @@ func (api *PrivateAdminAPI) StopWS() (bool, error) {
 
 // PublicAdminAPI is the collection of administrative API methods exposed over
 // both secure and unsecure RPC channels.
-type PublicAdminAPI struct {
+type NodePublicAdminAPI struct {
 	node *Service // Node interfaced by this API
 }
 
 // NewPublicAdminAPI creates a new API definition for the public admin methods
 // of the node itself.
-func NewPublicAdminAPI(node *Service) *PublicAdminAPI {
-	return &PublicAdminAPI{node: node}
+func NewNodePublicAdminAPI(node *Service) *NodePublicAdminAPI {
+	return &NodePublicAdminAPI{node: node}
 }
 
 // Peers retrieves all the information we know about each individual peer at the
 // protocol granularity.
-func (api *PublicAdminAPI) Peers() ([]*p2p.PeerInfo, error) {
+func (api *NodePublicAdminAPI) Peers() ([]*p2p.PeerInfo, error) {
 	/*
 		server := api.node.Server()
 		if server == nil {
@@ -290,7 +314,7 @@ func (api *PublicAdminAPI) Peers() ([]*p2p.PeerInfo, error) {
 
 // NodeInfo retrieves all the information we know about the host node at the
 // protocol granularity.
-func (api *PublicAdminAPI) NodeInfo() (*p2p.NodeInfo, error) {
+func (api *NodePublicAdminAPI) NodeInfo() (*p2p.NodeInfo, error) {
 	/*
 		server := api.node.Server()
 		if server == nil {
@@ -302,25 +326,25 @@ func (api *PublicAdminAPI) NodeInfo() (*p2p.NodeInfo, error) {
 }
 
 // Datadir retrieves the current data directory the node is using.
-func (api *PublicAdminAPI) Datadir() string {
+func (api *NodePublicAdminAPI) Datadir() string {
 	//return api.node.DataDir()
 	return ErrNotImplemented.Error()
 }
 
 // PublicDebugAPI is the collection of debugging related API methods exposed over
 // both secure and unsecure RPC channels.
-type PublicDebugAPI struct {
+type NodePublicDebugAPI struct {
 	node *Service // Node interfaced by this API
 }
 
 // NewPublicDebugAPI creates a new API definition for the public debug methods
 // of the node itself.
-func NewPublicDebugAPI(node *Service) *PublicDebugAPI {
-	return &PublicDebugAPI{node: node}
+func NewNodePublicDebugAPI(node *Service) *NodePublicDebugAPI {
+	return &NodePublicDebugAPI{node: node}
 }
 
 // Metrics retrieves all the known system metric collected by the node.
-func (api *PublicDebugAPI) Metrics(raw bool) (map[string]interface{}, error) {
+func (api *NodePublicDebugAPI) Metrics(raw bool) (map[string]interface{}, error) {
 	/*
 		// Create a rate formatter
 		units := []string{"", "K", "M", "G", "T", "E", "P"}
@@ -456,23 +480,23 @@ func (api *PublicDebugAPI) Metrics(raw bool) (map[string]interface{}, error) {
 }
 
 // PublicWeb3API offers helper utils
-type PublicWeb3API struct {
+type NodePublicWeb3API struct {
 	stack *Service
 }
 
 // NewPublicWeb3API creates a new Web3Service instance
-func NewPublicWeb3API(stack *Service) *PublicWeb3API {
-	return &PublicWeb3API{stack}
+func NewNodePublicWeb3API(stack *Service) *NodePublicWeb3API {
+	return &NodePublicWeb3API{stack}
 }
 
 // ClientVersion returns the node name
-func (s *PublicWeb3API) ClientVersion() string {
+func (s *NodePublicWeb3API) ClientVersion() string {
 	// return s.stack.Server().Name
 	return ErrNotImplemented.Error()
 }
 
 // Sha3 applies the ethereum sha3 implementation on the input.
 // It assumes the input is hex encoded.
-func (s *PublicWeb3API) Sha3(input hexutil.Bytes) hexutil.Bytes {
+func (s *NodePublicWeb3API) Sha3(input hexutil.Bytes) hexutil.Bytes {
 	return crypto.Keccak256(input)
 }
