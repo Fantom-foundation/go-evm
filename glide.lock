@@ -1,5 +1,5 @@
-hash: 2e509cd2b45512a251b723d9de29c8ed657a99a47ca67aca6e1f7af67f0a8e9a
-updated: 2018-11-05T08:15:35.0055734+02:00
+hash: cc25b9908fc1ab2f02fd3525275077ec127573355e528ffea40ed3ef2caa740a
+updated: 2018-11-18T22:55:19.590852659+10:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 343706a395b76e5ca5c7dca46a5d937b48febc74
@@ -29,6 +29,10 @@ imports:
   version: 67e573d211ace594f1366b4ce9d39726c4b19bd0
   subpackages:
   - btcec
+- name: github.com/davecgh/go-spew
+  version: 8991bc29aa16c548c550c7ff78260e27b9ab7c73
+  subpackages:
+  - spew
 - name: github.com/deckarep/golang-set
   version: 699df6a3acf6867538e50931511e9dc403da108a
 - name: github.com/dgraph-io/badger
@@ -45,6 +49,8 @@ imports:
   version: 36d01c2b4cbeb3d2a12063e4880ce30800af9560
   subpackages:
   - packets
+- name: github.com/edsrzf/mmap-go
+  version: 0bce6a6887123b67a60366d2c9fe2dfb74289d2e
 - name: github.com/ethereum/go-ethereum
   version: 8bbe72075e4e16442c4e28d999edee12e294329e
   subpackages:
@@ -52,11 +58,13 @@ imports:
   - accounts/abi
   - accounts/keystore
   - common
+  - common/bitutil
   - common/hexutil
   - common/math
   - common/mclock
   - common/prque
   - consensus
+  - consensus/ethash
   - consensus/misc
   - core
   - core/rawdb
@@ -67,12 +75,20 @@ imports:
   - crypto/bn256
   - crypto/bn256/cloudflare
   - crypto/bn256/google
+  - crypto/ecies
   - crypto/secp256k1
   - crypto/sha3
+  - eth/downloader
   - ethdb
   - event
   - log
   - metrics
+  - p2p
+  - p2p/discover
+  - p2p/discv5
+  - p2p/enode
+  - p2p/enr
+  - p2p/nat
   - p2p/netutil
   - params
   - rlp
@@ -126,8 +142,19 @@ imports:
   - json/token
 - name: github.com/hashicorp/raft
   version: 6d14f0c70869faabd9e60ba7ed88a6cbbd6a661f
+- name: github.com/huin/goupnp
+  version: 656e61dfadd241c7cbdd22a023fa81ecb6860ea8
+  subpackages:
+  - dcps/internetgateway1
+  - dcps/internetgateway2
+  - httpu
+  - scpd
+  - soap
+  - ssdp
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/jackpal/go-nat-pmp
+  version: d89d09f6f3329bc3c2479aa3cafd76a5aa93a35c
 - name: github.com/konsorten/go-windows-terminal-sequences
   version: 5c8c8bd35d3832f5d134ae1e1e375b69a4d25242
 - name: github.com/magiconair/properties
@@ -194,6 +221,9 @@ imports:
   version: c44066c5c816ec500d459a2a324a753f78531ae0
   subpackages:
   - context
+  - html
+  - html/atom
+  - html/charset
   - http/httpguts
   - http2
   - http2/hpack
@@ -212,6 +242,22 @@ imports:
 - name: golang.org/x/text
   version: 4d1c5fb19474adfe9562c9847ba425e7da817e81
   subpackages:
+  - encoding
+  - encoding/charmap
+  - encoding/htmlindex
+  - encoding/internal
+  - encoding/internal/identifier
+  - encoding/japanese
+  - encoding/korean
+  - encoding/simplifiedchinese
+  - encoding/traditionalchinese
+  - encoding/unicode
+  - internal/language
+  - internal/language/compact
+  - internal/tag
+  - internal/utf8internal
+  - language
+  - runes
   - secure/bidirule
   - transform
   - unicode/bidi
