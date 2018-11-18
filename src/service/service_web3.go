@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/rpc"
+	//"github.com/andrecronje/evm/src/service/internal/ethapi"
 )
 
 // StartRPC starts the various API endpoints, terminating all in case of errors
@@ -221,26 +222,12 @@ func (n *Service) WSEndpoint() string {
 
 // apis returns the collection of RPC descriptors this node offers.
 func (n *Service) apis() []rpc.API {
-	return []rpc.API{
-		{
-			Namespace: "admin",
-			Version:   "1.0",
-			Service:   NewPrivateAdminAPI(n),
-		}, {
-			Namespace: "admin",
-			Version:   "1.0",
-			Service:   NewPublicAdminAPI(n),
-			Public:    true,
-		}, {
-			Namespace: "debug",
-			Version:   "1.0",
-			Service:   NewPublicDebugAPI(n),
-			Public:    true,
-		}, {
-			Namespace: "web3",
-			Version:   "1.0",
-			Service:   NewPublicWeb3API(n),
-			Public:    true,
-		},
-	}
+
+	apis := GetNodeAPIs(n)
+	apis = append(apis, GetEthAPIs(n)...)
+	// TODO: turn on after implementation
+	//var backend ethapi.Backend
+	//apis = append(apis, ethapi.GetAPIs(backend)...)
+
+	return apis
 }
