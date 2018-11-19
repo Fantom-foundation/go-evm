@@ -40,12 +40,15 @@ func (i *InmemProxy) SubmitCh() chan []byte {
 	return i.submitCh
 }
 
+func (i *InmemProxy) SubmitInternalCh() chan poset.InternalTransaction {
+	return nil
+}
+
 // CommitBlock commits Block to the State and expects the resulting state hash
 func (i *InmemProxy) CommitBlock(block poset.Block) ([]byte, error) {
 	i.logger.Debug("CommitBlock")
 
-	blockHashBytes, err := block.Hash()
-	blockHash := common.BytesToHash(blockHashBytes)
+	blockHash := common.BytesToHash(block.Hash)
 
 	for x, tx := range block.Transactions() {
 		if err := i.state.ApplyTransaction(tx, x, blockHash); err != nil {
@@ -62,7 +65,7 @@ func (i *InmemProxy) CommitBlock(block poset.Block) ([]byte, error) {
 }
 
 //TODO - Implement these two functions
-func (i *InmemProxy) GetSnapshot(blockIndex int) ([]byte, error) {
+func (i *InmemProxy) GetSnapshot(blockIndex int64) ([]byte, error) {
 	return []byte{}, nil
 }
 

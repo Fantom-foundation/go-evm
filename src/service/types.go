@@ -55,10 +55,10 @@ type JsonReceipt struct {
 }
 
 type JsonBlock struct {
-	Hash              string        `json:"hash"`
-	Index             int           `json:"index"`
-	Round             int           `json:"round"`
-	StateHash         string        `json:"stateHash"`
-	FrameHash         string        `json:"frameHash"`
-	Transactions      []JsonReceipt `json:"transactions"`
+	Hash         string        `json:"hash"`
+	Index        int64         `json:"index"`
+	Round        int64         `json:"round"`
+	StateHash    string        `json:"stateHash"`
+	FrameHash    string        `json:"frameHash"`
+	Transactions []JsonReceipt `json:"transactions"`
 }

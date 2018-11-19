@@ -4,7 +4,7 @@ imports:
 - name: github.com/AndreasBriese/bbloom
   version: 343706a395b76e5ca5c7dca46a5d937b48febc74
 - name: github.com/andrecronje/lachesis
-  version: 02ce898bbd34d103460cd01e0d0b89218326e50e
+  version: a03256ba45a4915ec25ac7b84ffa7d8d9a7a4cc1
   subpackages:
   - src/common
   - src/crypto
@@ -176,7 +176,7 @@ imports:
 - name: github.com/satori/go.uuid
   version: 36e9d2ebbde5e3f13ab2e25625fd453271d6522e
 - name: github.com/sirupsen/logrus
-  version: ad15b42461921f1fb3529b058c6786c6a45d5162
+  version: bcd833dfe83d3cebad139e4a29ed79cb2318bf95
 - name: github.com/spf13/afero
   version: d40851caa0d747393da1ffb28f7f9d8b4eeffebd
   subpackages:
