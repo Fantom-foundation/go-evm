@@ -5,6 +5,7 @@ import (
 )
 
 func main() {
+	//os.Args = []string{"evm", "--log=debug", "solo"}
 
 	rootCmd := cmd.RootCmd
 

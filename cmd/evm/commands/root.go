@@ -124,7 +124,7 @@ func logLevel(l string) logrus.Level {
 
 // setEthereumLogLevel configures github.com/ethereum/go-ethereum logger
 func setEthereumLogLevel(param string) {
-	lvl, _ := log.LvlFromString(config.BaseConfig.LogLevel)
+	lvl, _ := log.LvlFromString(param)
 	glogger := log.NewGlogHandler(log.StreamHandler(os.Stderr, log.TerminalFormat(true)))
 	glogger.Verbosity(log.Lvl(lvl))
 	log.Root().SetHandler(glogger)
