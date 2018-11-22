@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"math/big"
-	"net"
 	"net/http"
 	"os"
 	"strings"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/ethereum/go-ethereum/node"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
@@ -35,26 +34,8 @@ type Service struct {
 	pwdFile     string
 	logger      *logrus.Logger
 
-	rpcConfig *config.RpcConfig
-
-	rpcAPIs       []rpc.API   // List of APIs currently provided by the node
-	inprocHandler *rpc.Server // In-process RPC request handler to process the API requests
-
-	ipcEndpoint string       // IPC endpoint to listen at (empty = IPC disabled)
-	ipcListener net.Listener // IPC RPC listener socket to serve API requests
-	ipcHandler  *rpc.Server  // IPC RPC request handler to process the API requests
-
-	httpEndpoint  string       // HTTP endpoint (interface + port) to listen at (empty = HTTP disabled)
-	httpWhitelist []string     // HTTP RPC modules to allow through this endpoint
-	httpListener  net.Listener // HTTP RPC listener socket to server API requests
-	httpHandler   *rpc.Server  // HTTP RPC request handler to process the API requests
-
-	wsEndpoint string       // Websocket endpoint (interface + port) to listen at (empty = websocket disabled)
-	wsListener net.Listener // Websocket RPC listener socket to server API requests
-	wsHandler  *rpc.Server  // Websocket RPC request handler to process the API requests
-
-	stop chan struct{} // Channel to wait for termination notifications
-	lock sync.RWMutex
+	rpcConfig *node.Config
+	rpcServer *RpcServer
 
 	//XXX
 	getInfo infoCallback
@@ -64,9 +45,10 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 	state *state.State,
 	submitCh chan []byte,
 	logger *logrus.Logger) *Service {
+	// TODO: replace DefaultRpcConfig with custom
 	rpcConfig := &config.DefaultRpcConfig
 
-	return &Service{
+	s := &Service{
 		genesisFile: genesisFile,
 		keystoreDir: keystoreDir,
 		apiAddr:     apiAddr,
@@ -74,28 +56,35 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 		state:       state,
 		submitCh:    submitCh,
 		logger:      logger,
-		// TODO: not default rpcConfig required
-		rpcConfig:    rpcConfig,
-		ipcEndpoint:  rpcConfig.IPCEndpoint(),
-		httpEndpoint: rpcConfig.HTTPEndpoint(),
-		wsEndpoint:   rpcConfig.WSEndpoint(),
+		// TODO: no-default rpcConfig required
+		rpcConfig: rpcConfig,
 	}
-}
-
-func (m *Service) Run() {
-	m.checkErr(m.makeKeyStore())
-
-	m.checkErr(m.unlockAccounts())
-
-	m.checkErr(m.createGenesisAccounts())
-
-	m.logger.Info("serving api...")
-
-	err := m.StartRPC()
+	var err error
+	s.rpcServer, err = NewRpcServer(rpcConfig, s)
+	if err != nil {
+		panic(err)
+	}
+	err = s.rpcServer.Register(NewEthServiceConstructor(s))
 	if err != nil {
 		panic(err)
 	}
 
+	return s
+}
+
+func (m *Service) Run() {
+	m.checkErr(m.makeKeyStore())
+	m.checkErr(m.unlockAccounts())
+	m.checkErr(m.createGenesisAccounts())
+
+	m.logger.Info("serving web3-api ...")
+	err := m.rpcServer.Start()
+	if err != nil {
+		panic(err)
+	}
+	defer m.rpcServer.Stop()
+
+	m.logger.Info("serving api ...")
 	m.serveAPI()
 }
 
