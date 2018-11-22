@@ -1,0 +1,9 @@
+FROM node:8-alpine
+
+RUN apk add --no-cache \
+    make \
+    git \
+    python \
+    g++
+
+RUN npm install web3
