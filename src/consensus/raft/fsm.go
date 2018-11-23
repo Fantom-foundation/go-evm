@@ -6,8 +6,9 @@ import (
 
 	_ethCommon "github.com/ethereum/go-ethereum/common"
 	_raft "github.com/hashicorp/raft"
-	"github.com/andrecronje/evm/src/state"
 	"github.com/sirupsen/logrus"
+
+	"github.com/Fantom-foundation/evm/src/state"
 )
 
 // FSM wraps a state object and implements the Raft FSM interface

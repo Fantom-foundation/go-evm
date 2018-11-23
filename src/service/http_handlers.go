@@ -6,17 +6,18 @@ import (
 	"html/template"
 	"io/ioutil"
 	"math/big"
-	"strconv"
 	"net/http"
+	"strconv"
 
-	"github.com/andrecronje/evm/src/state"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/andrecronje/evm/src/service/templates"
+
+	"github.com/Fantom-foundation/evm/src/service/templates"
+	"github.com/Fantom-foundation/evm/src/state"
 )
 
 /*
@@ -113,15 +114,15 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		return
 	}
 
-	blockIndex := block.Index() //int
-	blockRound := block.RoundReceived() //int
+	blockIndex := block.Index()                         //int
+	blockRound := block.RoundReceived()                 //int
 	blockStateHash := hexutil.Encode(block.StateHash()) //[]byte
 	blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
 
 	jsBlock := JsonBlock{
-		Hash: block.Hex,
-		Index: blockIndex,
-		Round: blockRound,
+		Hash:      block.Hex,
+		Index:     blockIndex,
+		Round:     blockRound,
 		StateHash: blockStateHash,
 		FrameHash: blockFrameHash,
 	}
@@ -158,14 +159,14 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 			}
 
 			jsonReceipt = JsonReceipt{
-				TransactionHash:   txHash,
-				From:              from,
-				To:                tx.To(),
-				Value:             tx.Value(),
-				Gas:               new(big.Int).SetUint64(tx.Gas()),
-				GasPrice:          tx.GasPrice(),
-				Error:             txFailed.GetError(),
-				Failed:            true,
+				TransactionHash: txHash,
+				From:            from,
+				To:              tx.To(),
+				Value:           tx.Value(),
+				Gas:             new(big.Int).SetUint64(tx.Gas()),
+				GasPrice:        tx.GasPrice(),
+				Error:           txFailed.GetError(),
+				Failed:          true,
 			}
 
 		} else {
@@ -470,14 +471,14 @@ func transactionReceiptHandler(w http.ResponseWriter, r *http.Request, m *Servic
 		}
 
 		jsonReceipt = JsonReceipt{
-			TransactionHash:   txHash,
-			From:              from,
-			To:                tx.To(),
-			Value:             tx.Value(),
-			Gas:               new(big.Int).SetUint64(tx.Gas()),
-			GasPrice:          tx.GasPrice(),
-			Error:             txFailed.GetError(),
-			Failed:            true,
+			TransactionHash: txHash,
+			From:            from,
+			To:              tx.To(),
+			Value:           tx.Value(),
+			Gas:             new(big.Int).SetUint64(tx.Gas()),
+			GasPrice:        tx.GasPrice(),
+			Error:           txFailed.GetError(),
+			Failed:          true,
 		}
 
 	} else {
@@ -568,14 +569,14 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		}
 
 		jsonReceipt = JsonReceipt{
-			TransactionHash:   txHash,
-			From:              from,
-			To:                tx.To(),
-			Value:             tx.Value(),
-			Gas:               new(big.Int).SetUint64(tx.Gas()),
-			GasPrice:          tx.GasPrice(),
-			Error:             txFailed.GetError(),
-			Failed:            true,
+			TransactionHash: txHash,
+			From:            from,
+			To:              tx.To(),
+			Value:           tx.Value(),
+			Gas:             new(big.Int).SetUint64(tx.Gas()),
+			GasPrice:        tx.GasPrice(),
+			Error:           txFailed.GetError(),
+			Failed:          true,
 		}
 
 	} else {

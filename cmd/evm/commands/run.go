@@ -3,10 +3,10 @@ package commands
 import (
 	"fmt"
 
-	"github.com/andrecronje/evm/src/engine"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/Fantom-foundation/evm/src/engine"
 )
 
 //AddRunFlags adds flags to the Run command

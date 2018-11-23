@@ -2,10 +2,11 @@ package lachesis
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/andrecronje/lachesis/src/poset"
-	"github.com/andrecronje/evm/src/service"
-	"github.com/andrecronje/evm/src/state"
 	"github.com/sirupsen/logrus"
+
+	"github.com/Fantom-foundation/evm/src/service"
+	"github.com/Fantom-foundation/evm/src/state"
+	"github.com/Fantom-foundation/go-lachesis/src/poset"
 )
 
 // InmemProxy implements the Lachesis AppProxy interface

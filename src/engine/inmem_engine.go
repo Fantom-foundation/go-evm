@@ -5,16 +5,17 @@ import (
 	//"os"
 	"time"
 
-	"github.com/andrecronje/lachesis/src/crypto"
-	"github.com/andrecronje/lachesis/src/poset"
-	"github.com/andrecronje/lachesis/src/net"
-	"github.com/andrecronje/lachesis/src/node"
-	"github.com/andrecronje/lachesis/src/peers"
-	serv "github.com/andrecronje/lachesis/src/service"
-	"github.com/andrecronje/evm/src/service"
-	"github.com/andrecronje/evm/src/state"
-	"github.com/andrecronje/evm/src/config"
 	"github.com/sirupsen/logrus"
+
+	"github.com/Fantom-foundation/evm/src/config"
+	"github.com/Fantom-foundation/evm/src/service"
+	"github.com/Fantom-foundation/evm/src/state"
+	"github.com/Fantom-foundation/go-lachesis/src/crypto"
+	"github.com/Fantom-foundation/go-lachesis/src/net"
+	"github.com/Fantom-foundation/go-lachesis/src/node"
+	"github.com/Fantom-foundation/go-lachesis/src/peers"
+	"github.com/Fantom-foundation/go-lachesis/src/poset"
+	serv "github.com/Fantom-foundation/go-lachesis/src/service"
 )
 
 type InmemEngine struct {
@@ -98,7 +99,7 @@ func NewInmemEngine(config config.Config, logger *logrus.Logger) (*InmemEngine, 
 	/* TODO inmem only for now */
 	/*switch conf.StoreType {
 	case "inmem":*/
-		store = poset.NewInmemStore(pmap, conf.CacheSize)
+	store = poset.NewInmemStore(pmap, conf.CacheSize)
 	/*case "badger":
 		//If the file already exists, load and bootstrap the store using the file
 		if _, err := os.Stat(conf.StorePath); err == nil {

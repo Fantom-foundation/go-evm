@@ -1,8 +1,8 @@
 package consensus
 
 import (
-	"github.com/andrecronje/evm/src/service"
-	"github.com/andrecronje/evm/src/state"
+	"github.com/Fantom-foundation/evm/src/service"
+	"github.com/Fantom-foundation/evm/src/state"
 )
 
 // Consensus is the interface that abstracts the consensus system

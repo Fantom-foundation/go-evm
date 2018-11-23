@@ -6,11 +6,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/andrecronje/evm/src/consensus/solo"
-	"github.com/andrecronje/evm/src/engine"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/Fantom-foundation/evm/src/consensus/solo"
+	"github.com/Fantom-foundation/evm/src/engine"
 )
 
 var genesisTemplate = `

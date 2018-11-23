@@ -1,11 +1,12 @@
 package engine
 
 import (
-	"github.com/andrecronje/evm/src/config"
-	"github.com/andrecronje/evm/src/consensus"
-	"github.com/andrecronje/evm/src/service"
-	"github.com/andrecronje/evm/src/state"
 	"github.com/sirupsen/logrus"
+
+	"github.com/Fantom-foundation/evm/src/config"
+	"github.com/Fantom-foundation/evm/src/consensus"
+	"github.com/Fantom-foundation/evm/src/service"
+	"github.com/Fantom-foundation/evm/src/state"
 )
 
 // ConsensusEngine is the actor that coordinates State, Service and Consensus

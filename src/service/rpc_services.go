@@ -3,7 +3,7 @@ package service
 import (
 	"github.com/ethereum/go-ethereum/rpc"
 
-	"github.com/andrecronje/evm/src/service/internal/ethapi"
+	"github.com/Fantom-foundation/evm/src/service/internal/ethapi"
 )
 
 type EthService struct {
