@@ -1,7 +1,0 @@
-FROM ubuntu
-
-COPY ./evm /bin/evm
-
-ENTRYPOINT ["/bin/evm", "--log=debug", "solo"]
-
-EXPOSE 8080 8545 8546
