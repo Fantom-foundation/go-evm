@@ -7,7 +7,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/Fantom-foundation/lachesis/src/poset"
+	"github.com/Fantom-foundation/go-lachesis/src/poset"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/math"

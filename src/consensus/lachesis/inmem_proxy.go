@@ -2,7 +2,7 @@ package lachesis
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/Fantom-foundation/lachesis/src/poset"
+	"github.com/Fantom-foundation/go-lachesis/src/poset"
 	"github.com/Fantom-foundation/go-evm/src/service"
 	"github.com/Fantom-foundation/go-evm/src/state"
 	"github.com/sirupsen/logrus"

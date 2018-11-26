@@ -1,6 +1,6 @@
 package: github.com/Fantom-foundation/go-evm
 import:
-- package: github.com/Fantom-foundation/lachesis
+- package: github.com/Fantom-foundation/go-lachesis
   version: =0.4.1
 - package: github.com/ethereum/go-ethereum
   version: =1.8.17

@@ -1,7 +1,7 @@
 package lachesis
 
 import (
-	_lachesis "github.com/Fantom-foundation/lachesis/src/lachesis"
+	_lachesis "github.com/Fantom-foundation/go-lachesis/src/lachesis"
 	"github.com/Fantom-foundation/go-evm/src/config"
 	"github.com/Fantom-foundation/go-evm/src/service"
 	"github.com/Fantom-foundation/go-evm/src/state"

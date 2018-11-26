@@ -4,8 +4,8 @@ import (
 	"github.com/Fantom-foundation/go-evm/src/config"
 	"github.com/Fantom-foundation/go-evm/src/service"
 	"github.com/Fantom-foundation/go-evm/src/state"
-	"github.com/Fantom-foundation/lachesis/src/poset"
-	"github.com/Fantom-foundation/lachesis/src/proxy"
+	"github.com/Fantom-foundation/go-lachesis/src/poset"
+	"github.com/Fantom-foundation/go-lachesis/src/proxy"
 	"github.com/sirupsen/logrus"
 )
 
