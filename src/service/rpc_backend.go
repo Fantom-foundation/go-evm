@@ -32,6 +32,7 @@ func (s *Service) ProtocolVersion() int {
 	log.Debug(">>>>>>>>>>>>>>>> PV <<<<<<<<<<<<<<<<<<<<")
 	return 3
 }
+
 func (s *Service) SuggestPrice(ctx context.Context) (*big.Int, error) {
 	return nil, ErrNotImplemented
 }

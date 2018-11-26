@@ -1,4 +1,4 @@
-package: github.com/Fantom-foundation/evm
+package: github.com/Fantom-foundation/go-evm
 import:
 - package: github.com/Fantom-foundation/go-lachesis
   version: master

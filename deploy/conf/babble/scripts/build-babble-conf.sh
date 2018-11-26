@@ -24,7 +24,7 @@ do
 	echo "Generating key pair for node$i"
 	docker run \
 		-v $dest:/.lachesis \
-		--rm andrecronje/lachesis keygen
+		--rm Fantom-foundation/go-lachesis keygen
 	echo "$IPBASE$(($IPADD + $i)):$PORT" > $dest/addr
 done
 
