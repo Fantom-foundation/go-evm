@@ -7,7 +7,7 @@ web3_image:
 	|| echo Docker image "evm_web3" already exists
 
 start:
-	go run ../../../evm/cmd/evm --log=debug solo & echo $$! > evm.pid
+	go run ../../cmd/evm --log=debug solo & echo $$! > evm.pid
 
 stop:
 	pkill -P $$(cat evm.pid)

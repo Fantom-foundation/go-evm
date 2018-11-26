@@ -27,19 +27,24 @@ import (
 func (s *Service) Downloader() *downloader.Downloader {
 	return nil
 }
+
 func (s *Service) ProtocolVersion() int {
 	log.Debug(">>>>>>>>>>>>>>>> PV <<<<<<<<<<<<<<<<<<<<")
 	return 3
 }
+
 func (s *Service) SuggestPrice(ctx context.Context) (*big.Int, error) {
 	return nil, ErrNotImplemented
 }
+
 func (s *Service) ChainDb() ethdb.Database {
 	return nil
 }
+
 func (s *Service) EventMux() *event.TypeMux {
 	return nil
 }
+
 func (s *Service) AccountManager() *accounts.Manager {
 	return nil
 }
