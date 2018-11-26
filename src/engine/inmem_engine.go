@@ -5,16 +5,17 @@ import (
 	//"os"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
+	"github.com/Fantom-foundation/go-evm/src/config"
+	"github.com/Fantom-foundation/go-evm/src/service"
+	"github.com/Fantom-foundation/go-evm/src/state"
 	"github.com/Fantom-foundation/go-lachesis/src/crypto"
-	"github.com/Fantom-foundation/go-lachesis/src/poset"
 	"github.com/Fantom-foundation/go-lachesis/src/net"
 	"github.com/Fantom-foundation/go-lachesis/src/node"
 	"github.com/Fantom-foundation/go-lachesis/src/peers"
+	"github.com/Fantom-foundation/go-lachesis/src/poset"
 	serv "github.com/Fantom-foundation/go-lachesis/src/service"
-	"github.com/Fantom-foundation/go-evm/src/service"
-	"github.com/Fantom-foundation/go-evm/src/state"
-	"github.com/Fantom-foundation/go-evm/src/config"
-	"github.com/sirupsen/logrus"
 )
 
 type InmemEngine struct {
@@ -98,7 +99,7 @@ func NewInmemEngine(config config.Config, logger *logrus.Logger) (*InmemEngine, 
 	/* TODO inmem only for now */
 	/*switch conf.StoreType {
 	case "inmem":*/
-		store = poset.NewInmemStore(pmap, conf.CacheSize)
+	store = poset.NewInmemStore(pmap, conf.CacheSize)
 	/*case "badger":
 		//If the file already exists, load and bootstrap the store using the file
 		if _, err := os.Stat(conf.StorePath); err == nil {

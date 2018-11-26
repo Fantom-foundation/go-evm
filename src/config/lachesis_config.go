@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	_lachesis "github.com/Fantom-foundation/go-lachesis/src/lachesis"
 	"github.com/sirupsen/logrus"
+
+	_lachesis "github.com/Fantom-foundation/go-lachesis/src/lachesis"
 )
 
 const (

@@ -1,12 +1,13 @@
 package engine
 
 import (
+	"github.com/sirupsen/logrus"
+
 	"github.com/Fantom-foundation/go-evm/src/config"
 	"github.com/Fantom-foundation/go-evm/src/service"
 	"github.com/Fantom-foundation/go-evm/src/state"
 	"github.com/Fantom-foundation/go-lachesis/src/poset"
 	"github.com/Fantom-foundation/go-lachesis/src/proxy"
-	"github.com/sirupsen/logrus"
 )
 
 type SocketEngine struct {
@@ -36,7 +37,7 @@ func NewSocketEngine(config config.Config, logger *logrus.Logger) (*SocketEngine
 		logger)
 
 	logger.WithFields(logrus.Fields{
-		"config":   config}).Debug("NewSocketEngine")
+		"config": config}).Debug("NewSocketEngine")
 
 	lproxy, err := proxy.NewGrpcLachesisProxy(config.ProxyAddr, logger)
 	if err != nil {

@@ -1,10 +1,11 @@
 package engine
 
 import (
-	"github.com/Fantom-foundation/go-lachesis/src/poset"
+	"github.com/sirupsen/logrus"
+
 	"github.com/Fantom-foundation/go-evm/src/service"
 	"github.com/Fantom-foundation/go-evm/src/state"
-	"github.com/sirupsen/logrus"
+	"github.com/Fantom-foundation/go-lachesis/src/poset"
 )
 
 //InmemProxy implements the AppProxy interface

@@ -1,21 +1,22 @@
 package lachesis
 
 import (
-	_lachesis "github.com/Fantom-foundation/go-lachesis/src/lachesis"
+	"github.com/sirupsen/logrus"
+
 	"github.com/Fantom-foundation/go-evm/src/config"
 	"github.com/Fantom-foundation/go-evm/src/service"
 	"github.com/Fantom-foundation/go-evm/src/state"
-	"github.com/sirupsen/logrus"
+	_lachesis "github.com/Fantom-foundation/go-lachesis/src/lachesis"
 )
 
 // InmemLachesis implementes the Consensus interface.
 // It uses an inmemory Lachesis node.
 type InmemLachesis struct {
-	config       *config.LachesisConfig
-	lachesis     *_lachesis.Lachesis
-	ethService   *service.Service
-	ethState     *state.State
-	logger       *logrus.Logger
+	config     *config.LachesisConfig
+	lachesis   *_lachesis.Lachesis
+	ethService *service.Service
+	ethState   *state.State
+	logger     *logrus.Logger
 }
 
 // NewInmemLachesis instantiates a new InmemLachesis consensus system

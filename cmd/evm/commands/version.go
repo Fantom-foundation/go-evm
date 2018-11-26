@@ -3,8 +3,9 @@ package commands
 import (
 	"fmt"
 
-	"github.com/Fantom-foundation/go-evm/src/version"
 	"github.com/spf13/cobra"
+
+	"github.com/Fantom-foundation/go-evm/src/version"
 )
 
 // VersionCmd displays the version of the evm program being used

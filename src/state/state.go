@@ -7,7 +7,6 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/Fantom-foundation/go-lachesis/src/poset"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/math"
@@ -22,6 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	bcommon "github.com/Fantom-foundation/go-evm/src/common"
+	"github.com/Fantom-foundation/go-lachesis/src/poset"
 )
 
 var (

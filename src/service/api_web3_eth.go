@@ -35,22 +35,12 @@ func GetEthAPIs(s *Service) []rpc.API {
 			Version:   "1.0",
 			Service:   NewPublicEthereumAPI(s),
 			Public:    true,
-		}, {
-			Namespace: "eth",
-			Version:   "1.0",
-			Service:   NewPublicMinerAPI(s),
-			Public:    true,
 		}, /*{
 			Namespace: "eth",
 			Version:   "1.0",
 			Service:   downloader.NewPublicDownloaderAPI(s.protocolManager.downloader, s.eventMux),
 			Public:    true,
-		},*/{
-			Namespace: "miner",
-			Version:   "1.0",
-			Service:   NewPrivateMinerAPI(s),
-			Public:    false,
-		}, /*{
+		}, {
 			Namespace: "eth",
 			Version:   "1.0",
 			Service:   filters.NewPublicFilterAPI(s.APIBackend, false),
@@ -124,107 +114,6 @@ func (api *PublicEthereumAPI) ChainId() hexutil.Uint64 {
 		return (hexutil.Uint64)(chainID.Uint64())
 	*/
 	return hexutil.Uint64(0)
-}
-
-// PublicMinerAPI provides an API to control the miner.
-// It offers only methods that operate on data that pose no security risk when it is publicly accessible.
-type PublicMinerAPI struct {
-	e *Service
-}
-
-// NewPublicMinerAPI create a new PublicMinerAPI instance.
-func NewPublicMinerAPI(e *Service) *PublicMinerAPI {
-	return &PublicMinerAPI{e}
-}
-
-// Mining returns an indication if this node is currently mining.
-func (api *PublicMinerAPI) Mining() bool {
-	/*
-		return api.e.IsMining()
-	*/
-	return false
-}
-
-// PrivateMinerAPI provides private RPC methods to control the miner.
-// These methods can be abused by external users and must be considered insecure for use by untrusted users.
-type PrivateMinerAPI struct {
-	e *Service
-}
-
-// NewPrivateMinerAPI create a new RPC service which controls the miner of this node.
-func NewPrivateMinerAPI(e *Service) *PrivateMinerAPI {
-	return &PrivateMinerAPI{e: e}
-}
-
-// Start starts the miner with the given number of threads. If threads is nil,
-// the number of workers started is equal to the number of logical CPUs that are
-// usable by this process. If mining is already running, this method adjust the
-// number of threads allowed to use and updates the minimum price required by the
-// transaction pool.
-func (api *PrivateMinerAPI) Start(threads *int) error {
-	/*
-		if threads == nil {
-			return api.e.StartMining(runtime.NumCPU())
-		}
-		return api.e.StartMining(*threads)
-	*/
-	return ErrNotImplemented
-}
-
-// Stop terminates the miner, both at the consensus engine level as well as at
-// the block creation level.
-func (api *PrivateMinerAPI) Stop() {
-	/*
-		api.e.StopMining()
-	*/
-}
-
-// SetExtra sets the extra data string that is included when this miner mines a block.
-func (api *PrivateMinerAPI) SetExtra(extra string) (bool, error) {
-	/*
-		if err := api.e.Miner().SetExtra([]byte(extra)); err != nil {
-			return false, err
-		}
-		return true, nil
-	*/
-	return false, ErrNotImplemented
-}
-
-// SetGasPrice sets the minimum accepted gas price for the miner.
-func (api *PrivateMinerAPI) SetGasPrice(gasPrice hexutil.Big) bool {
-	/*
-		api.e.lock.Lock()
-		api.e.gasPrice = (*big.Int)(&gasPrice)
-		api.e.lock.Unlock()
-
-		api.e.txPool.SetGasPrice((*big.Int)(&gasPrice))
-		return true
-	*/
-	return false
-}
-
-// SetEtherbase sets the etherbase of the miner
-func (api *PrivateMinerAPI) SetEtherbase(etherbase common.Address) bool {
-	/*
-		api.e.SetEtherbase(etherbase)
-		return true
-	*/
-	return false
-}
-
-// SetRecommitInterval updates the interval for miner sealing work recommitting.
-func (api *PrivateMinerAPI) SetRecommitInterval(interval int) {
-	/*
-		api.e.Miner().SetRecommitInterval(time.Duration(interval) * time.Millisecond)
-	*/
-}
-
-// GetHashrate returns the current hashrate of the miner.
-func (api *PrivateMinerAPI) GetHashrate() uint64 {
-	/*
-		return api.e.miner.HashRate()
-	*/
-	return 0
 }
 
 // PrivateAdminAPI is the collection of Ethereum full node-related APIs

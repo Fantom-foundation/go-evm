@@ -5,9 +5,10 @@ import (
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/sirupsen/logrus"
+
 	"github.com/Fantom-foundation/go-evm/src/service"
 	"github.com/Fantom-foundation/go-evm/src/state"
-	"github.com/sirupsen/logrus"
 )
 
 /*

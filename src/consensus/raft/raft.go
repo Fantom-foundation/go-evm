@@ -7,10 +7,11 @@ import (
 	"time"
 
 	_raft "github.com/hashicorp/raft"
+	"github.com/sirupsen/logrus"
+
 	"github.com/Fantom-foundation/go-evm/src/config"
 	"github.com/Fantom-foundation/go-evm/src/service"
 	"github.com/Fantom-foundation/go-evm/src/state"
-	"github.com/sirupsen/logrus"
 )
 
 // Raft implements the Consensus interface.
