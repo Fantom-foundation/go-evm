@@ -3,8 +3,8 @@ package engine
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/Fantom-foundation/evm/src/service"
-	"github.com/Fantom-foundation/evm/src/state"
+	"github.com/Fantom-foundation/go-evm/src/service"
+	"github.com/Fantom-foundation/go-evm/src/state"
 	"github.com/Fantom-foundation/go-lachesis/src/poset"
 )
 

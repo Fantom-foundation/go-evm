@@ -16,8 +16,8 @@ import (
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 
-	"github.com/Fantom-foundation/evm/src/service/templates"
-	"github.com/Fantom-foundation/evm/src/state"
+	"github.com/Fantom-foundation/go-evm/src/service/templates"
+	"github.com/Fantom-foundation/go-evm/src/state"
 )
 
 /*

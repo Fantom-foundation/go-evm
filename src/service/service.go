@@ -14,9 +14,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
-	"github.com/Fantom-foundation/evm/src/common"
-	"github.com/Fantom-foundation/evm/src/config"
-	"github.com/Fantom-foundation/evm/src/state"
+	"github.com/Fantom-foundation/go-evm/src/common"
+	"github.com/Fantom-foundation/go-evm/src/config"
+	"github.com/Fantom-foundation/go-evm/src/state"
 )
 
 var defaultGas = big.NewInt(90000)

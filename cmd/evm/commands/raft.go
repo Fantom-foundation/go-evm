@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/Fantom-foundation/evm/src/consensus/raft"
-	"github.com/Fantom-foundation/evm/src/engine"
+	"github.com/Fantom-foundation/go-evm/src/consensus/raft"
+	"github.com/Fantom-foundation/go-evm/src/engine"
 )
 
 //AddRaftFlags adds flags to the Raft command

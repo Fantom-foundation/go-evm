@@ -3,10 +3,10 @@ package engine
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/Fantom-foundation/evm/src/config"
-	"github.com/Fantom-foundation/evm/src/consensus"
-	"github.com/Fantom-foundation/evm/src/service"
-	"github.com/Fantom-foundation/evm/src/state"
+	"github.com/Fantom-foundation/go-evm/src/config"
+	"github.com/Fantom-foundation/go-evm/src/consensus"
+	"github.com/Fantom-foundation/go-evm/src/service"
+	"github.com/Fantom-foundation/go-evm/src/state"
 )
 
 // ConsensusEngine is the actor that coordinates State, Service and Consensus

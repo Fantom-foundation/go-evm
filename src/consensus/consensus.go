@@ -1,8 +1,8 @@
 package consensus
 
 import (
-	"github.com/Fantom-foundation/evm/src/service"
-	"github.com/Fantom-foundation/evm/src/state"
+	"github.com/Fantom-foundation/go-evm/src/service"
+	"github.com/Fantom-foundation/go-evm/src/state"
 )
 
 // Consensus is the interface that abstracts the consensus system

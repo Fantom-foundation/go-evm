@@ -8,7 +8,7 @@ import (
 	_raft "github.com/hashicorp/raft"
 	"github.com/sirupsen/logrus"
 
-	"github.com/Fantom-foundation/evm/src/state"
+	"github.com/Fantom-foundation/go-evm/src/state"
 )
 
 // FSM wraps a state object and implements the Raft FSM interface
