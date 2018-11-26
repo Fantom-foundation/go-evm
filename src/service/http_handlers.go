@@ -9,14 +9,14 @@ import (
 	"strconv"
 	"net/http"
 
-	"github.com/andrecronje/evm/src/state"
+	"github.com/Fantom-foundation/go-evm/src/state"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/andrecronje/evm/src/service/templates"
+	"github.com/Fantom-foundation/go-evm/src/service/templates"
 )
 
 /*

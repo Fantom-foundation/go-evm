@@ -22,7 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/trie"
 	//"github.com/ethereum/go-ethereum/core/rawdb"
-	//"github.com/andrecronje/evm/src/service/internal/ethapi"
+	//"github.com/Fantom-foundation/go-evm/src/service/internal/ethapi"
 )
 
 var ErrNotImplemented = fmt.Errorf("Not implemented yet")

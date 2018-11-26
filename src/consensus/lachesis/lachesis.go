@@ -1,10 +1,10 @@
 package lachesis
 
 import (
-	_lachesis "github.com/andrecronje/lachesis/src/lachesis"
-	"github.com/andrecronje/evm/src/config"
-	"github.com/andrecronje/evm/src/service"
-	"github.com/andrecronje/evm/src/state"
+	_lachesis "github.com/Fantom-foundation/lachesis/src/lachesis"
+	"github.com/Fantom-foundation/go-evm/src/config"
+	"github.com/Fantom-foundation/go-evm/src/service"
+	"github.com/Fantom-foundation/go-evm/src/state"
 	"github.com/sirupsen/logrus"
 )
 

@@ -7,9 +7,9 @@ import (
 	"time"
 
 	_raft "github.com/hashicorp/raft"
-	"github.com/andrecronje/evm/src/config"
-	"github.com/andrecronje/evm/src/service"
-	"github.com/andrecronje/evm/src/state"
+	"github.com/Fantom-foundation/go-evm/src/config"
+	"github.com/Fantom-foundation/go-evm/src/service"
+	"github.com/Fantom-foundation/go-evm/src/state"
 	"github.com/sirupsen/logrus"
 )
 

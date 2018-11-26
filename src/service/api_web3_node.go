@@ -13,7 +13,7 @@ import (
 	//"github.com/ethereum/go-ethereum/p2p/enode"
 	//"github.com/ethereum/go-ethereum/metrics"
 
-	"github.com/andrecronje/evm/src/config"
+	"github.com/Fantom-foundation/go-evm/src/config"
 )
 
 // GetNodeAPIs returns the collection of RPC descriptors this node offers.

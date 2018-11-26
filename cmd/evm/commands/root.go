@@ -1,7 +1,7 @@
 package commands
 
 import (
-	_config "github.com/andrecronje/evm/src/config"
+	_config "github.com/Fantom-foundation/go-evm/src/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

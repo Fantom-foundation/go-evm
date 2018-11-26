@@ -3,8 +3,8 @@ package commands
 import (
 	"fmt"
 
-	"github.com/andrecronje/evm/src/consensus/lachesis"
-	"github.com/andrecronje/evm/src/engine"
+	"github.com/Fantom-foundation/go-evm/src/consensus/lachesis"
+	"github.com/Fantom-foundation/go-evm/src/engine"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

@@ -3,7 +3,7 @@ updated: 2018-11-18T22:55:19.590852659+10:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 343706a395b76e5ca5c7dca46a5d937b48febc74
-- name: github.com/andrecronje/lachesis
+- name: github.com/Fantom-foundation/lachesis
   version: a03256ba45a4915ec25ac7b84ffa7d8d9a7a4cc1
   subpackages:
   - src/common

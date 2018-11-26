@@ -3,7 +3,7 @@ package commands
 import (
 	"fmt"
 
-	"github.com/andrecronje/evm/src/engine"
+	"github.com/Fantom-foundation/go-evm/src/engine"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 

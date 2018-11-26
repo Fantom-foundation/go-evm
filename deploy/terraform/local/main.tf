@@ -22,7 +22,7 @@ resource "docker_container" "evm" {
   name     = "node${count.index}"
   hostname = "node${count.index}"
 
-  image = "andrecronje/evm:${var.version}"
+  image = "Fantom-foundation/go-evm:${var.version}"
 
   networks = ["${docker_network.private_network.name}"]
 

@@ -1,9 +1,9 @@
 package engine
 
 import (
-	"github.com/andrecronje/lachesis/src/poset"
-	"github.com/andrecronje/evm/src/service"
-	"github.com/andrecronje/evm/src/state"
+	"github.com/Fantom-foundation/lachesis/src/poset"
+	"github.com/Fantom-foundation/go-evm/src/service"
+	"github.com/Fantom-foundation/go-evm/src/state"
 	"github.com/sirupsen/logrus"
 )
 

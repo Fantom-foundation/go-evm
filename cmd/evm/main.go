@@ -1,7 +1,7 @@
 package main
 
 import (
-	cmd "github.com/andrecronje/evm/cmd/evm/commands"
+	cmd "github.com/Fantom-foundation/go-evm/cmd/evm/commands"
 )
 
 func main() {

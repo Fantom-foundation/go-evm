@@ -6,7 +6,7 @@ import (
 
 	_ethCommon "github.com/ethereum/go-ethereum/common"
 	_raft "github.com/hashicorp/raft"
-	"github.com/andrecronje/evm/src/state"
+	"github.com/Fantom-foundation/go-evm/src/state"
 	"github.com/sirupsen/logrus"
 )
 

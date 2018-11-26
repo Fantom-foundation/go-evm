@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/rpc"
-	//"github.com/andrecronje/evm/src/service/internal/ethapi"
+	//"github.com/Fantom-foundation/go-evm/src/service/internal/ethapi"
 )
 
 // StartRPC starts the various API endpoints, terminating all in case of errors

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	_lachesis "github.com/andrecronje/lachesis/src/lachesis"
+	_lachesis "github.com/Fantom-foundation/lachesis/src/lachesis"
 	"github.com/sirupsen/logrus"
 )
 
