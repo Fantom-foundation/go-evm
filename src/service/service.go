@@ -240,6 +240,10 @@ func (m *Service) readPwd() (pwd string, err error) {
 	return lines[0], nil
 }
 
+func (s *Service) AccountManager() *accounts.Manager {
+	return s.am
+}
+
 func (m *Service) ChainConfig() *params.ChainConfig {
 	return m.chainConfig
 }
