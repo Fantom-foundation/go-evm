@@ -9,6 +9,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/gorilla/mux"
@@ -31,6 +32,7 @@ type Service struct {
 	keystoreDir string
 	apiAddr     string
 	keyStore    *keystore.KeyStore
+	am          *accounts.Manager
 	pwdFile     string
 	logger      *logrus.Logger
 
@@ -64,7 +66,11 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 	if err != nil {
 		panic(err)
 	}
-	err = s.rpcServer.Register(NewEthServiceConstructor(s))
+	err = s.rpcServer.Register(NewWeb3AccountServiceConstructor(s))
+	if err != nil {
+		panic(err)
+	}
+	err = s.rpcServer.Register(NewWeb3ChainServiceConstructor(s))
 	if err != nil {
 		panic(err)
 	}
@@ -108,6 +114,8 @@ func (m *Service) makeKeyStore() error {
 	}
 
 	m.keyStore = keystore.NewKeyStore(m.keystoreDir, scryptN, scryptP)
+
+	m.am = accounts.NewManager(m.keyStore)
 
 	return nil
 }

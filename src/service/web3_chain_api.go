@@ -27,61 +27,19 @@ import (
 
 var ErrNotImplemented = fmt.Errorf("Not implemented yet")
 
-// GetAPIsEth return the collection of RPC services the ethereum package offers.
-func GetEthAPIs(s *Service) []rpc.API {
-	apis := []rpc.API{
-		{
-			Namespace: "eth",
-			Version:   "1.0",
-			Service:   NewPublicEthereumAPI(s),
-			Public:    true,
-		}, /*{
-			Namespace: "eth",
-			Version:   "1.0",
-			Service:   downloader.NewPublicDownloaderAPI(s.protocolManager.downloader, s.eventMux),
-			Public:    true,
-		}, {
-			Namespace: "eth",
-			Version:   "1.0",
-			Service:   filters.NewPublicFilterAPI(s.APIBackend, false),
-			Public:    true,
-		},*/{
-			Namespace: "admin",
-			Version:   "1.0",
-			Service:   NewPrivateAdminAPI(s),
-		}, {
-			Namespace: "debug",
-			Version:   "1.0",
-			Service:   NewPublicDebugAPI(s),
-			Public:    true,
-		}, /*{
-			Namespace: "debug",
-			Version:   "1.0",
-			Service:   NewPrivateDebugAPI(s.chainConfig, s),
-		},*/ /*{
-			Namespace: "net",
-			Version:   "1.0",
-			Service:   s.netRPCService,
-			Public:    true,
-		},*/
-	}
-
-	return apis
-}
-
-// PublicEthereumAPI provides an API to access Service full node-related
+// PublicEthereumChainAPI provides an API to access Service full node-related
 // information.
-type PublicEthereumAPI struct {
+type PublicEthereumChainAPI struct {
 	e *Service
 }
 
-// NewPublicEthereumAPI creates a new Ethereum protocol API for full nodes.
-func NewPublicEthereumAPI(e *Service) *PublicEthereumAPI {
-	return &PublicEthereumAPI{e}
+// NewPublicEthereumChainAPI creates a new Ethereum protocol API for full nodes.
+func NewPublicEthereumChainAPI(e *Service) *PublicEthereumChainAPI {
+	return &PublicEthereumChainAPI{e}
 }
 
 // Etherbase is the address that mining rewards will be send to
-func (api *PublicEthereumAPI) Etherbase() (common.Address, error) {
+func (api *PublicEthereumChainAPI) Etherbase() (common.Address, error) {
 	/*
 		return api.e.Etherbase()
 	*/
@@ -89,7 +47,7 @@ func (api *PublicEthereumAPI) Etherbase() (common.Address, error) {
 }
 
 // Coinbase is the address that mining rewards will be send to (alias for Etherbase)
-func (api *PublicEthereumAPI) Coinbase() (common.Address, error) {
+func (api *PublicEthereumChainAPI) Coinbase() (common.Address, error) {
 	/*
 		return api.Etherbase()
 	*/
@@ -97,7 +55,7 @@ func (api *PublicEthereumAPI) Coinbase() (common.Address, error) {
 }
 
 // Hashrate returns the POW hashrate
-func (api *PublicEthereumAPI) Hashrate() hexutil.Uint64 {
+func (api *PublicEthereumChainAPI) Hashrate() hexutil.Uint64 {
 	/*
 		return hexutil.Uint64(api.e.Miner().HashRate())
 	*/
@@ -105,7 +63,7 @@ func (api *PublicEthereumAPI) Hashrate() hexutil.Uint64 {
 }
 
 // ChainId is the EIP-155 replay-protection chain id for the current ethereum chain config.
-func (api *PublicEthereumAPI) ChainId() hexutil.Uint64 {
+func (api *PublicEthereumChainAPI) ChainId() hexutil.Uint64 {
 	/*
 		chainID := new(big.Int)
 		if config := api.e.chainConfig; config.IsEIP155(api.e.blockchain.CurrentBlock().Number()) {
@@ -218,20 +176,20 @@ func (api *PrivateAdminAPI) ImportChain(file string) (bool, error) {
 	return false, ErrNotImplemented
 }
 
-// PublicDebugAPI is the collection of Ethereum full node APIs exposed
+// PublicDebugChainAPI is the collection of Ethereum full node APIs exposed
 // over the public debugging endpoint.
-type PublicDebugAPI struct {
+type PublicDebugChainAPI struct {
 	eth *Service
 }
 
-// NewPublicDebugAPI creates a new API definition for the full node-
+// NewPublicDebugChainAPI creates a new API definition for the full node-
 // related public debug methods of the Ethereum service.
-func NewPublicDebugAPI(eth *Service) *PublicDebugAPI {
-	return &PublicDebugAPI{eth: eth}
+func NewPublicDebugChainAPI(eth *Service) *PublicDebugChainAPI {
+	return &PublicDebugChainAPI{eth: eth}
 }
 
 // DumpBlock retrieves the entire state of the database at a given block.
-func (api *PublicDebugAPI) DumpBlock(blockNr rpc.BlockNumber) (state.Dump, error) {
+func (api *PublicDebugChainAPI) DumpBlock(blockNr rpc.BlockNumber) (state.Dump, error) {
 	/*
 		if blockNr == rpc.PendingBlockNumber {
 			// If we're dumping the pending state, we need to request
@@ -258,21 +216,21 @@ func (api *PublicDebugAPI) DumpBlock(blockNr rpc.BlockNumber) (state.Dump, error
 	return state.Dump{}, ErrNotImplemented
 }
 
-// PrivateDebugAPI is the collection of Ethereum full node APIs exposed over
+// PrivateDebugChainAPI is the collection of Ethereum full node APIs exposed over
 // the private debugging endpoint.
-type PrivateDebugAPI struct {
+type PrivateDebugChainAPI struct {
 	config *params.ChainConfig
 	eth    *Service
 }
 
-// NewPrivateDebugAPI creates a new API definition for the full node-related
+// NewPrivateDebugChainAPI creates a new API definition for the full node-related
 // private debug methods of the Ethereum service.
-func NewPrivateDebugAPI(config *params.ChainConfig, eth *Service) *PrivateDebugAPI {
-	return &PrivateDebugAPI{config: config, eth: eth}
+func NewPrivateDebugChainAPI(config *params.ChainConfig, eth *Service) *PrivateDebugChainAPI {
+	return &PrivateDebugChainAPI{config: config, eth: eth}
 }
 
 // Preimage is a debug API function that returns the preimage for a sha3 hash, if known.
-func (api *PrivateDebugAPI) Preimage(ctx context.Context, hash common.Hash) (hexutil.Bytes, error) {
+func (api *PrivateDebugChainAPI) Preimage(ctx context.Context, hash common.Hash) (hexutil.Bytes, error) {
 	/*
 		if preimage := rawdb.ReadPreimage(api.eth.ChainDb(), hash); preimage != nil {
 			return preimage, nil
@@ -291,7 +249,7 @@ type BadBlockArgs struct {
 
 // GetBadBlocks returns a list of the last 'bad blocks' that the client has seen on the network
 // and returns them as a JSON list of block-hashes
-func (api *PrivateDebugAPI) GetBadBlocks(ctx context.Context) ([]*BadBlockArgs, error) {
+func (api *PrivateDebugChainAPI) GetBadBlocks(ctx context.Context) ([]*BadBlockArgs, error) {
 	/*
 		blocks := api.eth.BlockChain().BadBlocks()
 		results := make([]*BadBlockArgs, len(blocks))
@@ -329,7 +287,7 @@ type storageEntry struct {
 }
 
 // StorageRangeAt returns the storage at the given block height and transaction index.
-func (api *PrivateDebugAPI) StorageRangeAt(ctx context.Context, blockHash common.Hash, txIndex int, contractAddress common.Address, keyStart hexutil.Bytes, maxResult int) (StorageRangeResult, error) {
+func (api *PrivateDebugChainAPI) StorageRangeAt(ctx context.Context, blockHash common.Hash, txIndex int, contractAddress common.Address, keyStart hexutil.Bytes, maxResult int) (StorageRangeResult, error) {
 	/*
 		_, _, statedb, err := api.computeTxEnv(blockHash, txIndex, 0)
 		if err != nil {
@@ -372,7 +330,7 @@ func storageRangeAt(st state.Trie, start []byte, maxResult int) (StorageRangeRes
 // code hash, or storage hash.
 //
 // With one parameter, returns the list of accounts modified in the specified block.
-func (api *PrivateDebugAPI) GetModifiedAccountsByNumber(startNum uint64, endNum *uint64) ([]common.Address, error) {
+func (api *PrivateDebugChainAPI) GetModifiedAccountsByNumber(startNum uint64, endNum *uint64) ([]common.Address, error) {
 	/*
 		var startBlock, endBlock *types.Block
 
@@ -403,7 +361,7 @@ func (api *PrivateDebugAPI) GetModifiedAccountsByNumber(startNum uint64, endNum 
 // code hash, or storage hash.
 //
 // With one parameter, returns the list of accounts modified in the specified block.
-func (api *PrivateDebugAPI) GetModifiedAccountsByHash(startHash common.Hash, endHash *common.Hash) ([]common.Address, error) {
+func (api *PrivateDebugChainAPI) GetModifiedAccountsByHash(startHash common.Hash, endHash *common.Hash) ([]common.Address, error) {
 	/*
 		var startBlock, endBlock *types.Block
 		startBlock = api.eth.blockchain.GetBlockByHash(startHash)
@@ -428,7 +386,7 @@ func (api *PrivateDebugAPI) GetModifiedAccountsByHash(startHash common.Hash, end
 	return nil, ErrNotImplemented
 }
 
-func (api *PrivateDebugAPI) getModifiedAccounts(startBlock, endBlock *types.Block) ([]common.Address, error) {
+func (api *PrivateDebugChainAPI) getModifiedAccounts(startBlock, endBlock *types.Block) ([]common.Address, error) {
 	/*
 		if startBlock.Number().Uint64() >= endBlock.Number().Uint64() {
 			return nil, fmt.Errorf("start block height (%d) must be less than end block height (%d)", startBlock.Number().Uint64(), endBlock.Number().Uint64())

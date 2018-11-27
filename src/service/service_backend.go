@@ -1,35 +1,33 @@
 package service
 
 import (
-	"context"
-	"math/big"
-
+	//"context"
+	//"math/big"
 	"github.com/ethereum/go-ethereum/accounts"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core"
-	"github.com/ethereum/go-ethereum/core/state"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/ethereum/go-ethereum/eth/downloader"
-	"github.com/ethereum/go-ethereum/ethdb"
-	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/rpc"
+	//"github.com/ethereum/go-ethereum/common"
+	//"github.com/ethereum/go-ethereum/core"
+	//"github.com/ethereum/go-ethereum/core/state"
+	//"github.com/ethereum/go-ethereum/core/types"
+	//"github.com/ethereum/go-ethereum/core/vm"
+	//"github.com/ethereum/go-ethereum/eth/downloader"
+	//"github.com/ethereum/go-ethereum/ethdb"
+	//"github.com/ethereum/go-ethereum/event"
+	//"github.com/ethereum/go-ethereum/params"
+	//"github.com/ethereum/go-ethereum/rpc"
+	//"github.com/Fantom-foundation/go-lachesis/src/poset"
+	// internal/ethapi.Backend interface implementation
 )
-
-// internal/ethapi.Backend interface implementation
 
 /*
  *   General Ethereum API
  */
-
+/*
 func (s *Service) Downloader() *downloader.Downloader {
 	return nil
 }
 
 func (s *Service) ProtocolVersion() int {
-	log.Debug(">>>>>>>>>>>>>>>> PV <<<<<<<<<<<<<<<<<<<<")
+	// TODO: return valid value
 	return 3
 }
 
@@ -44,15 +42,15 @@ func (s *Service) ChainDb() ethdb.Database {
 func (s *Service) EventMux() *event.TypeMux {
 	return nil
 }
-
+*/
 func (s *Service) AccountManager() *accounts.Manager {
-	return nil
+	return s.am
 }
 
 /*
  *	 BlockChain API
  */
-
+/*
 func (s *Service) SetHead(number uint64) {
 	return
 }
@@ -96,11 +94,11 @@ func (s *Service) SubscribeChainHeadEvent(ch chan<- core.ChainHeadEvent) event.S
 func (s *Service) SubscribeChainSideEvent(ch chan<- core.ChainSideEvent) event.Subscription {
 	return nil
 }
-
+*/
 /*
  *	 TxPool API
  */
-
+/*
 func (s *Service) SendTx(ctx context.Context, signedTx *types.Transaction) error {
 	s.logger.Debugf("SendTx %v", signedTx)
 	return ErrNotImplemented
@@ -131,9 +129,17 @@ func (s *Service) SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscripti
 }
 
 func (s *Service) ChainConfig() *params.ChainConfig {
-	return nil
+	// TODO: custom config
+	return &params.ChainConfig{}
 }
 
 func (s *Service) CurrentBlock() *types.Block {
-	return nil
+	i := s.state.GetBlockIndex()
+	block, err := s.state.GetBlockById(i)
+	if err != nil {
+		s.logger.Error(err)
+		return &types.Block{}
+	}
+	return ConvBlock(block)
 }
+*/
