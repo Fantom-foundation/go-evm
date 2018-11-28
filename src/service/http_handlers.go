@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"html/template"
 	"io/ioutil"
+	"math"
 	"math/big"
 	"net/http"
 	"strconv"
@@ -690,16 +691,24 @@ func prepareCallMessage(args SendTxArgs, _ *keystore.KeyStore) (*ethTypes.Messag
 		return nil, err
 	}
 
-	//Todo set default from
+	// Set default gas & gas price if none were set
+
+	gas, gasPrice := uint64(*args.Gas), args.GasPrice.ToInt()
+	if gas == 0 {
+		gas = math.MaxUint64 / 2
+	}
+	if gasPrice.Sign() == 0 {
+		gasPrice = defaultGasPrice
+	}
 
 	//Create Call Message
 	msg := ethTypes.NewMessage(args.From,
 		args.To,
 		0,
-		args.Value,
-		args.Gas.Uint64(),
-		args.GasPrice,
-		common.FromHex(args.Data),
+		args.Value.ToInt(),
+		gas,
+		gasPrice,
+		[]byte(*args.Data),
 		false)
 
 	return &msg, nil
@@ -713,25 +722,29 @@ func prepareTransaction(args SendTxArgs, state *state.State, ks *keystore.KeySto
 		return nil, err
 	}
 
-	if args.Nonce == nil {
-		args.Nonce = new(uint64)
-		*args.Nonce = state.GetPoolNonce(args.From)
+	var nonce uint64
+	if args.Nonce != nil {
+		nonce = uint64(*args.Nonce)
+	} else {
+		nonce = state.GetPoolNonce(args.From)
 	}
 
 	var tx *ethTypes.Transaction
 	if args.To == nil {
-		tx = ethTypes.NewContractCreation(*args.Nonce,
-			args.Value,
-			args.Gas.Uint64(),
-			args.GasPrice,
-			common.FromHex(args.Data))
+		tx = ethTypes.NewContractCreation(
+			nonce,
+			args.Value.ToInt(),
+			uint64(*args.Gas),
+			args.GasPrice.ToInt(),
+			[]byte(*args.Data))
 	} else {
-		tx = ethTypes.NewTransaction(*args.Nonce,
+		tx = ethTypes.NewTransaction(
+			nonce,
 			*args.To,
-			args.Value,
-			args.Gas.Uint64(),
-			args.GasPrice,
-			common.FromHex(args.Data))
+			args.Value.ToInt(),
+			uint64(*args.Gas),
+			args.GasPrice.ToInt(),
+			[]byte(*args.Data))
 	}
 
 	signer := ethTypes.NewEIP155Signer(big.NewInt(1))
@@ -754,13 +767,13 @@ func prepareTransaction(args SendTxArgs, state *state.State, ks *keystore.KeySto
 
 func prepareSendTxArgs(args SendTxArgs) (SendTxArgs, error) {
 	if args.Gas == nil {
-		args.Gas = defaultGas
+		args.Gas = &defaultGas
 	}
 	if args.GasPrice == nil {
-		args.GasPrice = big.NewInt(0)
+		args.GasPrice = &hexutil.Big{}
 	}
 	if args.Value == nil {
-		args.Value = big.NewInt(0)
+		args.Value = &hexutil.Big{}
 	}
 	return args, nil
 }

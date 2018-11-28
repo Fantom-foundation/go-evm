@@ -9,8 +9,11 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/node"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
@@ -19,18 +22,20 @@ import (
 	"github.com/Fantom-foundation/go-evm/src/state"
 )
 
-var defaultGas = big.NewInt(90000)
+var defaultGas = hexutil.Uint64(90000)
 
 type infoCallback func() (map[string]string, error)
 
 type Service struct {
 	sync.Mutex
+	chainConfig *params.ChainConfig
 	state       *state.State
 	submitCh    chan []byte
 	genesisFile string
 	keystoreDir string
 	apiAddr     string
 	keyStore    *keystore.KeyStore
+	am          *accounts.Manager
 	pwdFile     string
 	logger      *logrus.Logger
 
@@ -47,8 +52,13 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 	logger *logrus.Logger) *Service {
 	// TODO: replace DefaultRpcConfig with custom
 	rpcConfig := &config.DefaultRpcConfig
+	// TODO: replace ChainConfig with custom
+	chainConfig := &params.ChainConfig{
+		ChainID: big.NewInt(666),
+	}
 
 	s := &Service{
+		chainConfig: chainConfig,
 		genesisFile: genesisFile,
 		keystoreDir: keystoreDir,
 		apiAddr:     apiAddr,
@@ -64,7 +74,11 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 	if err != nil {
 		panic(err)
 	}
-	err = s.rpcServer.Register(NewEthServiceConstructor(s))
+	err = s.rpcServer.Register(NewWeb3AccountServiceConstructor(s))
+	if err != nil {
+		panic(err)
+	}
+	err = s.rpcServer.Register(NewWeb3ChainServiceConstructor(s))
 	if err != nil {
 		panic(err)
 	}
@@ -108,6 +122,8 @@ func (m *Service) makeKeyStore() error {
 	}
 
 	m.keyStore = keystore.NewKeyStore(m.keystoreDir, scryptN, scryptP)
+
+	m.am = accounts.NewManager(m.keyStore)
 
 	return nil
 }
@@ -222,4 +238,12 @@ func (m *Service) readPwd() (pwd string, err error) {
 		lines[i] = strings.TrimRight(lines[i], "\r")
 	}
 	return lines[0], nil
+}
+
+func (s *Service) AccountManager() *accounts.Manager {
+	return s.am
+}
+
+func (m *Service) ChainConfig() *params.ChainConfig {
+	return m.chainConfig
 }
