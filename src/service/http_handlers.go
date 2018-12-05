@@ -117,15 +117,15 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 
 	blockIndex := block.Index()                         //int
 	blockRound := block.RoundReceived()                 //int
-	blockStateHash := hexutil.Encode(block.StateHash()) //[]byte
-	blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
+	//blockStateHash := hexutil.Encode(block.StateHash()) //[]byte
+	//blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
 
 	jsBlock := JsonBlock{
 		Hash:      block.Hex,
 		Index:     blockIndex,
 		Round:     blockRound,
-		StateHash: blockStateHash,
-		FrameHash: blockFrameHash,
+		//StateHash: blockStateHash,
+		//FrameHash: blockFrameHash,
 	}
 
 	for _, txBytes := range block.Transactions() {

@@ -1,24 +1,8 @@
-hash: cc25b9908fc1ab2f02fd3525275077ec127573355e528ffea40ed3ef2caa740a
-updated: 2018-11-18T22:55:19.590852659+10:00
+hash: 10ec9a3e8297c86712f9ee820e3359260da2c917ff47335213e5bc0a245e1c39
+updated: 2018-12-05T10:57:06.3567952+02:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 343706a395b76e5ca5c7dca46a5d937b48febc74
-- name: github.com/Fantom-foundation/go-lachesis
-  version: a03256ba45a4915ec25ac7b84ffa7d8d9a7a4cc1
-  subpackages:
-  - src/common
-  - src/crypto
-  - src/lachesis
-  - src/log
-  - src/net
-  - src/node
-  - src/peers
-  - src/poset
-  - src/proxy
-  - src/proxy/internal
-  - src/proxy/proto
-  - src/service
-  - src/utils
 - name: github.com/aristanetworks/goarista
   version: 33151c4543a79b013e8e6799ef45b2ba88c3cd1c
   subpackages:
@@ -45,18 +29,14 @@ imports:
   - "y"
 - name: github.com/dgryski/go-farm
   version: 2de33835d10275975374b37b2dcfd22c9020a1f5
-- name: github.com/eclipse/paho.mqtt.golang
-  version: 36d01c2b4cbeb3d2a12063e4880ce30800af9560
-  subpackages:
-  - packets
-- name: github.com/edsrzf/mmap-go
-  version: 0bce6a6887123b67a60366d2c9fe2dfb74289d2e
 - name: github.com/ethereum/go-ethereum
   version: 8bbe72075e4e16442c4e28d999edee12e294329e
   subpackages:
   - accounts
   - accounts/abi
   - accounts/keystore
+  - accounts/usbwallet
+  - accounts/usbwallet/internal/trezor
   - common
   - common/bitutil
   - common/hexutil
@@ -64,7 +44,6 @@ imports:
   - common/mclock
   - common/prque
   - consensus
-  - consensus/ethash
   - consensus/misc
   - core
   - core/rawdb
@@ -78,11 +57,13 @@ imports:
   - crypto/ecies
   - crypto/secp256k1
   - crypto/sha3
-  - eth/downloader
   - ethdb
   - event
+  - internal/debug
   - log
   - metrics
+  - metrics/exp
+  - node
   - p2p
   - p2p/discover
   - p2p/discv5
@@ -94,18 +75,35 @@ imports:
   - rlp
   - rpc
   - trie
+- name: github.com/Fantom-foundation/go-lachesis
+  version: 3e487d46f37e64d2cafaa1e21c6d6bf619fa6b47
+  subpackages:
+  - src/common
+  - src/crypto
+  - src/dummy
+  - src/lachesis
+  - src/log
+  - src/net
+  - src/node
+  - src/peers
+  - src/poset
+  - src/proxy
+  - src/proxy/internal
+  - src/proxy/proto
+  - src/service
+- name: github.com/fjl/memsize
+  version: 2a09253e352a56f419bd88effab0483f52da4c7d
+  subpackages:
+  - memsizeui
 - name: github.com/fsnotify/fsnotify
   version: ccc981bf80385c528a65fbfdd49bf2d8da22aa23
-- name: github.com/go-chi/chi
-  version: b5294d10673813fac8558e7f47242bc9e61b4c25
-  subpackages:
-  - middleware
 - name: github.com/go-stack/stack
   version: 2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a
 - name: github.com/golang/protobuf
   version: d3de96c4c28ef8af3aa1a892fc481e0f103c01ff
   subpackages:
   - proto
+  - protoc-gen-go/descriptor
   - ptypes
   - ptypes/any
   - ptypes/duration
@@ -116,8 +114,6 @@ imports:
   version: 9b3b1e0f5f99ae461456d768e7d301a7acdaa2d8
 - name: github.com/gorilla/mux
   version: 521ea7b17d02faf8d3afea6737573942ceac59c5
-- name: github.com/gorilla/websocket
-  version: 66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d
 - name: github.com/hashicorp/go-immutable-radix
   version: 27df80928bb34bb1b0d6d0e01b9e679902e7a6b5
 - name: github.com/hashicorp/go-msgpack
@@ -155,10 +151,16 @@ imports:
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/jackpal/go-nat-pmp
   version: d89d09f6f3329bc3c2479aa3cafd76a5aa93a35c
+- name: github.com/karalabe/hid
+  version: d815e0c1a2e2082a287a2806bc90bc8fc7b276a9
 - name: github.com/konsorten/go-windows-terminal-sequences
   version: 5c8c8bd35d3832f5d134ae1e1e375b69a4d25242
 - name: github.com/magiconair/properties
   version: c2353362d570a7bfa228149c62842019201cfb71
+- name: github.com/mattn/go-colorable
+  version: efa589957cd060542a26d2dd7832fd6a6c6c3ade
+- name: github.com/mattn/go-isatty
+  version: 3fb116b820352b7f0c281308a4d6250c22d94e27
 - name: github.com/mitchellh/mapstructure
   version: 3536a929edddb9a5b34bd6861dc4a9647cb459fe
 - name: github.com/pborman/uuid
@@ -173,8 +175,6 @@ imports:
   version: a3460e445dd310dbefee993fe449f2ff9c08ae71
 - name: github.com/rs/xid
   version: 15d26544def341f036c5f8dca987a4cbe575032c
-- name: github.com/satori/go.uuid
-  version: 36e9d2ebbde5e3f13ab2e25625fd453271d6522e
 - name: github.com/sirupsen/logrus
   version: bcd833dfe83d3cebad139e4a29ed79cb2318bf95
 - name: github.com/spf13/afero
@@ -206,10 +206,8 @@ imports:
   - leveldb/storage
   - leveldb/table
   - leveldb/util
-- name: github.com/ugorji/go
-  version: b4c50a2b199d93b13dc15e78929cfb23bfdf21ab
-  subpackages:
-  - codec
+- name: github.com/tebeka/atexit
+  version: 246bd1df1758fe9df5a88fc3e0f6e77271e97e55
 - name: golang.org/x/crypto
   version: 45a5f77698d342a8c2ef8423abdf0ba6880b008a
   subpackages:
@@ -228,9 +226,7 @@ imports:
   - http2
   - http2/hpack
   - idna
-  - internal/socks
   - internal/timeseries
-  - proxy
   - trace
   - websocket
 - name: golang.org/x/sys
@@ -267,22 +263,27 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 2e463a05d100327ca47ac218281906921038fd95
+  version: df014850f6dee74ba2fc94874043a9f3f75fbfd8
   subpackages:
   - balancer
   - balancer/base
   - balancer/roundrobin
+  - binarylog/grpc_binarylog_v1
   - codes
   - connectivity
   - credentials
+  - credentials/internal
   - encoding
   - encoding/proto
   - grpclog
   - internal
   - internal/backoff
+  - internal/binarylog
   - internal/channelz
   - internal/envconfig
   - internal/grpcrand
+  - internal/grpcsync
+  - internal/syscall
   - internal/transport
   - keepalive
   - metadata
@@ -296,6 +297,8 @@ imports:
   - tap
 - name: gopkg.in/natefinch/npipe.v2
   version: c1b8fa8bdccecb0b8db834ee0b92fdbcfa606dd6
+- name: gopkg.in/urfave/cli.v1
+  version: cfb38830724cc34fedffe9a2a29fb54fa9169cd1
 - name: gopkg.in/yaml.v2
   version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 testImports: []

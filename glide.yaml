@@ -16,3 +16,6 @@ import:
   version: ^1.1.1
   subpackages:
   - spew
+ignore:
+- github.com/prometheus/prometheus/util/flock
+
