@@ -1,3 +1,53 @@
+## Build Details
+
+[![version](https://img.shields.io/github/tag/Fantom-foundation/go-evm.svg?style=flat-square&logo=github
+)](https://github.com/Fantom-foundation/go-evm/releases/latest)  
+[![appveyor](https://img.shields.io/appveyor/ci/andrecronje/go-evm.svg?style=flat-square&logo=appveyor)](https://ci.appveyor.com/project/andrecronje/go-evm)  
+[![license](https://img.shields.io/github/license/Fantom-foundation/go-evm.svg?style=flat-square&logo=github)](LICENSE.md)  
+[![libraries.io dependencies](https://img.shields.io/librariesio/github/Fantom-foundation/go-evm.svg?style=flat-square&logo=librariesio)](https://libraries.io/github/Fantom-foundation/go-evm)  
+
+## Code Quality
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/Fantom-foundation/go-evm?style=flat-square&logo=goreportcard)](https://goreportcard.com/report/github.com/Fantom-foundation/go-evm)  
+[![GolangCI](https://golangci.com/badges/github.com/Fantom-foundation/go-evm.svg?style=flat-square&logo=golangci)](https://golangci.com/r/github.com/Fantom-foundation/go-evm)   
+[![Code Climate Maintainability Grade](https://img.shields.io/codeclimate/maintainability/Fantom-foundation/go-evm.svg?style=flat-square&logo=codeclimate)](https://codeclimate.com/github/Fantom-foundation/go-evm)  
+[![Code Climate Maintainability](https://img.shields.io/codeclimate/maintainability-percentage/Fantom-foundation/go-evm.svg?style=flat-square&logo=codeclimate)](https://codeclimate.com/github/Fantom-foundation/go-evm)  
+[![Code Climate Technical Dept](https://img.shields.io/codeclimate/tech-debt/Fantom-foundation/go-evm.svg?style=flat-square&logo=codeclimate)](https://codeclimate.com/github/Fantom-foundation/go-evm)  
+[![Codacy code quality](https://img.shields.io/codacy/grade/c8c27910210f4b23bcbbe8c60338b1d5.svg?style=flat-square&logo=codacy)](https://app.codacy.com/project/andrecronje/go-evm/dashboard)  
+[![cii best practices](https://img.shields.io/cii/level/2409.svg?style=flat-square&logo=cci)](https://bestpractices.coreinfrastructure.org/en/projects/2409)  
+[![cii percentage](https://img.shields.io/cii/percentage/2409.svg?style=flat-square&logo=cci)](https://bestpractices.coreinfrastructure.org/en/projects/2409)  
+  
+[![GoDoc](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square&logo=godoc)](https://godoc.org/github.com/Fantom-foundation/go-evm)   
+
+[Documentation](https://github.com/Fantom-foundation/fantom-documentation/wiki).  
+
+[![Sonarcloud](https://sonarcloud.io/api/project_badges/quality_gate?project=Fantom-foundation_go-evm)](https://sonarcloud.io/dashboard?id=Fantom-foundation_go-evm)  
+  
+## GitHub
+
+
+[![Commit Activity](https://img.shields.io/github/commit-activity/w/Fantom-foundation/go-evm.svg?style=flat-square&logo=github)](https://github.com/Fantom-foundation/go-evm/commits/master)  
+[![Last Commit](https://img.shields.io/github/last-commit/Fantom-foundation/go-evm.svg?style=flat-square&logo=github)](https://github.com/Fantom-foundation/go-evm/commits/master)  
+[![Contributors](https://img.shields.io/github/contributors/Fantom-foundation/go-evm.svg?style=flat-square&logo=github)](https://github.com/Fantom-foundation/go-evm/graphs/contributors)  
+[![Issues][github-issues-image]][github-issues-url]  
+[![LoC](https://tokei.rs/b1/github/Fantom-foundation/go-evm?category=lines)](https://github.com/Fantom-foundation/go-evm)  
+
+[![Throughput Graph](https://graphs.waffle.io/Fantom-foundation/go-evm/throughput.svg)](https://waffle.io/Fantom-foundation/go-evm/metrics/throughput)  
+
+## Social
+
+[![](https://img.shields.io/gitter/room/nwjs/nw.js.svg?style=flat-square)](https://gitter.im/fantom-foundation)    
+[![twitter][twitter-image]][twitter-url]  
+
+
+[codecov-image]: https://codecov.io/gh/fantom-foundation/go-evm/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/fantom-foundation/go-evm
+[twitter-image]: https://img.shields.io/twitter/follow/FantomFDN.svg?style=social
+[twitter-url]: https://twitter.com/intent/follow?screen_name=FantomFDN
+[github-issues-image]: https://img.shields.io/github/issues/Fantom-foundation/go-evm.svg?style=flat-square&logo=github
+[github-issues-url]: https://github.com/Fantom-foundation/go-evm/issues
+
+
 ## Usage
 
 The **lachesis_addr** option specifies the endpoint where the consensus node is listening  
