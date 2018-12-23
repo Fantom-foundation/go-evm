@@ -121,7 +121,7 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	//blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
 
 	jsBlock := JsonBlock{
-		Hash:      block.Hex,
+		Hash:      block.BlockHex(),
 		Index:     blockIndex,
 		Round:     blockRound,
 		//StateHash: blockStateHash,

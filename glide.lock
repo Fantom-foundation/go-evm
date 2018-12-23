@@ -1,5 +1,5 @@
-hash: 10ec9a3e8297c86712f9ee820e3359260da2c917ff47335213e5bc0a245e1c39
-updated: 2018-12-05T10:57:06.3567952+02:00
+hash: fdc16b3a6903c6ed0b5904e9acf2ea75f6ec1fd5139a534d4fb6e2240603cf5e
+updated: 2018-12-06T09:58:55.5320948+02:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 343706a395b76e5ca5c7dca46a5d937b48febc74
@@ -76,7 +76,7 @@ imports:
   - rpc
   - trie
 - name: github.com/Fantom-foundation/go-lachesis
-  version: 3e487d46f37e64d2cafaa1e21c6d6bf619fa6b47
+  version: 77f95fcf5cb17626fecff62af9753aa1554b184e
   subpackages:
   - src/common
   - src/crypto
