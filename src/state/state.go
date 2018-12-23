@@ -155,6 +155,10 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	blockHash := common.BytesToHash(block.Hash)
 	blockMarshal, _ := block.ProtoMarshal()
 
+	s.logger.WithField("blockIndex", blockIndex).Debug("ProcessBlock(block poset.Block)"
+	s.logger.WithField("blockHash", blockHash).Debug("ProcessBlock(block poset.Block)")
+	s.logger.WithField("Gas", gas).Debug("ProcessBlock(block poset.Block)")
+
 	s.blockIndex = blockIndex
 
 	s.db.Put(block.Hash, blockMarshal)
