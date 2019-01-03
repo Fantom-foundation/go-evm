@@ -1,5 +1,5 @@
 hash: fdc16b3a6903c6ed0b5904e9acf2ea75f6ec1fd5139a534d4fb6e2240603cf5e
-updated: 2018-12-06T09:58:55.5320948+02:00
+updated: 2019-01-02T17:56:59.470435222+11:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 343706a395b76e5ca5c7dca46a5d937b48febc74
@@ -91,6 +91,7 @@ imports:
   - src/proxy/internal
   - src/proxy/proto
   - src/service
+  - src/utils
 - name: github.com/fjl/memsize
   version: 2a09253e352a56f419bd88effab0483f52da4c7d
   subpackages:
