@@ -15,7 +15,7 @@ request = function(options, callback) {
 
         let data = '';
         
-        // A chunk of data has been recieved.
+        // A chunk of data has been received.
         resp.on('data', (chunk) => {
             data += chunk;
         });

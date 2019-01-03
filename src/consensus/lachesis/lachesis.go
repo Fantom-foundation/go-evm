@@ -9,7 +9,7 @@ import (
 	_lachesis "github.com/Fantom-foundation/go-lachesis/src/lachesis"
 )
 
-// InmemLachesis implementes the Consensus interface.
+// InmemLachesis implements the Consensus interface.
 // It uses an inmemory Lachesis node.
 type InmemLachesis struct {
 	config     *config.LachesisConfig

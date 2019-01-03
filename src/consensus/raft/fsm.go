@@ -56,10 +56,10 @@ func (f *FSM) Apply(log *_raft.Log) interface{} {
 
 // Snapshot is not implemented yet
 func (f *FSM) Snapshot() (_raft.FSMSnapshot, error) {
-	return nil, fmt.Errorf("Snapshot function not implemented")
+	return nil, fmt.Errorf("snapshot function not implemented")
 }
 
 // Restore is not implemented yet
 func (f *FSM) Restore(io.ReadCloser) error {
-	return fmt.Errorf("Restore function not implemented")
+	return fmt.Errorf("restore function not implemented")
 }

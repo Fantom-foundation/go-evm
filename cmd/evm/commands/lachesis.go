@@ -13,7 +13,7 @@ import (
 
 //AddLachesisFlags adds flags to the Lachesis command
 func AddLachesisFlags(cmd *cobra.Command) {
-	cmd.Flags().String("lachesis.datadir", config.Lachesis.DataDir, "Directory contaning priv_key.pem and peers.json files")
+	cmd.Flags().String("lachesis.datadir", config.Lachesis.DataDir, "Directory containing priv_key.pem and peers.json files")
 	cmd.Flags().String("lachesis.listen", config.Lachesis.BindAddr, "IP:PORT of Lachesis node")
 	cmd.Flags().String("lachesis.service-listen", config.Lachesis.ServiceAddr, "IP:PORT of Lachesis HTTP API service")
 	cmd.Flags().Duration("lachesis.heartbeat", config.Lachesis.Heartbeat, "Heartbeat time milliseconds (time between gossips)")
@@ -22,7 +22,9 @@ func AddLachesisFlags(cmd *cobra.Command) {
 	cmd.Flags().Int64("lachesis.sync-limit", config.Lachesis.SyncLimit, "Max number of Events per sync")
 	cmd.Flags().Int("lachesis.max-pool", config.Lachesis.MaxPool, "Max number of pool connections")
 	cmd.Flags().Bool("lachesis.store", config.Lachesis.Store, "use persistent store")
-	viper.BindPFlags(cmd.Flags())
+	if err := viper.BindPFlags(cmd.Flags()); err != nil {
+		panic("Unable to bind viper flags")
+	}
 }
 
 //NewLachesisCmd returns the command that starts EVM-Lite with Lachesis consensus
@@ -49,14 +51,15 @@ func NewLachesisCmd() *cobra.Command {
 }
 
 func runLachesis(cmd *cobra.Command, args []string) error {
-
-	lachesis := lachesis.NewInmemLachesis(config.Lachesis, logger)
-	engine, err := engine.NewConsensusEngine(*config, lachesis, logger)
+	lachesisConsensus := lachesis.NewInmemLachesis(config.Lachesis, logger)
+	consensusEngine, err := engine.NewConsensusEngine(*config, lachesisConsensus, logger)
 	if err != nil {
-		return fmt.Errorf("Error building Engine: %s", err)
+		return fmt.Errorf("error building Engine: %s", err)
 	}
 
-	engine.Run()
+	if err := consensusEngine.Run(); err != nil {
+		return fmt.Errorf("error running Engine: %s", err)
+	}
 
 	return nil
 }

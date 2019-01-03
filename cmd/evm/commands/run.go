@@ -13,7 +13,9 @@ import (
 func AddRunFlags(cmd *cobra.Command) {
 	//Lachesis Socket
 	cmd.Flags().String("proxy", config.ProxyAddr, "IP:PORT of Lachesis proxy")
-	viper.BindPFlags(cmd.Flags())
+	if err := viper.BindPFlags(cmd.Flags()); err != nil {
+		panic("Unable to bind viper flags")
+	}
 }
 
 // NewRunCmd returns the command that allows the CLI to start a node.
@@ -29,14 +31,15 @@ func NewRunCmd() *cobra.Command {
 }
 
 func run(cmd *cobra.Command, args []string) error {
-
-	engine, err := engine.NewSocketEngine(*config, logger)
-	//engine, err := engine.NewInmemEngine(*config, logger)
+	socketEngine, err := engine.NewSocketEngine(*config, logger)
+	//socketEngine, err := socketEngine.NewInmemEngine(*config, logger)
 	if err != nil {
-		return fmt.Errorf("Error building Engine: %s", err)
+		return fmt.Errorf("error building Engine: %s", err)
 	}
 
-	engine.Run()
+	if err := socketEngine.Run(); err != nil {
+		return fmt.Errorf("error running Engine: %s", err)
+	}
 
 	return nil
 }

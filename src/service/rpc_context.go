@@ -15,7 +15,7 @@ import (
 type RpcServiceContext struct {
 	config         *node.Config
 	services       map[reflect.Type]RpcService // Index of the already constructed services
-	EventMux       *event.TypeMux              // Event multiplexer used for decoupled notifications
+	EventFeed      *event.Feed                 // Event multiplexer used for decoupled notifications
 	AccountManager *accounts.Manager           // Account manager created by the node.
 }
 

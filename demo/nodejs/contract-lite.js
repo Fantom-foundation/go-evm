@@ -49,7 +49,7 @@ Contract.prototype.parseLogs = function(logs) {
     let decoders = c.w3.abi.filter(function (json) {
         return json.type === 'event';
     }).map(function(json) {
-        // note first and third params required only by enocde and execute;
+        // note first and third params required only by encode and execute;
         // so don't call those!
         return new SolidityEvent(null, json, null);
     })

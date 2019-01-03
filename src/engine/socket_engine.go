@@ -76,8 +76,8 @@ type Handler struct {
 	state     *state.State
 }
 
-// Called when a new block is comming. This particular example just computes
-// the stateHash incrementaly with incoming blocks
+// Called when a new block is coming. This particular example just computes
+// the stateHash incrementally with incoming blocks
 func (h *Handler) CommitHandler(block poset.Block) (stateHash []byte, err error) {
 	/*hash := h.stateHash
 

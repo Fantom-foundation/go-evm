@@ -2,6 +2,7 @@ package state
 
 import (
 	"encoding/json"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"io/ioutil"
 	"math/big"
 	"os"
@@ -83,6 +84,12 @@ func (test *Test) initKeyStore() error {
 	test.keyStore = keystore.NewKeyStore(keydir, scryptN, scryptP)
 
 	return nil
+}
+
+var removeChainData = func(t *testing.T) {
+	if err := os.RemoveAll("test_data/eth/chaindata"); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func (test *Test) unlockAccounts() error {
@@ -217,9 +224,8 @@ func (test *Test) deployContract(from accounts.Account, contract *Contract, t *t
 
 //------------------------------------------------------------------------------
 func TestTransfer(t *testing.T) {
-
-	os.RemoveAll("test_data/eth/chaindata")
-	defer os.RemoveAll("test_data/eth/chaindata")
+	removeChainData(t)
+	defer removeChainData(t)
 
 	test := NewTest("test_data/eth", bcommon.NewTestLogger(t), t)
 	defer test.state.db.Close()
@@ -410,9 +416,8 @@ func callDummyContractTestAsync(test *Test, from accounts.Account, contract *Con
 }
 
 func TestCreateContract(t *testing.T) {
-
-	os.RemoveAll("test_data/eth/chaindata")
-	defer os.RemoveAll("test_data/eth/chaindata")
+	removeChainData(t)
+	defer removeChainData(t)
 
 	test := NewTest("test_data/eth", bcommon.NewTestLogger(t), t)
 	defer test.state.db.Close()
@@ -443,9 +448,8 @@ func TestCreateContract(t *testing.T) {
 }
 
 func TestDB(t *testing.T) {
-
-	os.RemoveAll("test_data/eth/chaindata")
-	defer os.RemoveAll("test_data/eth/chaindata")
+	removeChainData(t)
+	defer removeChainData(t)
 
 	// Initialise a fresh instance and commit stuff to the db
 	test := NewTest("test_data/eth", bcommon.NewTestLogger(t), t)
@@ -460,7 +464,7 @@ func TestDB(t *testing.T) {
 	test.deployContract(from, contract, t)
 
 	code := test.state.ethState.GetCode(contract.address)
-	t.Logf("code: %s", common.ToHex(code))
+	t.Logf("code: %s", hexutil.Encode(code))
 
 	contract.parseABI(t)
 
@@ -480,7 +484,7 @@ func TestDB(t *testing.T) {
 
 	// Check that contract code is there
 	code2 := test2.state.ethState.GetCode(contract.address)
-	t.Logf("code2: %s", common.ToHex(code2))
+	t.Logf("code2: %s", hexutil.Encode(code2))
 	if !reflect.DeepEqual(code2, code) {
 		t.Fatalf("contract code should be equal")
 	}

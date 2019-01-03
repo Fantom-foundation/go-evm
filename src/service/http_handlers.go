@@ -52,7 +52,12 @@ func accountHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+
+	if _, err := w.Write(js); err != nil {
+		m.logger.WithError(err).Error("Writing JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 /*
@@ -87,7 +92,11 @@ func blockByHashHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	if _, err := w.Write(js); err != nil {
+		m.logger.WithError(err).Error("Writing JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 /*
@@ -115,15 +124,15 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		return
 	}
 
-	blockIndex := block.Index()                         //int
-	blockRound := block.RoundReceived()                 //int
+	blockIndex := block.Index()         //int
+	blockRound := block.RoundReceived() //int
 	//blockStateHash := hexutil.Encode(block.StateHash()) //[]byte
 	//blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
 
 	jsBlock := JsonBlock{
-		Hash:      block.BlockHex(),
-		Index:     blockIndex,
-		Round:     blockRound,
+		Hash:  block.BlockHex(),
+		Index: blockIndex,
+		Round: blockRound,
 		//StateHash: blockStateHash,
 		//FrameHash: blockFrameHash,
 	}
@@ -218,7 +227,11 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	if _, err := w.Write(js); err != nil {
+		m.logger.WithError(err).Error("Writing JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 /*
@@ -254,7 +267,11 @@ func accountsHandler(w http.ResponseWriter, _ *http.Request, m *Service) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	if _, err := w.Write(js); err != nil {
+		m.logger.WithError(err).Error("Writing JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 /*
@@ -278,7 +295,13 @@ func callHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer r.Body.Close()
+	defer (func() {
+		if err := r.Body.Close(); err != nil {
+			m.logger.WithError(err).Error("Closing body")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	})()
 
 	callMessage, err := prepareCallMessage(txArgs, m.keyStore)
 	if err != nil {
@@ -303,7 +326,11 @@ func callHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	if _, err := w.Write(js); err != nil {
+		m.logger.WithError(err).Error("Writing JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 /*
@@ -339,7 +366,13 @@ func transactionHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer r.Body.Close()
+	defer (func() {
+		if err := r.Body.Close(); err != nil {
+			m.logger.WithError(err).Error("Closing body")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	})()
 
 	tx, err := prepareTransaction(txArgs, m.state, m.keyStore)
 	if err != nil {
@@ -368,8 +401,11 @@ func transactionHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
-
+	if _, err := w.Write(js); err != nil {
+		m.logger.WithError(err).Error("Writing JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 /*
@@ -391,7 +427,13 @@ State should be verified by fetching the transaction' receipt.
 func rawTransactionHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	m.logger.WithField("request", r).Debug("POST rawtx")
 
-	defer r.Body.Close()
+	defer (func() {
+		if err := r.Body.Close(); err != nil {
+			m.logger.WithError(err).Error("Closing body")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	})()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		m.logger.WithError(err).Error("Reading request body")
@@ -430,7 +472,11 @@ func rawTransactionHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	if _, err := w.Write(js); err != nil {
+		m.logger.WithError(err).Error("Writing JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 }
 
@@ -529,7 +575,11 @@ func transactionReceiptHandler(w http.ResponseWriter, r *http.Request, m *Servic
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	if _, err := w.Write(js); err != nil {
+		m.logger.WithError(err).Error("Writing JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 /*
@@ -627,7 +677,11 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	if _, err := w.Write(js); err != nil {
+		m.logger.WithError(err).Error("Writing JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 /*
@@ -654,7 +708,11 @@ func infoHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
+	if _, err := w.Write(js); err != nil {
+		m.logger.WithError(err).Error("Writing JSON response")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 /*
@@ -680,7 +738,11 @@ func htmlInfoHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	t.Execute(w, stats)
+	if err := t.Execute(w, stats); err != nil {
+		m.logger.WithError(err).Error("Executing ResponseWriter with stats")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 //------------------------------------------------------------------------------
