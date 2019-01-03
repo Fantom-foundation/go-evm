@@ -55,10 +55,11 @@ func NewConsensusEngine(config config.Config,
 // Run starts the engine's Service asynchronously and starts the Consensus system
 // synchronously
 func (e *ConsensusEngine) Run() error {
-
 	go e.service.Run()
 
-	e.consensus.Run()
+	if err := e.consensus.Run(); err != nil {
+		return err
+	}
 
 	return nil
 }

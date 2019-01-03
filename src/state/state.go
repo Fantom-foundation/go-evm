@@ -160,8 +160,12 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 
 	s.blockIndex = blockIndex
 
-	s.db.Put(block.Hash, blockMarshal)
-	s.db.Put(blockKey(blockIndex), blockMarshal)
+	if err := s.db.Put(block.Hash, blockMarshal); err != nil {
+		return common.Hash{}, err
+	}
+	if err := s.db.Put(blockKey(blockIndex), blockMarshal); err != nil {
+		return common.Hash{}, err
+	}
 
 	for txIndex, txBytes := range block.Transactions() {
 		if err := s.applyTransaction(txBytes, txIndex, blockHash); err != nil {
@@ -293,7 +297,9 @@ func (s *State) applyTransaction(txBytes []byte, txIndex int, blockHash common.H
 		}
 		txHash := t.Hash()
 		txErrorMarshal, _ := txError.Marshal()
-		s.db.Put(append(errorPrefix, txHash[:]...), txErrorMarshal)
+		if err := s.db.Put(append(errorPrefix, txHash[:]...), txErrorMarshal); err != nil {
+			s.logger.WithError(err).Error("s.db.Put")
+		}
 		s.logger.WithError(err).Error("Applying transaction to State")
 		return err
 	}

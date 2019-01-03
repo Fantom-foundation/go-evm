@@ -76,7 +76,7 @@ func NewInmemEngine(config config.Config, logger *logrus.Logger) (*InmemEngine, 
 	n, ok := pmap.ByPubKey[nodePub]
 
 	if !ok {
-		return nil, fmt.Errorf("Cannot find self pubkey in peers.json")
+		return nil, fmt.Errorf("cannot find self pubkey in peers.json")
 	}
 
 	nodeID := n.ID
@@ -124,12 +124,12 @@ func NewInmemEngine(config config.Config, logger *logrus.Logger) (*InmemEngine, 
 	trans, err := net.NewTCPTransport(
 		config.Lachesis.BindAddr, nil, 2, conf.TCPTimeout, logger)
 	if err != nil {
-		return nil, fmt.Errorf("Creating TCP Transport: %s", err)
+		return nil, fmt.Errorf("creating TCP Transport: %s", err)
 	}
 
 	node := node.NewNode(conf, nodeID, key, participants, store, trans, appProxy)
 	if err := node.Init(); err != nil {
-		return nil, fmt.Errorf("Initializing node: %s", err)
+		return nil, fmt.Errorf("initializing node: %s", err)
 	}
 
 	lserv := serv.NewService(config.Lachesis.ServiceAddr, node, logger)

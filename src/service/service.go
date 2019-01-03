@@ -92,11 +92,14 @@ func (m *Service) Run() {
 	m.checkErr(m.createGenesisAccounts())
 
 	m.logger.Info("serving web3-api ...")
-	err := m.rpcServer.Start()
-	if err != nil {
+	if err := m.rpcServer.Start(); err != nil {
 		panic(err)
 	}
-	defer m.rpcServer.Stop()
+	defer (func() {
+		if err := m.rpcServer.Stop(); err != nil {
+			panic(err)
+		}
+	})()
 
 	m.logger.Info("serving api ...")
 	m.serveAPI()
@@ -190,7 +193,9 @@ func (m *Service) serveAPI() {
 	r.HandleFunc("/info", m.makeHandler(infoHandler)).Methods("GET")
 	r.HandleFunc("/html/info", m.makeHandler(htmlInfoHandler)).Methods("GET")
 	http.Handle("/", &CORSServer{r})
-	http.ListenAndServe(m.apiAddr, nil)
+	if err := http.ListenAndServe(m.apiAddr, nil); err != nil {
+		panic(err)
+	}
 }
 
 type CORSServer struct {
