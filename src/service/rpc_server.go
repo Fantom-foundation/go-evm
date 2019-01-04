@@ -436,9 +436,9 @@ func (n *RpcServer) WSEndpoint() string {
 	return n.wsEndpoint
 }
 
-// EventFeed retrieves the event multiplexer used by all the network services in
+// EventFeed retrieves the event feed used by all the network services in
 // the current protocol stack.
-func (n *RpcServer) EventMux() *event.Feed {
+func (n *RpcServer) EventFeed() *event.Feed {
 	return n.eventfeed
 }
 
