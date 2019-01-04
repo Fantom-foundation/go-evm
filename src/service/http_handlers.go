@@ -80,8 +80,100 @@ func blockByHashHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		return
 	}
 
+	blockIndex := block.Index()         //int
+	blockRound := block.RoundReceived() //int
+	//blockStateHash := hexutil.Encode(block.StateHash()) //[]byte
+	//blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
+
 	jsBlock := JsonBlock{
-		Hash: block.Hex,
+		Hash:  block.BlockHex(),
+		Index: blockIndex,
+		Round: blockRound,
+		CreatedTime: block.GetCreatedTime(),
+		//StateHash: blockStateHash,
+		//FrameHash: blockFrameHash,
+	}
+
+	for _, txBytes := range block.Transactions() {
+		var t ethTypes.Transaction
+		if err := rlp.Decode(bytes.NewReader(txBytes), &t); err != nil {
+			m.logger.WithError(err).Error("Decoding Transaction")
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		m.logger.WithField("hash", t.Hash().Hex()).Debug("blockByIdHandler.decoded")
+		txHash := t.Hash()
+
+		tx, err := m.state.GetTransaction(txHash)
+		jsonReceipt := JsonReceipt{}
+		if err != nil {
+			m.logger.WithError(err).Error("m.state.GetTransaction(txHash)")
+
+			txFailed, err := m.state.GetFailedTx(txHash)
+			if err != nil {
+				m.logger.WithError(err).Error("m.state.GetFailedTx(txHash)")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			tx = txFailed.GetTx()
+
+			signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+			from, err := ethTypes.Sender(signer, tx)
+			if err != nil {
+				m.logger.WithError(err).Error("Getting Tx Sender")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			jsonReceipt = JsonReceipt{
+				TransactionHash: txHash,
+				From:            from,
+				To:              tx.To(),
+				Value:           tx.Value(),
+				Gas:             new(big.Int).SetUint64(tx.Gas()),
+				GasPrice:        tx.GasPrice(),
+				Error:           txFailed.GetError(),
+				Failed:          true,
+			}
+
+		} else {
+
+			signer := ethTypes.NewEIP155Signer(big.NewInt(1))
+			from, err := ethTypes.Sender(signer, tx)
+			if err != nil {
+				m.logger.WithError(err).Error("Getting Tx Sender")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			receipt, err := m.state.GetReceipt(txHash)
+			if err != nil {
+				m.logger.WithError(err).Error("Getting Receipt")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			jsonReceipt = JsonReceipt{
+				Root:              common.BytesToHash(receipt.PostState),
+				TransactionHash:   txHash,
+				From:              from,
+				To:                tx.To(),
+				Value:             tx.Value(),
+				Gas:               new(big.Int).SetUint64(tx.Gas()),
+				GasPrice:          tx.GasPrice(),
+				GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
+				CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
+				ContractAddress:   receipt.ContractAddress,
+				Logs:              receipt.Logs,
+				LogsBloom:         receipt.Bloom,
+				Failed:            false,
+			}
+
+			if receipt.Logs == nil {
+				jsonReceipt.Logs = []*ethTypes.Log{}
+			}
+		}
+		jsBlock.Transactions = append(jsBlock.Transactions, jsonReceipt)
 	}
 
 	js, err := json.Marshal(jsBlock)
@@ -133,6 +225,7 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		Hash:  block.BlockHex(),
 		Index: blockIndex,
 		Round: blockRound,
+		CreatedTime: block.GetCreatedTime(),
 		//StateHash: blockStateHash,
 		//FrameHash: blockFrameHash,
 	}

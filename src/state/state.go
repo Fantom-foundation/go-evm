@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -152,15 +153,20 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	defer s.commitMutex.Unlock()
 
 	blockIndex := block.Index()
-	blockHash := common.BytesToHash(block.Hash)
+	hash, _ := block.BlockHash()
+	blockHash := common.BytesToHash(hash)
 	blockMarshal, _ := block.ProtoMarshal()
 
+	if block.GetCreatedTime() == 0 {
+		block.CreatedTime = time.Now().Unix()
+	}
+
 	s.logger.WithField("blockIndex", blockIndex).Debug("ProcessBlock(block poset.Block)")
-	s.logger.WithField("blockHash", blockHash).Debug("ProcessBlock(block poset.Block)")
+	s.logger.WithField("blockHash", block.BlockHex()).Debug("ProcessBlock(block poset.Block)")
 
 	s.blockIndex = blockIndex
 
-	if err := s.db.Put(block.Hash, blockMarshal); err != nil {
+	if err := s.db.Put(hash, blockMarshal); err != nil {
 		return common.Hash{}, err
 	}
 	if err := s.db.Put(blockKey(blockIndex), blockMarshal); err != nil {
@@ -168,8 +174,9 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	}
 
 	for txIndex, txBytes := range block.Transactions() {
+		// Block is valid, don't exit just because of transactions
 		if err := s.applyTransaction(txBytes, txIndex, blockHash); err != nil {
-			return common.Hash{}, err
+			s.logger.WithError(err).Error("s.applyTransaction(txBytes, txIndex, blockHash);")
 		}
 	}
 

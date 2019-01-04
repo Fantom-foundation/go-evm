@@ -60,6 +60,7 @@ type JsonBlock struct {
 	Hash         string        `json:"hash"`
 	Index        int64         `json:"index"`
 	Round        int64         `json:"round"`
+	CreatedTime  int64         `json:"createdTime"`
 	StateHash    string        `json:"stateHash"`
 	FrameHash    string        `json:"frameHash"`
 	Transactions []JsonReceipt `json:"transactions"`
