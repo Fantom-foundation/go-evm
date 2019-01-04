@@ -8,7 +8,7 @@ You might need to install NodeJS and dependencies first:
 ```bash
 # install node version manager
 $ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.5/install.sh | bash
-# use nvm to intall stable version of node
+# use nvm to install stable version of node
 $ nvm install node stable
 # install dependencies for this demo
 evm/demo$ npm install

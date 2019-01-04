@@ -19,7 +19,9 @@ func AddRaftFlags(cmd *cobra.Command) {
 	cmd.Flags().String("raft.node-addr", config.Raft.NodeAddr, "IP:PORT of Raft node")
 	cmd.Flags().String("raft.server-id", string(config.Raft.LocalID), "Unique ID of this server")
 
-	viper.BindPFlags(cmd.Flags())
+	if err := viper.BindPFlags(cmd.Flags()); err != nil {
+		panic("Unable to bind viper flags")
+	}
 }
 
 //NewRaftCmd returns the command that starts EVM-Lite with Raft consensus
@@ -46,14 +48,15 @@ func NewRaftCmd() *cobra.Command {
 }
 
 func runRaft(cmd *cobra.Command, args []string) error {
-
-	raft := raft.NewRaft(*config.Raft, logger)
-	engine, err := engine.NewConsensusEngine(*config, raft, logger)
+	raftConsensus := raft.NewRaft(*config.Raft, logger)
+	consensusEngine, err := engine.NewConsensusEngine(*config, raftConsensus, logger)
 	if err != nil {
-		return fmt.Errorf("Error building Engine: %s", err)
+		return fmt.Errorf("error building Engine: %s", err)
 	}
 
-	engine.Run()
+	if err := consensusEngine.Run(); err != nil {
+		return fmt.Errorf("error running Engine: %s", err)
+	}
 
 	return nil
 }

@@ -20,9 +20,9 @@ import (
 type RpcServer struct {
 	backend *Service
 
-	eventmux *event.TypeMux // Event multiplexer used between the services of a stack
-	config   *node.Config
-	accman   *accounts.Manager
+	eventfeed *event.Feed // Event multiplexer used between the services of a stack
+	config    *node.Config
+	accman    *accounts.Manager
 
 	started bool
 
@@ -82,7 +82,7 @@ func NewRpcServer(conf *node.Config, b *Service) (*RpcServer, error) {
 		ipcEndpoint:  conf.IPCEndpoint(),
 		httpEndpoint: conf.HTTPEndpoint(),
 		wsEndpoint:   conf.WSEndpoint(),
-		eventmux:     new(event.TypeMux),
+		eventfeed:    new(event.Feed),
 		log:          conf.Logger,
 	}, nil
 }
@@ -117,7 +117,7 @@ func (n *RpcServer) Start() error {
 		ctx := &RpcServiceContext{
 			config:         n.config,
 			services:       make(map[reflect.Type]RpcService),
-			EventMux:       n.eventmux,
+			EventFeed:      n.eventfeed,
 			AccountManager: n.accman,
 		}
 		for kind, s := range services { // copy needed for threaded access
@@ -138,7 +138,9 @@ func (n *RpcServer) Start() error {
 	// Lastly start the configured RPC interfaces
 	if err := n.startRPC(services); err != nil {
 		for _, service := range services {
-			service.Stop()
+			if err = service.Stop(); err != nil {
+				return err
+			}
 		}
 		return err
 	}
@@ -223,7 +225,10 @@ func (n *RpcServer) startIPC(apis []rpc.API) error {
 // stopIPC terminates the IPC RPC endpoint.
 func (n *RpcServer) stopIPC() {
 	if n.ipcListener != nil {
-		n.ipcListener.Close()
+		if err := n.ipcListener.Close(); err != nil {
+			n.log.Error(err.Error())
+			return
+		}
 		n.ipcListener = nil
 
 		n.log.Info("IPC endpoint closed", "endpoint", n.ipcEndpoint)
@@ -256,10 +261,14 @@ func (n *RpcServer) startHTTP(endpoint string, apis []rpc.API, modules []string,
 // stopHTTP terminates the HTTP RPC endpoint.
 func (n *RpcServer) stopHTTP() {
 	if n.httpListener != nil {
-		n.httpListener.Close()
+		err := n.httpListener.Close()
 		n.httpListener = nil
 
-		n.log.Info("HTTP endpoint closed", "url", fmt.Sprintf("http://%s", n.httpEndpoint))
+		if err == nil {
+			n.log.Info("HTTP endpoint closed", "url", fmt.Sprintf("http://%s", n.httpEndpoint))
+		} else {
+			n.log.Error(err.Error(), "url", fmt.Sprintf("http://%s", n.httpEndpoint))
+		}
 	}
 	if n.httpHandler != nil {
 		n.httpHandler.Stop()
@@ -289,10 +298,14 @@ func (n *RpcServer) startWS(endpoint string, apis []rpc.API, modules []string, w
 // stopWS terminates the websocket RPC endpoint.
 func (n *RpcServer) stopWS() {
 	if n.wsListener != nil {
-		n.wsListener.Close()
+		err := n.wsListener.Close()
 		n.wsListener = nil
 
-		n.log.Info("WebSocket endpoint closed", "url", fmt.Sprintf("ws://%s", n.wsEndpoint))
+		if err == nil {
+			n.log.Info("WebSocket endpoint closed", "url", fmt.Sprintf("ws://%s", n.wsEndpoint))
+		} else {
+			n.log.Error(err.Error(), "url", fmt.Sprintf("ws://%s", n.wsEndpoint))
+		}
 	}
 	if n.wsHandler != nil {
 		n.wsHandler.Stop()
@@ -423,10 +436,10 @@ func (n *RpcServer) WSEndpoint() string {
 	return n.wsEndpoint
 }
 
-// EventMux retrieves the event multiplexer used by all the network services in
+// EventFeed retrieves the event feed used by all the network services in
 // the current protocol stack.
-func (n *RpcServer) EventMux() *event.TypeMux {
-	return n.eventmux
+func (n *RpcServer) EventFeed() *event.Feed {
+	return n.eventfeed
 }
 
 // apis returns the collection of RPC descriptors this node offers.

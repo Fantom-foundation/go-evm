@@ -120,7 +120,7 @@ func (was *WriteAheadState) ApplyTransaction(tx ethTypes.Transaction, txIndex in
 	was.totalUsedGas.Add(was.totalUsedGas, new(big.Int).SetUint64(gas))
 
 	// Create a new receipt for the transaction, storing the intermediate root and gas used by the tx
-	// based on the eip phase, we're passing wether the root touch-delete accounts.
+	// based on the eip phase, we're passing whether the root touch-delete accounts.
 	root := was.ethState.IntermediateRoot(true) //this has side effects. It updates StateObjects (SmartContract memory)
 	receipt := ethTypes.NewReceipt(root.Bytes(), failed, was.totalUsedGas.Uint64())
 	receipt.TxHash = tx.Hash()
@@ -153,9 +153,11 @@ func (was *WriteAheadState) Commit() (common.Hash, error) {
 	}
 
 	//XXX FORCE DISK WRITE
-	//Apparenty Geth does something smarter here... but cant figure it out
-	was.ethState.Database().TrieDB().Commit(root, true)
-
+	// Apparently Geth does something smarter here... but can't figure it out
+	if err := was.ethState.Database().TrieDB().Commit(root, true); err != nil {
+		was.logger.WithError(err).Error("Writing root")
+		return common.Hash{}, err
+	}
 	if err := was.writeRoot(root); err != nil {
 		was.logger.WithError(err).Error("Writing root")
 		return common.Hash{}, err

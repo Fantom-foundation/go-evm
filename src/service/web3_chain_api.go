@@ -25,7 +25,7 @@ import (
 	//"github.com/Fantom-foundation/go-evm/src/service/internal/ethapi"
 )
 
-var ErrNotImplemented = fmt.Errorf("Not implemented yet")
+var ErrNotImplemented = fmt.Errorf("not implemented yet")
 
 // PublicEthereumChainAPI provides an API to access Service full node-related
 // information.
