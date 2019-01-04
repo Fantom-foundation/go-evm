@@ -1,5 +1,5 @@
-hash: 45afdc6dd1ced46685107391986fa36944e039c7e78955899568a727c2cf33dc
-updated: 2019-01-03T14:29:33.440721+11:00
+hash: d499012cdcb5ca6a8a58621705e8738a01f03e677fe9d3681dd80d10862e69e2
+updated: 2019-01-03T15:56:16.378703937+11:00
 imports:
 - name: github.com/allegro/bigcache
   version: 06975fd8de981b85f94a4e5bed7c32999030cef3
@@ -20,7 +20,7 @@ imports:
 - name: github.com/deckarep/golang-set
   version: 699df6a3acf6867538e50931511e9dc403da108a
 - name: github.com/dgraph-io/badger
-  version: 391b6d3b93e6014fe8c2971fcc0c1266e47dbbd9
+  version: 439fd464b155d419201a5c195c70d40618376776
   subpackages:
   - options
   - protos
@@ -75,8 +75,12 @@ imports:
   - rlp
   - rpc
   - trie
+- name: github.com/facebookgo/atomicfile
+  version: 2de1f203e7d5e386a6833233882782932729f27e
+- name: github.com/facebookgo/pidfile
+  version: f242e2999868dcd267a2b86e49ce1f9cf9e15b16
 - name: github.com/Fantom-foundation/go-lachesis
-  version: 77f95fcf5cb17626fecff62af9753aa1554b184e
+  version: d5bc800b9fcb5fb0d7c199a25d8735ebe7cc4ebe
   subpackages:
   - src/common
   - src/crypto
@@ -91,6 +95,7 @@ imports:
   - src/proxy/internal
   - src/proxy/proto
   - src/service
+  - src/utils
 - name: github.com/fjl/memsize
   version: 2a09253e352a56f419bd88effab0483f52da4c7d
   subpackages:
@@ -100,7 +105,7 @@ imports:
 - name: github.com/go-stack/stack
   version: 2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a
 - name: github.com/golang/protobuf
-  version: 1d3f30b51784bec5aad268e59fd3c2fc1c2fe73f
+  version: 8d0c54c1246661d9a51ca0ba455d22116d485eaa
   subpackages:
   - proto
   - protoc-gen-go/descriptor
@@ -220,7 +225,6 @@ imports:
 - name: golang.org/x/net
   version: 927f97764cc334a6575f4b7a1584a147864d5723
   subpackages:
-  - context
   - html
   - html/atom
   - html/charset
