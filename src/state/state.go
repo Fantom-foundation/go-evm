@@ -155,12 +155,15 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	blockIndex := block.Index()
 	hash, _ := block.BlockHash()
 	blockHash := common.BytesToHash(hash)
-	blockMarshal, _ := block.ProtoMarshal()
+
 
 	if block.GetCreatedTime() == 0 {
 		block.CreatedTime = time.Now().Unix()
 	}
 
+	blockMarshal, _ := block.ProtoMarshal()
+
+	s.logger.WithField("block.GetCreatedTime", block.GetCreatedTime()).Debug("ProcessBlock(block poset.Block)")
 	s.logger.WithField("blockIndex", blockIndex).Debug("ProcessBlock(block poset.Block)")
 	s.logger.WithField("blockHash", block.BlockHex()).Debug("ProcessBlock(block poset.Block)")
 
