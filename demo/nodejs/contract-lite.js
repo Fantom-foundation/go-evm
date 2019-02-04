@@ -9,33 +9,33 @@ coder = require('web3/lib/solidity/coder.js');
 
 function Contract(file, name) {
     this.file = file
-    this.name = ':' + name //solc does this for some reason
+    this.name = ':'+name //solc does this for some reason
     this.bytecode = ''
     this.abi = ''
 }
 
-Contract.prototype.compile = function () {
+Contract.prototype.compile = function() {
     input = fs.readFileSync(this.file)
     output = solc.compile(input.toString(), 1)
     console.log('compile output', output)
-    this.bytecode = output.contracts[this.name].bytecode
+    this.bytecode =  output.contracts[this.name].bytecode
     this.abi = output.contracts[this.name].interface
     this.w3 = web3.eth.contract(JSONbig.parse(this.abi)).at('');
 }
 
-Contract.prototype.encodeConstructorParams = function (params) {
-    return this.w3.abi.filter(function (json) {
-        return json.type === 'constructor' && json.inputs.length === params.length;
-    }).map(function (json) {
-        return json.inputs.map(function (input) {
-            return input.type;
-        });
-    }).map(function (types) {
-        return coder.encodeParams(types, params);
-    })[0] || '';
+Contract.prototype.encodeConstructorParams = function(params) {
+        return this.w3.abi.filter(function (json) {
+            return json.type === 'constructor' && json.inputs.length === params.length;
+        }).map(function (json) {
+            return json.inputs.map(function (input) {
+                return input.type;
+            });
+        }).map(function (types) {
+            return coder.encodeParams(types, params);
+        })[0] || '';
 }
 
-Contract.prototype.parseOutput = function (funcName, output) {
+Contract.prototype.parseOutput = function(funcName, output) {
     funcDef = this.w3.abi.find(function (json) {
         return json.type === 'function' && json.name === funcName;
     });
@@ -43,20 +43,20 @@ Contract.prototype.parseOutput = function (funcName, output) {
     return func.unpackOutput(output)
 }
 
-Contract.prototype.parseLogs = function (logs) {
+Contract.prototype.parseLogs = function(logs) {
     let c = this
     // pattern similar to lib/web3/contract.js:  addEventsToContract()
     let decoders = c.w3.abi.filter(function (json) {
         return json.type === 'event';
-    }).map(function (json) {
+    }).map(function(json) {
         // note first and third params required only by encode and execute;
         // so don't call those!
         return new SolidityEvent(null, json, null);
     })
 
     return logs.map(function (log) {
-        let decoder = decoders.find(function (decoder) {
-            return (decoder.signature() == log.topics[0].replace('0x', ''));
+        let decoder = decoders.find(function(decoder) {
+            return (decoder.signature() == log.topics[0].replace('0x',''));
         })
         if (decoder) {
             return decoder.decode(log);
@@ -64,7 +64,7 @@ Contract.prototype.parseLogs = function (logs) {
             return log;
         }
     }).map(function (log) {
-        let abis = c.w3.abi.find(function (json) {
+        let abis = c.w3.abi.find(function(json) {
             return (json.type === 'event' && log.event === json.name);
         });
         if (abis && abis.inputs) {
@@ -75,7 +75,7 @@ Contract.prototype.parseLogs = function (logs) {
             })
         }
         return log;
-    }).map(function (log) {
+    }).map(function(log) {
         return log
     })
 }
