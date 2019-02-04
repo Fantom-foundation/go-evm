@@ -26,7 +26,6 @@ var (
 
 // LachesisConfig contains the configuration of a Lachesis node
 type LachesisConfig struct {
-
 	// Directory containing priv_key.pem and peers.json files
 	DataDir string `mapstructure:"datadir"`
 

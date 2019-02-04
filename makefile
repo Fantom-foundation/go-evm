@@ -1,4 +1,3 @@
-
 # vendor uses Glide to install all the Go dependencies in vendor/
 vendor:
 	glide install

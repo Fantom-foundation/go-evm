@@ -86,9 +86,9 @@ func blockByHashHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	//blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
 
 	jsBlock := JsonBlock{
-		Hash:  block.BlockHex(),
-		Index: blockIndex,
-		Round: blockRound,
+		Hash:        block.BlockHex(),
+		Index:       blockIndex,
+		Round:       blockRound,
 		CreatedTime: block.GetCreatedTime(),
 		//StateHash: blockStateHash,
 		//FrameHash: blockFrameHash,
@@ -222,9 +222,9 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	//blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
 
 	jsBlock := JsonBlock{
-		Hash:  block.BlockHex(),
-		Index: blockIndex,
-		Round: blockRound,
+		Hash:        block.BlockHex(),
+		Index:       blockIndex,
+		Round:       blockRound,
 		CreatedTime: block.GetCreatedTime(),
 		//StateHash: blockStateHash,
 		//FrameHash: blockFrameHash,

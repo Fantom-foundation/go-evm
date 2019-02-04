@@ -15,7 +15,6 @@ var (
 // EthConfig contains the configuration relative to the accounts, EVM, trie/db,
 // and service API
 type EthConfig struct {
-
 	// Genesis file
 	Genesis string `mapstructure:"genesis"`
 

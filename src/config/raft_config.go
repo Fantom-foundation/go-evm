@@ -15,7 +15,6 @@ var (
 
 // RaftConfig contains the configuration of a Raft node
 type RaftConfig struct {
-
 	// ProtocolVersion allows a Raft server to inter-operate with older
 	// Raft servers running an older version of the code. This is used to
 	// version the wire protocol as well as Raft-specific log entries that

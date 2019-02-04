@@ -8,8 +8,8 @@ import (
 )
 
 type TxError struct {
-	Tx     ethTypes.Transaction   `json:"tx"`
-	Error  string                 `json:"error"`
+	Tx    ethTypes.Transaction `json:"tx"`
+	Error string               `json:"error"`
 }
 
 func (te *TxError) Marshal() ([]byte, error) {
@@ -33,7 +33,6 @@ func (te *TxError) Unmarshal(data []byte) error {
 func (te *TxError) GetTx() *ethTypes.Transaction {
 	return &te.Tx
 }
-
 
 func (te *TxError) GetError() string {
 	return te.Error

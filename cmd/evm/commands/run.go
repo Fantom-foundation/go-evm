@@ -11,7 +11,6 @@ import (
 	"github.com/Fantom-foundation/go-lachesis/src/utils"
 )
 
-
 //AddRunFlags adds flags to the Run command
 func AddRunFlags(cmd *cobra.Command) {
 	//Lachesis Socket

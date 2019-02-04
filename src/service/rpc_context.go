@@ -44,7 +44,6 @@ type RpcServiceConstructor func(ctx *RpcServiceContext) (RpcService, error)
 // • Restart logic is not required as the node will create a fresh instance
 // every time a service is started.
 type RpcService interface {
-
 	// APIs retrieves the list of RPC descriptors the service provides
 	APIs() []rpc.API
 

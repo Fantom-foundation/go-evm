@@ -1,7 +1,6 @@
 package: github.com/Fantom-foundation/go-evm
 import:
 - package: github.com/Fantom-foundation/go-lachesis
-  version: master
   subpackages:
   - src/crypto
   - src/lachesis
@@ -13,7 +12,7 @@ import:
   - src/service
   - src/utils
 - package: github.com/ethereum/go-ethereum
-  version: =1.8.20
+  version: ~1.8.22
   subpackages:
   - accounts
   - accounts/keystore
@@ -35,14 +34,14 @@ import:
   - rpc
   - trie
 - package: github.com/gorilla/mux
-  version: ~1.6.2
+  version: ^1.7.0
 - package: github.com/hashicorp/raft
-  version: ~1.0.0
+  version: ^1.0.0
 - package: github.com/sirupsen/logrus
-  version: ~1.2.0
+  version: ^1.3.0
 - package: github.com/spf13/cobra
-  version: ~0.0.3
+  version: ^0.0.3
 - package: github.com/spf13/viper
-  version: ~1.3.1
+  version: ^1.3.1
 ignore:
   - github.com/prometheus/prometheus/util/flock

@@ -16,7 +16,6 @@ var (
 
 // Config contains de configuration for an EVM-Lite node
 type Config struct {
-
 	// Top level options use an anonymous struct
 	BaseConfig `mapstructure:",squash"`
 
@@ -29,22 +28,22 @@ type Config struct {
 	// Options for Raft consensus
 	Raft *RaftConfig `mapstructure:"raft"`
 
-	ProxyAddr  string                  `mapstructure:"proxy"`
-	ClientAddr string                  `mapstructure:"client-connect"`
-	Standalone bool                    `mapstructure:"standalone"`
-	Pidfile    string                  `mapstructure:"pidfile"`
+	ProxyAddr  string `mapstructure:"proxy"`
+	ClientAddr string `mapstructure:"client-connect"`
+	Standalone bool   `mapstructure:"standalone"`
+	Pidfile    string `mapstructure:"pidfile"`
 }
 
 // DefaultConfig returns the default configuration for an EVM-Lite node
 func DefaultConfig() *Config {
 	return &Config{
-		BaseConfig:   DefaultBaseConfig(),
-		Eth:          DefaultEthConfig(),
-		Lachesis:     DefaultLachesisConfig(),
-		Raft:         DefaultRaftConfig(),
-		ProxyAddr:    "127.0.0.1:1338",
-		ClientAddr:   "127.0.0.1:1339",
-		Pidfile:      filepath.Join(os.TempDir(), "go-evm.pid"),
+		BaseConfig: DefaultBaseConfig(),
+		Eth:        DefaultEthConfig(),
+		Lachesis:   DefaultLachesisConfig(),
+		Raft:       DefaultRaftConfig(),
+		ProxyAddr:  "127.0.0.1:1338",
+		ClientAddr: "127.0.0.1:1339",
+		Pidfile:    filepath.Join(os.TempDir(), "go-evm.pid"),
 	}
 }
 
@@ -69,7 +68,6 @@ BASE CONFIG
 
 // BaseConfig contains the top level configuration for an EVM-Lachesis node
 type BaseConfig struct {
-
 	// Top-level directory of evm-lachesis data
 	DataDir string `mapstructure:"datadir"`
 
