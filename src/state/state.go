@@ -156,7 +156,6 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	hash, _ := block.BlockHash()
 	blockHash := common.BytesToHash(hash)
 
-
 	if block.GetCreatedTime() == 0 {
 		block.CreatedTime = time.Now().Unix()
 	}

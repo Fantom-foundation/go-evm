@@ -33,4 +33,4 @@ eth.sendTransaction({
     to: acc2.address,
     value: '1000000000000000'
 })
-.then(console.log, console.log)
+    .then(console.log, console.log)
