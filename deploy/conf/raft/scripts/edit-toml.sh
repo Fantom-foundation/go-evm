@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script adds Raft configuration to an evm config.toml file. 
+# This script adds Raft configuration to an evm-lite config.toml file. 
 
 set -e
 

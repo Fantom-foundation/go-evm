@@ -1,6 +1,6 @@
 http = require('http');
 
-var EVMLachesisClient = function(host, port) {
+var EVMBabbleClient = function(host, port) {
     this.host = host
     this.port = port
 }
@@ -15,7 +15,7 @@ request = function(options, callback) {
 
         let data = '';
         
-        // A chunk of data has been received.
+        // A chunk of data has been recieved.
         resp.on('data', (chunk) => {
             data += chunk;
         });
@@ -28,7 +28,7 @@ request = function(options, callback) {
 }
 
 // class methods
-EVMLachesisClient.prototype.getAccount = function(address) {
+EVMBabbleClient.prototype.getAccount = function(address) {
     var options = {
         host: this.host,
         port: this.port,
@@ -43,7 +43,7 @@ EVMLachesisClient.prototype.getAccount = function(address) {
     })
 } 
 
-EVMLachesisClient.prototype.getAccounts = function() {
+EVMBabbleClient.prototype.getAccounts = function() {
     var options = {
         host: this.host,
         port: this.port,
@@ -58,7 +58,7 @@ EVMLachesisClient.prototype.getAccounts = function() {
     })
 }  
 
-EVMLachesisClient.prototype.call = function(tx) {
+EVMBabbleClient.prototype.call = function(tx) {
     var options = {
         host: this.host,
         port: this.port,
@@ -74,7 +74,7 @@ EVMLachesisClient.prototype.call = function(tx) {
     })
 } 
 
-EVMLachesisClient.prototype.sendTx = function(tx) {
+EVMBabbleClient.prototype.sendTx = function(tx) {
     var options = {
         host: this.host,
         port: this.port,
@@ -90,7 +90,7 @@ EVMLachesisClient.prototype.sendTx = function(tx) {
     })
 }
 
-EVMLachesisClient.prototype.sendRawTx = function(tx) {
+EVMBabbleClient.prototype.sendRawTx = function(tx) {
     var options = {
         host: this.host,
         port: this.port,
@@ -106,7 +106,7 @@ EVMLachesisClient.prototype.sendRawTx = function(tx) {
     })
 }
 
-EVMLachesisClient.prototype.getReceipt = function(txHash) {
+EVMBabbleClient.prototype.getReceipt = function(txHash) {
     var options = {
         host: this.host,
         port: this.port,
@@ -121,4 +121,4 @@ EVMLachesisClient.prototype.getReceipt = function(txHash) {
     })
 } 
 
-module.exports = EVMLachesisClient;
+module.exports = EVMBabbleClient;

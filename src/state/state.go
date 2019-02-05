@@ -356,6 +356,8 @@ func (s *State) Commit() (common.Hash, error) {
 	/*s.ethState = s.was.ethState
 	s.logger.WithField("root", root.Hex()).Debug("Committed")
 	s.resetWAS()*/
+
+	//Reset main ethState
 	if err := s.ethState.Reset(root); err != nil {
 		s.logger.WithError(err).Error("Resetting main StateDB")
 		return root, err
@@ -405,33 +407,6 @@ func (s *State) InitState() error {
 
 	rootHash := common.Hash{}
 
-	/*//get head transaction hash
-	headTxHash := common.Hash{}
-	data, _ := s.db.Get(headTxKey)
-	if len(data) != 0 {
-		headTxHash = common.BytesToHash(data)
-		s.logger.WithField("head_tx", headTxHash.Hex()).Debug("Loading state from existing head")
-		//get head tx receipt
-		headTxReceipt, err := s.GetReceipt(headTxHash)
-		if err != nil {
-			s.logger.WithError(err).Error("Head transaction receipt missing")
-			return err
-		}
-
-		//extract root from receipt
-		if len(headTxReceipt.PostState) != 0 {
-			rootHash = common.BytesToHash(headTxReceipt.PostState)
-			s.logger.WithField("root", rootHash.Hex()).Debug("Head transaction root")
-		}
-	}
-
-	//use root to initialise the state
-	var err error
-	s.ethState, err = ethState.New(rootHash, ethState.NewDatabase(s.db))
-	return err*/
-
-	// Use root instead
-
 	//get root hash
 	data, _ := s.db.Get(rootKey)
 	if len(data) != 0 {
@@ -447,12 +422,12 @@ func (s *State) InitState() error {
 		return err
 	}
 
-	s.was, err = NewWriteAheadState(s.db, rootHash, s.signer, s.chainConfig, s.vmConfig, gasLimit.Uint64(), s.logger)
+	s.was, err = NewWriteAheadState(s.db, rootHash, s.signer, s.chainConfig, s.vmConfig, gasLimit, s.logger)
 	if err != nil {
 		return err
 	}
 
-	s.txPool = NewTxPool(s.ethState.Copy(), s.signer, s.chainConfig, s.vmConfig, gasLimit.Uint64(), s.logger)
+	s.txPool = NewTxPool(s.ethState.Copy(), s.signer, s.chainConfig, s.vmConfig, gasLimit, s.logger)
 
 	return err
 }
@@ -479,6 +454,7 @@ func (s *State) ApplyTransaction(txBytes []byte, txIndex int, blockHash common.H
 	return s.was.ApplyTransaction(t, txIndex, blockHash)
 }
 
+//CreateAccounts creates new accounts in the state via the WAS.
 func (s *State) CreateAccounts(accounts bcommon.AccountMap) error {
 	s.commitMutex.Lock()
 	defer s.commitMutex.Unlock()
@@ -505,12 +481,14 @@ func (s *State) Exist(addr common.Address) bool {
 	return s.ethState.Exist(addr)
 }
 
+//GetBalance returns an account's balance from the main ethState
 func (s *State) GetBalance(addr common.Address) *big.Int {
 	return s.ethState.GetBalance(addr)
 }
 
+//GetNonce returns an account's nonce from the main ethState
 func (s *State) GetNonce(addr common.Address) uint64 {
-	return s.was.ethState.GetNonce(addr)
+	return s.ethState.GetNonce(addr)
 }
 
 //GetPoolNonce returns an account's nonce from the txpool's ethState
@@ -551,6 +529,7 @@ func (s *State) GetBlockById(id int64) (*poset.Block, error) {
 	return newBlock, nil
 }
 
+//GetTransaction fetches transactions by hash directly from the DB.
 func (s *State) GetTransaction(hash common.Hash) (*ethTypes.Transaction, error) {
 	// Retrieve the transaction itself from the database
 	data, err := s.db.Get(hash.Bytes())
@@ -567,7 +546,10 @@ func (s *State) GetTransaction(hash common.Hash) (*ethTypes.Transaction, error) 
 	return &tx, nil
 }
 
+//GetReceipt fetches transaction receipts by transaction hash directly from the
+//DB
 func (s *State) GetReceipt(txHash common.Hash) (*ethTypes.Receipt, error) {
+    // txHash.Bytes()... or txHash[:]?
 	data, err := s.db.Get(append(receiptsPrefix, txHash[:]...))
 	if err != nil {
 		s.logger.WithError(err).Error("GetReceipt")

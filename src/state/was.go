@@ -145,7 +145,7 @@ func (was *WriteAheadState) ApplyTransaction(tx ethTypes.Transaction, txIndex in
 }
 
 func (was *WriteAheadState) Commit() (common.Hash, error) {
-	//commit all state changes to the database
+	// Commit all state changes to the database
 	root, err := was.ethState.Commit(true)
 	if err != nil {
 		was.logger.WithError(err).Error("Committing state")

@@ -7,11 +7,10 @@ import (
 	"time"
 
 	_raft "github.com/hashicorp/raft"
+	"github.com/mosaicnetworks/evm-lite/src/config"
+	"github.com/mosaicnetworks/evm-lite/src/service"
+	"github.com/mosaicnetworks/evm-lite/src/state"
 	"github.com/sirupsen/logrus"
-
-	"github.com/Fantom-foundation/go-evm/src/config"
-	"github.com/Fantom-foundation/go-evm/src/service"
-	"github.com/Fantom-foundation/go-evm/src/state"
 )
 
 // Raft implements the Consensus interface.
@@ -84,7 +83,7 @@ func (r *Raft) Init(state *state.State, service *service.Service) error {
 	//TODO: We should be using the new dynmamic membership protocol
 	configuration, err := _raft.ReadConfigJSON(fmt.Sprintf("%s/peers.json", r.config.RaftDir))
 	if err != nil {
-		return fmt.Errorf("unable to create cluster configuration from peers.json: %v", err)
+		return fmt.Errorf("Unable to create cluster configuration from peers.json: %v", err)
 	}
 	ra.BootstrapCluster(configuration)
 

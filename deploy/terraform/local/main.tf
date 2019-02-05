@@ -15,19 +15,19 @@ resource "docker_network" "private_network" {
   }
 }
 
-# Create evm containers
-resource "docker_container" "evm" {
+# Create evm-lite containers
+resource "docker_container" "evm-lite" {
   count = "${var.nodes}"
 
   name     = "node${count.index}"
   hostname = "node${count.index}"
 
-  image = "Fantom-foundation/go-evm:${var.version}"
+  image = "mosaicnetworks/evm-lite:${var.version}"
 
   networks = ["${docker_network.private_network.name}"]
 
 
-  # The conf files are mounted in a volume. evm, executed by the user 
+  # The conf files are mounted in a volume. evm-lite, executed by the user 
   # specified below, will read and write to this volume. So the user, needs
   # permissions on the host machine (host_path at least). Here, you want to
   # provide the same user that created the /conf folder.
@@ -36,7 +36,7 @@ resource "docker_container" "evm" {
   env = ["HOME=/home/${var.user}"]
   volumes {
     host_path      = "${var.conf}/node${count.index}"
-    container_path = "/home/${var.user}/.evm"
+    container_path = "/home/${var.user}/.evm-lite"
     read_only      = false
   }
 
@@ -49,5 +49,5 @@ resource "docker_container" "evm" {
 }
 
 output "public_addresses" {
-  value = ["${docker_container.evm.*.ip_address}"]
+  value = ["${docker_container.evm-lite.*.ip_address}"]
 }

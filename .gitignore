@@ -5,6 +5,7 @@
 # Go test output
 */*.test
 */*.out
+*debug.test*
 
 # Build output
 build

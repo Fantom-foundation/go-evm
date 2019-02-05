@@ -331,12 +331,12 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 GET /accounts
 returns: JSON JsonAccountList
 
-This endpoint returns the list of accounts CONTROLLED by the evm Service.
+This endpoint returns the list of accounts CONTROLLED by the evm-lite Service.
 These are accounts for which the Service has the private keys and on whose behalf
 it can sign transactions. The list of accounts controlled by the evm-service is
-contained in the Keystore directory defined upon launching the evm application.
+contained in the Keystore directory defined upon launching the evm-lite application.
 */
-func accountsHandler(w http.ResponseWriter, _ *http.Request, m *Service) {
+func accountsHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	m.logger.Debug("GET accounts")
 
 	var al JsonAccountList
@@ -388,13 +388,13 @@ func callHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer (func() {
+	defer func() {
 		if err := r.Body.Close(); err != nil {
 			m.logger.WithError(err).Error("Closing body")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-	})()
+	}()
 
 	callMessage, err := prepareCallMessage(txArgs, m.keyStore)
 	if err != nil {
@@ -435,14 +435,14 @@ This endpoints allows calling SmartContract code for NON-READONLY operations.
 These operations can MODIFY the EVM state.
 
 The data does NOT need to be SIGNED. In fact, this endpoint is meant to be used
-for transactions whose originator is an account CONTROLLED by the evm
+for transactions whose originator is an account CONTROLLED by the evm-lite
 Service (ie. present in the Keystore).
 
 The Nonce field is not necessary either since the Service will fetch it from the
 State.
 
 This is an ASYNCHRONOUS operation. It will return the hash of the transaction that
-was SUBMITTED to evm but there is no guarantee that the transactions will
+was SUBMITTED to evm-lite but there is no guarantee that the transactions will
 get applied to the State.
 
 One should use the /receipt endpoint to retrieve the corresponding receipt and
@@ -459,17 +459,23 @@ func transactionHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	defer (func() {
+	defer func() {
 		if err := r.Body.Close(); err != nil {
 			m.logger.WithError(err).Error("Closing body")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-	})()
+	}()
 
 	tx, err := prepareTransaction(txArgs, m.state, m.keyStore)
 	if err != nil {
 		m.logger.WithError(err).Error("Preparing Transaction")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := m.state.CheckTx(tx); err != nil {
+		m.logger.WithError(err).Error("Checking Transaction")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -512,7 +518,7 @@ is left to compose a transaction, sign it and RLP encode it. The resulting bytes
 represented as a Hex string is passed to this method to be forwarded to the EVM.
 
 This allows executing transactions on behalf of accounts that are NOT CONTROLLED
-by the evm service.
+by the evm-lite service.
 
 Like the /tx endpoint, this is an ASYNCHRONOUS operation and the effect on the
 State should be verified by fetching the transaction' receipt.
@@ -556,6 +562,16 @@ func rawTransactionHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	}
 	m.logger.WithField("hash", t.Hash().Hex()).Debug("Decoded tx")
 
+	if err := m.state.CheckTx(&t); err != nil {
+		m.logger.WithError(err).Error("Checking Transaction")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	m.logger.Debug("submitting tx")
+	m.submitCh <- rawTxBytes
+	m.logger.Debug("submitted tx")
+
 	res := JsonTxRes{TxHash: t.Hash().Hex()}
 	js, err := json.Marshal(res)
 	if err != nil {
@@ -573,108 +589,8 @@ func rawTransactionHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 
 }
 
-/*
-GET /transactions/{tx_hash}
-ex: /transactions/0xbfe1aa80eb704d6342c553ac9f423024f448f7c74b3e38559429d4b7c98ffb99
-returns: JSON JsonReceipt
 
-This endpoint allows to retrieve the EVM receipt of a specific transactions if it
-exists. When a transaction is applied to the EVM , a receipt is saved to allow
-checking if/how the transaction affected the state. This is where one can see such
-information as the address of a newly created contract, how much gas was use and
-the EVM Logs produced by the execution of the transaction.
-*/
-func transactionReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
-	param := r.URL.Path[len("/transaction/"):]
-	txHash := common.HexToHash(param)
-	m.logger.WithField("tx_hash", txHash.Hex()).Debug("GET tx")
-
-	tx, err := m.state.GetTransaction(txHash)
-	jsonReceipt := JsonReceipt{}
-	if err != nil {
-		m.logger.WithError(err).Error("m.state.GetTransaction(txHash)")
-
-		txFailed, err := m.state.GetFailedTx(txHash)
-		if err != nil {
-			m.logger.WithError(err).Error("m.state.GetFailedTx(txHash)")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		tx = txFailed.GetTx()
-
-		signer := ethTypes.NewEIP155Signer(big.NewInt(1))
-		from, err := ethTypes.Sender(signer, tx)
-		if err != nil {
-			m.logger.WithError(err).Error("Getting Tx Sender")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		jsonReceipt = JsonReceipt{
-			TransactionHash: txHash,
-			From:            from,
-			To:              tx.To(),
-			Value:           tx.Value(),
-			Gas:             new(big.Int).SetUint64(tx.Gas()),
-			GasPrice:        tx.GasPrice(),
-			Error:           txFailed.GetError(),
-			Failed:          true,
-		}
-
-	} else {
-
-		signer := ethTypes.NewEIP155Signer(big.NewInt(1))
-		from, err := ethTypes.Sender(signer, tx)
-		if err != nil {
-			m.logger.WithError(err).Error("Getting Tx Sender")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		receipt, err := m.state.GetReceipt(txHash)
-		if err != nil {
-			m.logger.WithError(err).Error("Getting Receipt")
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		jsonReceipt = JsonReceipt{
-			Root:              common.BytesToHash(receipt.PostState),
-			TransactionHash:   txHash,
-			From:              from,
-			To:                tx.To(),
-			Value:             tx.Value(),
-			Gas:               new(big.Int).SetUint64(tx.Gas()),
-			GasPrice:          tx.GasPrice(),
-			GasUsed:           big.NewInt(0).SetUint64(receipt.GasUsed),
-			CumulativeGasUsed: big.NewInt(0).SetUint64(receipt.CumulativeGasUsed),
-			ContractAddress:   receipt.ContractAddress,
-			Logs:              receipt.Logs,
-			LogsBloom:         receipt.Bloom,
-			Failed:            false,
-			Status:            receipt.Status,
-		}
-
-		if receipt.Logs == nil {
-			jsonReceipt.Logs = []*ethTypes.Log{}
-		}
-	}
-
-	js, err := json.Marshal(jsonReceipt)
-	if err != nil {
-		m.logger.WithError(err).Error("Marshaling JSON response")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(js); err != nil {
-		m.logger.WithError(err).Error("Writing JSON response")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
+// TODO: Rename tx => transactions
 /*
 GET /tx/{tx_hash}
 ex: /tx/0xbfe1aa80eb704d6342c553ac9f423024f448f7c74b3e38559429d4b7c98ffb99
@@ -686,7 +602,7 @@ checking if/how the transaction affected the state. This is where one can see su
 information as the address of a newly created contract, how much gas was use and
 the EVM Logs produced by the execution of the transaction.
 */
-func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+func transactionReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	param := r.URL.Path[len("/tx/"):]
 	txHash := common.HexToHash(param)
 	m.logger.WithField("tx_hash", txHash.Hex()).Debug("GET tx")
@@ -780,6 +696,7 @@ func txReceiptHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 /*
 GET /info
 returns: JSON (depends on underlying consensus system)
+
 Info returns information about the consensus system. Each consensus system that
 plugs into evm-lite must implement an Info function.
 */
@@ -811,6 +728,7 @@ func infoHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 /*
 GET /html/info
 returns: HTML version of info
+
 Info returns information about the consensus system. Each consensus system that
 plugs into evm-lite must implement an Info function.
 */

@@ -22,7 +22,7 @@ type JsonAccountList struct {
 type SendTxArgs struct {
 	From     common.Address  `json:"from"`
 	To       *common.Address `json:"to"`
-	Gas      *big.Int        `json:"gas"`
+	Gas      uint64          `json:"gas"`
 	GasPrice *big.Int        `json:"gasPrice"`
 	Value    *big.Int        `json:"value"`
 	Data     string          `json:"data"`

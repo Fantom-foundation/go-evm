@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script adds Lachesis configuration to an evm evml.toml file. 
+# This script adds Babble configuration to an evm-lite evml.toml file.
 
 set -e
 
@@ -12,7 +12,7 @@ DEST=${4:-"conf"}
 l=$((N-1))
 
 PFILE=$DEST/evml.toml
-echo "[lachesis]" >> $PFILE 
+echo "[lachesis]" >> $PFILE
 echo "store = true" >> $PFILE
 echo "heartbeat = \"50ms\"" >> $PFILE
 echo "timeout = \"200ms\"" >> $PFILE

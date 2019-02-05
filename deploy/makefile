@@ -1,7 +1,7 @@
 ENV = local # local or aws
-VERSION = latest # evm Docker Image
+VERSION = latest # evm-lite Docker Image
 USER = 1000 # user that run evml inside the docker containers. (try 501 in MacOS)
-CONSENSUS = solo # solo, lachesis, or raft
+CONSENSUS = solo # solo, babble, or raft
 NODES = 1
 IPBASE = node # use 10.0.2. for aws 
 IPADD = 0 # use 10 for aws

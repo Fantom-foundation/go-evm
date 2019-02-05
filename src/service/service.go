@@ -3,26 +3,20 @@ package service
 import (
 	"encoding/json"
 	"io/ioutil"
-	"math/big"
 	"net/http"
 	"os"
 	"strings"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/params"
 	"github.com/gorilla/mux"
+	"github.com/mosaicnetworks/evm-lite/src/common"
+	"github.com/mosaicnetworks/evm-lite/src/state"
 	"github.com/sirupsen/logrus"
-
-	"github.com/Fantom-foundation/go-evm/src/common"
-	"github.com/Fantom-foundation/go-evm/src/config"
-	"github.com/Fantom-foundation/go-evm/src/state"
 )
 
-var defaultGas = hexutil.Uint64(90000)
+// TODO: `hexutil.Uint64(90000)`
+var defaultGas = uint64(90000)
 
 type infoCallback func() (map[string]string, error)
 
@@ -88,20 +82,21 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 
 func (m *Service) Run() {
 	m.checkErr(m.makeKeyStore())
+
 	m.checkErr(m.unlockAccounts())
+
 	m.checkErr(m.createGenesisAccounts())
 
 	m.logger.Info("serving web3-api ...")
 	if err := m.rpcServer.Start(); err != nil {
 		panic(err)
 	}
-	defer (func() {
+	defer func() {
 		if err := m.rpcServer.Stop(); err != nil {
 			panic(err)
 		}
-	})()
+	}()
 
-	m.logger.Info("serving api ...")
 	m.serveAPI()
 }
 

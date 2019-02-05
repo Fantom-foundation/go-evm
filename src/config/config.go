@@ -38,10 +38,10 @@ type Config struct {
 // DefaultConfig returns the default configuration for an EVM-Lite node
 func DefaultConfig() *Config {
 	return &Config{
-		BaseConfig:   DefaultBaseConfig(),
-		Eth:          DefaultEthConfig(),
-		Lachesis:     DefaultLachesisConfig(),
-		Raft:         DefaultRaftConfig(),
+		BaseConfig: DefaultBaseConfig(),
+		Eth:        DefaultEthConfig(),
+		Babble:     DefaultBabbleConfig(),
+		Raft:       DefaultRaftConfig(),
 		ProxyAddr:    "127.0.0.1:1338",
 		ClientAddr:   "127.0.0.1:1339",
 		Pidfile:      filepath.Join(os.TempDir(), "go-evm.pid"),
