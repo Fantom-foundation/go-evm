@@ -29,10 +29,10 @@ type Config struct {
 	// Options for Raft consensus
 	Raft *RaftConfig `mapstructure:"raft"`
 
-	ProxyAddr  string                  `mapstructure:"proxy"`
-	ClientAddr string                  `mapstructure:"client-connect"`
-	Standalone bool                    `mapstructure:"standalone"`
-	Pidfile    string                  `mapstructure:"pidfile"`
+	ProxyAddr  string `mapstructure:"proxy"`
+	ClientAddr string `mapstructure:"client-connect"`
+	Standalone bool   `mapstructure:"standalone"`
+	Pidfile    string `mapstructure:"pidfile"`
 }
 
 // DefaultConfig returns the default configuration for an EVM-Lite node
@@ -40,11 +40,11 @@ func DefaultConfig() *Config {
 	return &Config{
 		BaseConfig: DefaultBaseConfig(),
 		Eth:        DefaultEthConfig(),
-		Lachesis:     DefaultLachesisConfig(),
+		Lachesis:   DefaultLachesisConfig(),
 		Raft:       DefaultRaftConfig(),
-		ProxyAddr:    "127.0.0.1:1338",
-		ClientAddr:   "127.0.0.1:1339",
-		Pidfile:      filepath.Join(os.TempDir(), "go-evm.pid"),
+		ProxyAddr:  "127.0.0.1:1338",
+		ClientAddr: "127.0.0.1:1339",
+		Pidfile:    filepath.Join(os.TempDir(), "go-evm.pid"),
 	}
 }
 

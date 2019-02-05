@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/Fantom-foundation/go-lachesis/src/common/hexutil"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/core"
 	ethState "github.com/ethereum/go-ethereum/core/state"
@@ -155,7 +155,6 @@ func (s *State) ProcessBlock(block poset.Block) (common.Hash, error) {
 	blockIndex := block.Index()
 	hash, _ := block.BlockHash()
 	blockHash := common.BytesToHash(hash)
-
 
 	if block.GetCreatedTime() == 0 {
 		block.CreatedTime = time.Now().Unix()
@@ -549,7 +548,7 @@ func (s *State) GetTransaction(hash common.Hash) (*ethTypes.Transaction, error) 
 //GetReceipt fetches transaction receipts by transaction hash directly from the
 //DB
 func (s *State) GetReceipt(txHash common.Hash) (*ethTypes.Receipt, error) {
-    // txHash.Bytes()... or txHash[:]?
+	// txHash.Bytes()... or txHash[:]?
 	data, err := s.db.Get(append(receiptsPrefix, txHash[:]...))
 	if err != nil {
 		s.logger.WithError(err).Error("GetReceipt")

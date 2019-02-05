@@ -2,6 +2,7 @@ package state
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/Fantom-foundation/go-lachesis/src/common/hexutil"
 	"io/ioutil"
 	"math/big"
@@ -264,12 +265,11 @@ func TestTransfer(t *testing.T) {
 	}
 
 	// Try to process the block
-	err = test.state.ApplyTransaction(data, 0, common.Hash{})
-	if err != nil {
+	fmt.Println("data is:", data)
+	if err := test.state.ApplyTransaction(data, 0, common.Hash{}); err != nil {
 		t.Fatal(err)
 	}
-	_, err = test.state.Commit()
-	if err != nil {
+	if _, err := test.state.Commit(); err != nil {
 		t.Fatal(err)
 	}
 

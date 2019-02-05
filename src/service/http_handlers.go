@@ -10,10 +10,10 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Fantom-foundation/go-lachesis/src/common/hexutil"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/Fantom-foundation/go-lachesis/src/common/hexutil"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 
@@ -86,9 +86,9 @@ func blockByHashHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	//blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
 
 	jsBlock := JsonBlock{
-		Hash:  block.BlockHex(),
-		Index: blockIndex,
-		Round: blockRound,
+		Hash:        block.BlockHex(),
+		Index:       blockIndex,
+		Round:       blockRound,
 		CreatedTime: block.GetCreatedTime(),
 		//StateHash: blockStateHash,
 		//FrameHash: blockFrameHash,
@@ -222,9 +222,9 @@ func blockByIdHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 	//blockFrameHash := hexutil.Encode(block.FrameHash()) //[]byte
 
 	jsBlock := JsonBlock{
-		Hash:  block.BlockHex(),
-		Index: blockIndex,
-		Round: blockRound,
+		Hash:        block.BlockHex(),
+		Index:       blockIndex,
+		Round:       blockRound,
 		CreatedTime: block.GetCreatedTime(),
 		//StateHash: blockStateHash,
 		//FrameHash: blockFrameHash,
@@ -336,7 +336,7 @@ These are accounts for which the Service has the private keys and on whose behal
 it can sign transactions. The list of accounts controlled by the evm-service is
 contained in the Keystore directory defined upon launching the evm-lite application.
 */
-func accountsHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+func accountsHandler(w http.ResponseWriter, _ *http.Request, m *Service) {
 	m.logger.Debug("GET accounts")
 
 	var al JsonAccountList
@@ -589,7 +589,6 @@ func rawTransactionHandler(w http.ResponseWriter, r *http.Request, m *Service) {
 
 }
 
-
 // TODO: Rename tx => transactions
 /*
 GET /tx/{tx_hash}
@@ -700,7 +699,7 @@ returns: JSON (depends on underlying consensus system)
 Info returns information about the consensus system. Each consensus system that
 plugs into evm-lite must implement an Info function.
 */
-func infoHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+func infoHandler(w http.ResponseWriter, _ *http.Request, m *Service) {
 	m.logger.Debug("GET info")
 
 	stats, err := m.getInfo()
@@ -732,7 +731,7 @@ returns: HTML version of info
 Info returns information about the consensus system. Each consensus system that
 plugs into evm-lite must implement an Info function.
 */
-func htmlInfoHandler(w http.ResponseWriter, r *http.Request, m *Service) {
+func htmlInfoHandler(w http.ResponseWriter, _ *http.Request, m *Service) {
 	m.logger.Debug("GET html/info")
 
 	stats, err := m.getInfo()

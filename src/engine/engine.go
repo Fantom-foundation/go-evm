@@ -57,7 +57,9 @@ func (e *Engine) Run() error {
 
 	go e.service.Run()
 
-	e.consensus.Run()
+	if err := e.consensus.Run(); err != nil {
+		panic(err)
+	}
 
 	return nil
 }

@@ -28,7 +28,9 @@ var genesisAddress string
 //AddSoloFlags adds flags to the Solo command
 func AddSoloFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&genesisAddress, "genesis", "", "create genesis file specifying pre-funded account with given address")
-	viper.BindPFlags(cmd.Flags())
+	if err := viper.BindPFlags(cmd.Flags()); err != nil {
+		panic(err)
+	}
 }
 
 //NewSoloCmd returns the command that starts EVM-Lite with Solo consensus
@@ -97,10 +99,12 @@ func runSolo(cmd *cobra.Command, args []string) error {
 	solo := solo.NewSolo(logger)
 	engine, err := engine.NewEngine(*config, solo, logger)
 	if err != nil {
-		return fmt.Errorf("Error building Engine: %s", err)
+		return fmt.Errorf("error building Engine: %s", err)
 	}
 
-	engine.Run()
+	if err := engine.Run(); err != nil {
+		panic(err)
+	}
 
 	return nil
 }

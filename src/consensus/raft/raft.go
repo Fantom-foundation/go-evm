@@ -6,10 +6,10 @@ import (
 	"os/signal"
 	"time"
 
-	_raft "github.com/hashicorp/raft"
 	"github.com/Fantom-foundation/go-evm/src/config"
 	"github.com/Fantom-foundation/go-evm/src/service"
 	"github.com/Fantom-foundation/go-evm/src/state"
+	_raft "github.com/hashicorp/raft"
 	"github.com/sirupsen/logrus"
 )
 
@@ -83,7 +83,7 @@ func (r *Raft) Init(state *state.State, service *service.Service) error {
 	//TODO: We should be using the new dynmamic membership protocol
 	configuration, err := _raft.ReadConfigJSON(fmt.Sprintf("%s/peers.json", r.config.RaftDir))
 	if err != nil {
-		return fmt.Errorf("Unable to create cluster configuration from peers.json: %v", err)
+		return fmt.Errorf("unable to create cluster configuration from peers.json: %v", err)
 	}
 	ra.BootstrapCluster(configuration)
 

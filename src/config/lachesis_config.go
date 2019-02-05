@@ -20,8 +20,8 @@ const (
 )
 
 var (
-	defaultLachesisDir     = path.Join(DefaultDataDir, "lachesis")
-	defaultPeersFile       = path.Join(defaultLachesisDir, "peers.json")
+	defaultLachesisDir = path.Join(DefaultDataDir, "lachesis")
+	defaultPeersFile   = path.Join(defaultLachesisDir, "peers.json")
 )
 
 // LachesisConfig contains the configuration of a Lachesis node

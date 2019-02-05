@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"github.com/Fantom-foundation/go-evm/src/config"
 	"github.com/Fantom-foundation/go-lachesis/src/common/hexutil"
-	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/params"
 	"io/ioutil"
 	"math/big"
@@ -14,10 +14,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/accounts/keystore"
-	"github.com/gorilla/mux"
 	"github.com/Fantom-foundation/go-evm/src/common"
 	"github.com/Fantom-foundation/go-evm/src/state"
+	"github.com/ethereum/go-ethereum/accounts/keystore"
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
 
@@ -50,7 +50,7 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 	submitCh chan []byte,
 	logger *logrus.Logger) *Service {
 	// TODO: replace DefaultRpcConfig with custom
-	var rpcConfig *node.Config = config.DefaultRpcConfig
+	var rpcConfig = config.DefaultRpcConfig
 	// TODO: replace ChainConfig with custom
 	chainConfig := &params.ChainConfig{
 		ChainID: big.NewInt(666),
@@ -85,79 +85,79 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 	return s
 }
 
-func (m *Service) Run() {
-	m.checkErr(m.makeKeyStore())
+func (service *Service) Run() {
+	service.checkErr(service.makeKeyStore())
 
-	m.checkErr(m.unlockAccounts())
+	service.checkErr(service.unlockAccounts())
 
-	m.checkErr(m.createGenesisAccounts())
+	service.checkErr(service.createGenesisAccounts())
 
-	m.logger.Info("serving web3-api ...")
-	if err := m.rpcServer.Start(); err != nil {
+	service.logger.Info("serving web3-api ...")
+	if err := service.rpcServer.Start(); err != nil {
 		panic(err)
 	}
 	defer func() {
-		if err := m.rpcServer.Stop(); err != nil {
+		if err := service.rpcServer.Stop(); err != nil {
 			panic(err)
 		}
 	}()
 
-	m.serveAPI()
+	service.serveAPI()
 }
 
 //XXX
-func (m *Service) GetSubmitCh() chan []byte {
-	return m.submitCh
+func (service *Service) GetSubmitCh() chan []byte {
+	return service.submitCh
 }
 
 //XXX
-func (m *Service) SetInfoCallback(f infoCallback) {
-	m.getInfo = f
+func (service *Service) SetInfoCallback(f infoCallback) {
+	service.getInfo = f
 }
 
-func (m *Service) makeKeyStore() error {
+func (service *Service) makeKeyStore() error {
 
 	scryptN := keystore.StandardScryptN
 	scryptP := keystore.StandardScryptP
 
-	if err := os.MkdirAll(m.keystoreDir, 0700); err != nil {
+	if err := os.MkdirAll(service.keystoreDir, 0700); err != nil {
 		return err
 	}
 
-	m.keyStore = keystore.NewKeyStore(m.keystoreDir, scryptN, scryptP)
+	service.keyStore = keystore.NewKeyStore(service.keystoreDir, scryptN, scryptP)
 
-	m.am = accounts.NewManager(m.keyStore)
+	service.am = accounts.NewManager(service.keyStore)
 
 	return nil
 }
 
-func (m *Service) unlockAccounts() error {
+func (service *Service) unlockAccounts() error {
 
-	if len(m.keyStore.Accounts()) == 0 {
+	if len(service.keyStore.Accounts()) == 0 {
 		return nil
 	}
 
-	pwd, err := m.readPwd()
+	pwd, err := service.readPwd()
 	if err != nil {
-		m.logger.WithError(err).Error("Reading PwdFile")
+		service.logger.WithError(err).Error("Reading PwdFile")
 		return err
 	}
 
-	for _, ac := range m.keyStore.Accounts() {
-		if err := m.keyStore.Unlock(ac, string(pwd)); err != nil {
+	for _, ac := range service.keyStore.Accounts() {
+		if err := service.keyStore.Unlock(ac, string(pwd)); err != nil {
 			return err
 		}
-		m.logger.WithField("address", ac.Address.Hex()).Debug("Unlocked account")
+		service.logger.WithField("address", ac.Address.Hex()).Debug("Unlocked account")
 	}
 	return nil
 }
 
-func (m *Service) createGenesisAccounts() error {
-	if _, err := os.Stat(m.genesisFile); os.IsNotExist(err) {
+func (service *Service) createGenesisAccounts() error {
+	if _, err := os.Stat(service.genesisFile); os.IsNotExist(err) {
 		return nil
 	}
 
-	contents, err := ioutil.ReadFile(m.genesisFile)
+	contents, err := ioutil.ReadFile(service.genesisFile)
 	if err != nil {
 		return err
 	}
@@ -170,30 +170,30 @@ func (m *Service) createGenesisAccounts() error {
 		return err
 	}
 
-	if err := m.state.CreateAccounts(genesis.Alloc); err != nil {
+	if err := service.state.CreateAccounts(genesis.Alloc); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (m *Service) serveAPI() {
+func (service *Service) serveAPI() {
 	r := mux.NewRouter()
-	r.HandleFunc("/account/{address}", m.makeHandler(accountHandler)).Methods("GET")
-	r.HandleFunc("/accounts", m.makeHandler(accountsHandler)).Methods("GET")
-	r.HandleFunc("/block/{hash}", m.makeHandler(blockByHashHandler)).Methods("GET")
-	r.HandleFunc("/blockById/{id}", m.makeHandler(blockByIdHandler)).Methods("GET")
-	//r.HandleFunc("/blockIndex", m.makeHandler(blockIndexHandler)).Methods("GET")
-	r.HandleFunc("/call", m.makeHandler(callHandler)).Methods("POST")
-	r.HandleFunc("/tx", m.makeHandler(transactionHandler)).Methods("POST")
-	r.HandleFunc("/transactions", m.makeHandler(transactionHandler)).Methods("POST")
-	r.HandleFunc("/rawtx", m.makeHandler(rawTransactionHandler)).Methods("POST")
-	r.HandleFunc("/sendRawTransaction", m.makeHandler(rawTransactionHandler)).Methods("POST")
-	r.HandleFunc("/tx/{tx_hash}", m.makeHandler(transactionReceiptHandler)).Methods("GET")
-	r.HandleFunc("/transaction/{tx_hash}", m.makeHandler(transactionReceiptHandler)).Methods("GET")
-	r.HandleFunc("/info", m.makeHandler(infoHandler)).Methods("GET")
-	r.HandleFunc("/html/info", m.makeHandler(htmlInfoHandler)).Methods("GET")
+	r.HandleFunc("/account/{address}", service.makeHandler(accountHandler)).Methods("GET")
+	r.HandleFunc("/accounts", service.makeHandler(accountsHandler)).Methods("GET")
+	r.HandleFunc("/block/{hash}", service.makeHandler(blockByHashHandler)).Methods("GET")
+	r.HandleFunc("/blockById/{id}", service.makeHandler(blockByIdHandler)).Methods("GET")
+	//r.HandleFunc("/blockIndex", service.makeHandler(blockIndexHandler)).Methods("GET")
+	r.HandleFunc("/call", service.makeHandler(callHandler)).Methods("POST")
+	r.HandleFunc("/tx", service.makeHandler(transactionHandler)).Methods("POST")
+	r.HandleFunc("/transactions", service.makeHandler(transactionHandler)).Methods("POST")
+	r.HandleFunc("/rawtx", service.makeHandler(rawTransactionHandler)).Methods("POST")
+	r.HandleFunc("/sendRawTransaction", service.makeHandler(rawTransactionHandler)).Methods("POST")
+	r.HandleFunc("/tx/{tx_hash}", service.makeHandler(transactionReceiptHandler)).Methods("GET")
+	r.HandleFunc("/transaction/{tx_hash}", service.makeHandler(transactionReceiptHandler)).Methods("GET")
+	r.HandleFunc("/info", service.makeHandler(infoHandler)).Methods("GET")
+	r.HandleFunc("/html/info", service.makeHandler(htmlInfoHandler)).Methods("GET")
 	http.Handle("/", &CORSServer{r})
-	if err := http.ListenAndServe(m.apiAddr, nil); err != nil {
+	if err := http.ListenAndServe(service.apiAddr, nil); err != nil {
 		panic(err)
 	}
 }
@@ -217,23 +217,23 @@ func (s *CORSServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	s.r.ServeHTTP(rw, req)
 }
 
-func (m *Service) makeHandler(fn func(http.ResponseWriter, *http.Request, *Service)) http.HandlerFunc {
+func (service *Service) makeHandler(fn func(http.ResponseWriter, *http.Request, *Service)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		m.Lock()
-		fn(w, r, m)
-		m.Unlock()
+		service.Lock()
+		fn(w, r, service)
+		service.Unlock()
 	}
 }
 
-func (m *Service) checkErr(err error) {
+func (service *Service) checkErr(err error) {
 	if err != nil {
-		m.logger.WithError(err).Error("ERROR")
+		service.logger.WithError(err).Error("ERROR")
 		os.Exit(1)
 	}
 }
 
-func (m *Service) readPwd() (pwd string, err error) {
-	text, err := ioutil.ReadFile(m.pwdFile)
+func (service *Service) readPwd() (pwd string, err error) {
+	text, err := ioutil.ReadFile(service.pwdFile)
 	if err != nil {
 		return "", err
 	}
@@ -245,10 +245,10 @@ func (m *Service) readPwd() (pwd string, err error) {
 	return lines[0], nil
 }
 
-func (s *Service) AccountManager() *accounts.Manager {
-	return s.am
+func (service *Service) AccountManager() *accounts.Manager {
+	return service.am
 }
 
-func (m *Service) ChainConfig() *params.ChainConfig {
-	return m.chainConfig
+func (service *Service) ChainConfig() *params.ChainConfig {
+	return service.chainConfig
 }

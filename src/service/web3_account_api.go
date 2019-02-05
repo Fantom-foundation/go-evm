@@ -11,10 +11,10 @@ import (
 	"time"
 
 	//"github.com/davecgh/go-spew/spew"
+	"github.com/Fantom-foundation/go-lachesis/src/common/hexutil"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/Fantom-foundation/go-lachesis/src/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/math"
 
 	//"github.com/ethereum/go-ethereum/consensus/ethash"

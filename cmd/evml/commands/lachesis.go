@@ -21,7 +21,9 @@ func AddLachesisFlags(cmd *cobra.Command) {
 	cmd.Flags().Int64("lachesis.sync-limit", config.Lachesis.SyncLimit, "Max number of Events per sync")
 	cmd.Flags().Int("lachesis.max-pool", config.Lachesis.MaxPool, "Max number of pool connections")
 	cmd.Flags().Bool("lachesis.store", config.Lachesis.Store, "use persistent store")
-	viper.BindPFlags(cmd.Flags())
+	if err := viper.BindPFlags(cmd.Flags()); err != nil {
+		panic(err)
+	}
 }
 
 //NewLachesisCmd returns the command that starts EVM-Lite with Lachesis consensus
@@ -52,10 +54,12 @@ func runLachesis(cmd *cobra.Command, args []string) error {
 	lachesis := lachesis.NewInmemLachesis(config.Lachesis, logger)
 	engine, err := engine.NewEngine(*config, lachesis, logger)
 	if err != nil {
-		return fmt.Errorf("Error building Engine: %s", err)
+		return fmt.Errorf("error building Engine: %s", err)
 	}
 
-	engine.Run()
+	if err := engine.Run(); err != nil {
+		return fmt.Errorf("error running Engine: %s", err)
+	}
 
 	return nil
 }

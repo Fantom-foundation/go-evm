@@ -15,9 +15,7 @@ type testLoggerAdapter struct {
 }
 
 func (a *testLoggerAdapter) Write(d []byte) (int, error) {
-	if len(d) < 1 {
-		return 0, nil
-	} else if d[len(d)-1] == '\n' {
+	if d[len(d)-1] == '\n' {
 		d = d[:len(d)-1]
 	}
 	if a.prefix != "" {
