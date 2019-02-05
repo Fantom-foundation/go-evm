@@ -4,7 +4,7 @@
 
 We provide a set of scripts to automate the deployment of evm-lite networks
 locally (using docker) or in the cloud (using AWS). Parameters control the
-number of nodes, and which consensus system to use (solo, babble, raft, etc.).
+number of nodes, and which consensus system to use (solo, lachesis, raft, etc.).
 
 Whether locally or in the cloud, the workflow is as follows:
 
@@ -68,7 +68,7 @@ Create the configuration files for the network.
 
 Parameters:
 
-- CONSENSUS: solo, babble, or raft
+- CONSENSUS: solo, lachesis, or raft
 
 - NODES: number of nodes in the network
 
@@ -82,19 +82,19 @@ ex: If IPBASE=10.0.2. IPADD=10, and NODES=4, the resulting addresses will be:
 The configuration is written to the `conf/[consensus]/conf` folder. For each
 node, there will usually be two configuration sub-directories: one for the
 Ethereum-related things, and one for the consensus related things. For example,
-creating the configuration for two babble nodes yields the following files:
+creating the configuration for two lachesis nodes yields the following files:
 
-`$ make consensus=babble nodes=2`
+`$ make consensus=lachesis nodes=2`
 
 ```bash
-conf/babble/conf/
+conf/lachesis/conf/
 ├── evml.toml
 ├── genesis.json
 ├── keystore
 │   ├── UTC--2018-09-28T15-17-47.839800703Z--370728a25a925a4db0f59ddcd82a0874225bc43b
 │   └── UTC--2018-09-28T15-17-49.835572440Z--2c2e382b974716daa13a919fc3143f0cdcef08ce
 ├── node0
-│   ├── babble
+│   ├── lachesis
 │   │   ├── peers.json
 │   │   └── priv_key.pem
 │   ├── evml.toml
@@ -104,7 +104,7 @@ conf/babble/conf/
 │       │   └── UTC--2018-09-28T15-17-47.839800703Z--370728a25a925a4db0f59ddcd82a0874225bc43b
 │       └── pwd.txt
 ├── node1
-│   ├── babble
+│   ├── lachesis
 │   │   ├── peers.json
 │   │   └── priv_key.pem
 │   ├── evml.toml
@@ -118,8 +118,8 @@ conf/babble/conf/
 
 It creates an Ethereum key for each node using the default password file, and a
 config.json file. The genesis file is used by evm-lite to initialize the state
-with some funded accounts. It also created a Babble key and peers.json file
-defining the Babble network. The evml.toml file contains parameters for babble
+with some funded accounts. It also created a Lachesis key and peers.json file
+defining the Lachesis network. The evml.toml file contains parameters for lachesis
 and evm-lite.
 
 ## DEPLOY
@@ -166,10 +166,10 @@ First, build the evm-lite docker image (cf BUILD).
 
 ``` bash
 cd deploy
-# configure and start a testnet of 4 evm-lite nodes with Babble consensus
-make CONSENSUS=babble NODES=4
+# configure and start a testnet of 4 evm-lite nodes with Lachesis consensus
+make CONSENSUS=lachesis NODES=4
 # same for MACOS users
-make USER=501 CONSENSUS=babble NODES=4
+make USER=501 CONSENSUS=lachesis NODES=4
 #configure and start a single evm-lite instance with Solo consensus
 make CONSENSUS=solo NODES=1
 #configure and start a testnet of 3 evm-lite nodes with Raft consensus
@@ -217,7 +217,7 @@ terraform variable (aws/variables.tf).
 
 ```bash
 # configure and start a testnet of 4 nodes in AWS
-make ENV=aws CONSENSUS=babble NODES=4 IPBASE=10.0.2. IPADD=10
+make ENV=aws CONSENSUS=lachesis NODES=4 IPBASE=10.0.2. IPADD=10
 # bring everything down
 make stop ENV=aws
 ```

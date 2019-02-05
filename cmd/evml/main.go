@@ -1,7 +1,7 @@
 package main
 
 import (
-	cmd "github.com/mosaicnetworks/evm-lite/cmd/evml/commands"
+	cmd "github.com/Fantom-foundation/go-evm/cmd/evml/commands"
 )
 
 func main() {
@@ -10,7 +10,7 @@ func main() {
 
 	rootCmd.AddCommand(
 		cmd.NewSoloCmd(),
-		cmd.NewBabbleCmd(),
+		cmd.NewLachesisCmd(),
 		cmd.NewRaftCmd(),
 		cmd.VersionCmd)
 

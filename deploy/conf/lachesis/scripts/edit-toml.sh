@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script adds Babble configuration to an evm-lite evml.toml file.
+# This script adds Lachesis configuration to an evm-lite evml.toml file.
 
 set -e
 

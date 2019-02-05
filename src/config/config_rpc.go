@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/ethereum/go-ethereum/node"
-	"github.com/ethereum/go-ethereum/rpc"
 )
 
 const (
@@ -17,7 +16,8 @@ var (
 )
 
 // DefaultRpcConfig contains reasonable default settings.
-var DefaultRpcConfig = node.Config{
+var DefaultRpcConfig *node.Config = &node.DefaultConfig
+/*node.Config{
 	DataDir:          DefaultDataDir,
 	HTTPHost:         DefaultHTTPHost,
 	HTTPPort:         DefaultHTTPPort,
@@ -28,3 +28,4 @@ var DefaultRpcConfig = node.Config{
 	WSPort:           DefaultWSPort,
 	WSModules:        DefaultModules,
 }
+*/

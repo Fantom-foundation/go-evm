@@ -40,7 +40,7 @@ func DefaultConfig() *Config {
 	return &Config{
 		BaseConfig: DefaultBaseConfig(),
 		Eth:        DefaultEthConfig(),
-		Babble:     DefaultBabbleConfig(),
+		Lachesis:     DefaultLachesisConfig(),
 		Raft:       DefaultRaftConfig(),
 		ProxyAddr:    "127.0.0.1:1338",
 		ClientAddr:   "127.0.0.1:1339",

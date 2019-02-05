@@ -3,9 +3,10 @@ package service
 import (
 	"reflect"
 
+	"github.com/ethereum/go-ethereum/node"
+
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/event"
-	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 

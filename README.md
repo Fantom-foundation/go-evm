@@ -16,7 +16,7 @@ The EVM is meant to be used in conjunction with a system that broadcasts
 transactions across network participants and ensures that everyone executes the
 same transactions in the same order. Ethereum uses a Blockchain and a Proof of
 Work consensus algorithm. EVM-Lite makes it easy to use any consensus system,
-including [Babble](https://github.com/mosaicnetworks/babble) .
+including [Lachesis](https://github.com/Fantom-foundation/go-lachesis) .
 
 ## ARCHITECTURE
 
@@ -49,7 +49,7 @@ including [Babble](https://github.com/mosaicnetworks/babble) .
 
 [![version](https://img.shields.io/github/tag/Fantom-foundation/go-evm.svg?style=flat-square&logo=github
 )](https://github.com/Fantom-foundation/go-evm/releases/latest)  
-[![appveyor](https://img.shields.io/appveyor/ci/andrecronje/go-evm.svg?style=flat-square&logo=appveyor)](https://ci.appveyor.com/project/andrecronje/go-evm)  
+[![appveyor](https://img.shields.io/appveyor/ci/Fantom-foundation/go-evm.svg?style=flat-square&logo=appveyor)](https://ci.appveyor.com/project/Fantom-foundation/go-evm)  
 [![license](https://img.shields.io/github/license/Fantom-foundation/go-evm.svg?style=flat-square&logo=github)](LICENSE.md)  
 [![libraries.io dependencies](https://img.shields.io/librariesio/github/Fantom-foundation/go-evm.svg?style=flat-square&logo=librariesio)](https://libraries.io/github/Fantom-foundation/go-evm)  
 
@@ -60,7 +60,7 @@ including [Babble](https://github.com/mosaicnetworks/babble) .
 [![Code Climate Maintainability Grade](https://img.shields.io/codeclimate/maintainability/Fantom-foundation/go-evm.svg?style=flat-square&logo=codeclimate)](https://codeclimate.com/github/Fantom-foundation/go-evm)  
 [![Code Climate Maintainability](https://img.shields.io/codeclimate/maintainability-percentage/Fantom-foundation/go-evm.svg?style=flat-square&logo=codeclimate)](https://codeclimate.com/github/Fantom-foundation/go-evm)  
 [![Code Climate Technical Dept](https://img.shields.io/codeclimate/tech-debt/Fantom-foundation/go-evm.svg?style=flat-square&logo=codeclimate)](https://codeclimate.com/github/Fantom-foundation/go-evm)  
-[![Codacy code quality](https://img.shields.io/codacy/grade/c8c27910210f4b23bcbbe8c60338b1d5.svg?style=flat-square&logo=codacy)](https://app.codacy.com/project/andrecronje/go-evm/dashboard)  
+[![Codacy code quality](https://img.shields.io/codacy/grade/c8c27910210f4b23bcbbe8c60338b1d5.svg?style=flat-square&logo=codacy)](https://app.codacy.com/project/Fantom-foundation/go-evm/dashboard)  
 [![cii best practices](https://img.shields.io/cii/level/2409.svg?style=flat-square&logo=cci)](https://bestpractices.coreinfrastructure.org/en/projects/2409)  
 [![cii percentage](https://img.shields.io/cii/percentage/2409.svg?style=flat-square&logo=cci)](https://bestpractices.coreinfrastructure.org/en/projects/2409)  
   
@@ -100,7 +100,7 @@ including [Babble](https://github.com/mosaicnetworks/babble) .
 - **SOLO**: No Consensus. Transactions are relayed directly from Service to
             State
 
-- **[BABBLE](https://github.com/mosaicnetworks/babble)**: Inmemory Babble node.
+- **[BABBLE](https://github.com/Fantom-foundation/go-lachesis)**: Inmemory Lachesis node.
 
 - **[RAFT](https://github.com/hashicorp/raft)**: Hashicorp implementation of
   Raft (limited).
@@ -119,7 +119,7 @@ Usage:
   evml [command]
 
 Available Commands:
-  babble      Run the evm-lite node with Babble consensus
+  lachesis      Run the evm-lite node with Lachesis consensus
   help        Help about any command
   raft        Run the evm-lite node with Raft consensus
   solo        Run the evm-lite node with Solo consensus (no consensus)
@@ -147,7 +147,7 @@ ex (evml.toml):
 log=info
 [eth]
 db = "/eth.db"
-[babble]
+[lachesis]
 listen="127.0.0.1:1337"
 ```
 
@@ -159,7 +159,7 @@ stucture:
 
 ```
 host:~/.evm-lite$ tree
-├── babble
+├── lachesis
 │   ├── peers.json
 │   └── priv_key.pem
 ├── eth
@@ -170,7 +170,7 @@ host:~/.evm-lite$ tree
 └── evml.toml
 ```
 
-The above example shows a `babble` folder, but the general idea is that
+The above example shows a `lachesis` folder, but the general idea is that
 consensus  configuration goes in a separate folder from the Ethereum
 configuration.
 
@@ -328,12 +328,12 @@ host:~$ curl -X POST http://[api_addr]/rawtx -d '0xf8628080830f424094564686380e2
 The ```/info``` endpoint exposes a map of information provided by the consensus
 system.
 
-example (with Babble consensus):
+example (with Lachesis consensus):
 ```bash
 host:-$ curl http://[api_addr]/info | json_pp
 {
    "rounds_per_second" : "0.00",
-   "type" : "babble",
+   "type" : "lachesis",
    "consensus_transactions" : "10",
    "num_peers" : "4",
    "consensus_events" : "10",
@@ -352,7 +352,7 @@ host:-$ curl http://[api_addr]/info | json_pp
 
 ## CLIENT
 
-Please refer to [EVM-Lite Client](https://github.com/mosaicnetworks/evm-lite-client)
+Please refer to [EVM-Lite Client](https://github.com/Fantom-foundation/go-evm-client)
 for Javascript utilities and a CLI to interact with the API.
 
 ## DEV

@@ -22,7 +22,7 @@ resource "docker_container" "evm-lite" {
   name     = "node${count.index}"
   hostname = "node${count.index}"
 
-  image = "mosaicnetworks/evm-lite:${var.version}"
+  image = "Fantom-foundation/go-evm:${var.version}"
 
   networks = ["${docker_network.private_network.name}"]
 

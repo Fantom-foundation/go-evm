@@ -3,7 +3,7 @@ path = require("path");
 JSONbig = require('json-bigint');
 argv = require('minimist')(process.argv.slice(2));
 prompt = require('prompt');
-EVMBabbleClient = require('./evm-babble-client.js');
+EVMLachesisClient = require('./evm-lachesis-client.js');
 Contract = require('./contract-lite.js');
 Accounts = require('web3-eth-accounts');
 var accounts = new Accounts('');
@@ -51,7 +51,7 @@ sleep = function(time) {
 
 function DemoNode(name, host, port) {
     this.name = name
-    this.api = new EVMBabbleClient(host, port)
+    this.api = new EVMLachesisClient(host, port)
     this.accounts = {}
 }
 
@@ -322,7 +322,7 @@ init()
 .then(() => { space(); return getControlledAccounts()})
 .then(() => explain(
 "Each node controls one account which allows it to send and receive Ether. \n" + 
-"The private keys reside directly on the evm-babble nodes. In a production \n" +
+"The private keys reside directly on the evm-lachesis nodes. In a production \n" +
 "setting, access to the nodes would be restricted to the people allowed to \n" +
 "sign messages with the private key. We also keep a local copy of all the private \n" +
 "keys to demonstrate client-side signing."
@@ -333,9 +333,9 @@ init()
 .then(() => explain(
 "We created an EVM transaction to send 500 wei from node1 to node2. The \n" +
 "transaction was sent to node1 which controls the private key for the sender. \n" +
-"EVM-Babble converted the transaction into raw bytes, signed it and submitted \n" +
-"it to Babble for consensus ordering. Babble gossiped the raw transaction to \n" +
-"the other Babble nodes which ran it through the consensus algorithm until they \n" +
+"EVM-Lachesis converted the transaction into raw bytes, signed it and submitted \n" +
+"it to Lachesis for consensus ordering. Lachesis gossiped the raw transaction to \n" +
+"the other Lachesis nodes which ran it through the consensus algorithm until they \n" +
 "were each ready to commit it back to EVM-BABBLE. So each node received and \n" +
 "processed the transaction. They each applied the same changes to their local \n" +
 "copy of the ledger."
@@ -377,7 +377,7 @@ init()
 "We created an EVM transaction to call the 'contribute' method of the SmartContract. \n" +
 "The 'value' field of the transaction is the amount that the caller is actually \n" + 
 "going to contribute. The operation would fail if the account did not have enough Ether. \n" +
-"As an exercise you can check that the transaction was run through every Babble \n" +
+"As an exercise you can check that the transaction was run through every Lachesis \n" +
 "node and that node2's balance has changed."
 ))
 

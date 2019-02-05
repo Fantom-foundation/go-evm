@@ -1,7 +1,7 @@
 package commands
 
 import (
-	_config "github.com/mosaicnetworks/evm-lite/src/config"
+	_config "github.com/Fantom-foundation/go-evm/src/config"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -84,7 +84,7 @@ func bindFlagsLoadViper(cmd *cobra.Command) error {
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		// stderr, so if we redirect output to json file, this doesn't appear
-		logger.Debugf("Using config file: ", viper.ConfigFileUsed())
+		logger.Debugf("Using config file: %s", viper.ConfigFileUsed())
 	} else if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 		logger.Debugf("No config file found in %s", config.DataDir)
 	} else {

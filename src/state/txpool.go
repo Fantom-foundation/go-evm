@@ -18,7 +18,7 @@ type TxPool struct {
 	signer       ethTypes.Signer
 	chainConfig  params.ChainConfig // vm.env is still tightly coupled with chainConfig
 	vmConfig     vm.Config
-	gasLimit     uint64
+	gasLimit     big.Int
 	totalUsedGas uint64
 	gp           *core.GasPool
 
@@ -29,7 +29,7 @@ func NewTxPool(ethState *ethState.StateDB,
 	signer ethTypes.Signer,
 	chainConfig params.ChainConfig,
 	vmConfig vm.Config,
-	gasLimit uint64,
+	gasLimit big.Int,
 	logger *logrus.Logger) *TxPool {
 
 	return &TxPool{
@@ -50,7 +50,7 @@ func (p *TxPool) Reset(root common.Hash) error {
 	}
 
 	p.totalUsedGas = 0
-	p.gp = new(core.GasPool).AddGas(p.gasLimit)
+	p.gp = new(core.GasPool).AddGas(p.gasLimit.Uint64())
 
 	return nil
 }

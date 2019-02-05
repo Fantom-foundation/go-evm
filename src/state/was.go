@@ -24,7 +24,7 @@ type WriteAheadState struct {
 	signer      ethTypes.Signer
 	chainConfig params.ChainConfig // vm.env is still tightly coupled with chainConfig
 	vmConfig    vm.Config
-	gasLimit    uint64
+	gasLimit    big.Int
 
 	txIndex      int
 	transactions []*ethTypes.Transaction
@@ -42,7 +42,7 @@ func NewWriteAheadState(db ethdb.Database,
 	signer ethTypes.Signer,
 	chainConfig params.ChainConfig,
 	vmConfig vm.Config,
-	gasLimit uint64,
+	gasLimit big.Int,
 	logger *logrus.Logger) (*WriteAheadState, error) {
 
 	ethState, err := ethState.New(root, ethState.NewDatabase(db))
@@ -74,7 +74,7 @@ func (was *WriteAheadState) Reset(root common.Hash) error {
 	was.allLogs = []*ethTypes.Log{}
 
 	was.totalUsedGas = new(big.Int).SetUint64(0)
-	was.gp = new(core.GasPool).AddGas(was.gasLimit)
+	was.gp = new(core.GasPool).AddGas(was.gasLimit.Uint64())
 
 	was.logger.WithFields(logrus.Fields{
 		"gasLimit":   gasLimit,

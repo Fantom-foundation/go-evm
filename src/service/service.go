@@ -2,7 +2,13 @@ package service
 
 import (
 	"encoding/json"
+	"github.com/Fantom-foundation/go-evm/src/config"
+	"github.com/Fantom-foundation/go-lachesis/src/common/hexutil"
+	"github.com/ethereum/go-ethereum/node"
+	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/params"
 	"io/ioutil"
+	"math/big"
 	"net/http"
 	"os"
 	"strings"
@@ -10,13 +16,12 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/gorilla/mux"
-	"github.com/mosaicnetworks/evm-lite/src/common"
-	"github.com/mosaicnetworks/evm-lite/src/state"
+	"github.com/Fantom-foundation/go-evm/src/common"
+	"github.com/Fantom-foundation/go-evm/src/state"
 	"github.com/sirupsen/logrus"
 )
 
-// TODO: `hexutil.Uint64(90000)`
-var defaultGas = uint64(90000)
+var defaultGas = hexutil.Uint64(90000)
 
 type infoCallback func() (map[string]string, error)
 
@@ -45,7 +50,7 @@ func NewService(genesisFile, keystoreDir, apiAddr, pwdFile string,
 	submitCh chan []byte,
 	logger *logrus.Logger) *Service {
 	// TODO: replace DefaultRpcConfig with custom
-	rpcConfig := &config.DefaultRpcConfig
+	var rpcConfig *node.Config = config.DefaultRpcConfig
 	// TODO: replace ChainConfig with custom
 	chainConfig := &params.ChainConfig{
 		ChainID: big.NewInt(666),
@@ -183,7 +188,7 @@ func (m *Service) serveAPI() {
 	r.HandleFunc("/transactions", m.makeHandler(transactionHandler)).Methods("POST")
 	r.HandleFunc("/rawtx", m.makeHandler(rawTransactionHandler)).Methods("POST")
 	r.HandleFunc("/sendRawTransaction", m.makeHandler(rawTransactionHandler)).Methods("POST")
-	r.HandleFunc("/tx/{tx_hash}", m.makeHandler(txReceiptHandler)).Methods("GET")
+	r.HandleFunc("/tx/{tx_hash}", m.makeHandler(transactionReceiptHandler)).Methods("GET")
 	r.HandleFunc("/transaction/{tx_hash}", m.makeHandler(transactionReceiptHandler)).Methods("GET")
 	r.HandleFunc("/info", m.makeHandler(infoHandler)).Methods("GET")
 	r.HandleFunc("/html/info", m.makeHandler(htmlInfoHandler)).Methods("GET")

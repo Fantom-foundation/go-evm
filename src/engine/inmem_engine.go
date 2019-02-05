@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+
 	//"os"
 	"time"
 
@@ -9,13 +10,14 @@ import (
 
 	"github.com/Fantom-foundation/go-evm/src/config"
 	"github.com/Fantom-foundation/go-evm/src/service"
+	serv "github.com/Fantom-foundation/go-evm/src/service"
 	"github.com/Fantom-foundation/go-evm/src/state"
 	"github.com/Fantom-foundation/go-lachesis/src/crypto"
 	"github.com/Fantom-foundation/go-lachesis/src/net"
 	"github.com/Fantom-foundation/go-lachesis/src/node"
 	"github.com/Fantom-foundation/go-lachesis/src/peers"
+	"github.com/Fantom-foundation/go-lachesis/src/pos"
 	"github.com/Fantom-foundation/go-lachesis/src/poset"
-	serv "github.com/Fantom-foundation/go-lachesis/src/service"
 )
 
 type InmemEngine struct {
@@ -99,7 +101,7 @@ func NewInmemEngine(config config.Config, logger *logrus.Logger) (*InmemEngine, 
 	/* TODO inmem only for now */
 	/*switch conf.StoreType {
 	case "inmem":*/
-	store = poset.NewInmemStore(pmap, conf.CacheSize)
+	store = poset.NewInmemStore(pmap, conf.CacheSize, pos.DefaultConfig())
 	/*case "badger":
 		//If the file already exists, load and bootstrap the store using the file
 		if _, err := os.Stat(conf.StorePath); err == nil {
@@ -132,7 +134,13 @@ func NewInmemEngine(config config.Config, logger *logrus.Logger) (*InmemEngine, 
 		return nil, fmt.Errorf("initializing node: %s", err)
 	}
 
-	lserv := serv.NewService(config.Lachesis.ServiceAddr, node, logger)
+	lserv := serv.NewService(config.Eth.Genesis,
+		config.Eth.Keystore,
+		config.Eth.EthAPIAddr,
+		config.Eth.PwdFile,
+		state,
+		submitCh,
+		logger)
 
 	return &InmemEngine{
 		ethState:   state,
@@ -153,7 +161,7 @@ func (i *InmemEngine) Run() error {
 	go i.ethService.Run()
 
 	//Lachesis API service
-	go i.service.Serve()
+	go i.service.Run()
 
 	i.node.Run(true)
 

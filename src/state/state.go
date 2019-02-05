@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/Fantom-foundation/go-lachesis/src/common/hexutil"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/core"
 	ethState "github.com/ethereum/go-ethereum/core/state"
@@ -390,7 +390,7 @@ func (s *State) resetWAS() {
 		totalUsedGas: big.NewInt(0),
 		gp:           new(core.GasPool).AddGas(gasLimit.Uint64()),
 		logger:       s.logger,
-		gasLimit:     gasLimit.Uint64(),
+		gasLimit:     *gasLimit,
 	}
 	s.logger.WithFields(logrus.Fields{
 		"gasLimit": gasLimit.Uint64(),
@@ -422,12 +422,12 @@ func (s *State) InitState() error {
 		return err
 	}
 
-	s.was, err = NewWriteAheadState(s.db, rootHash, s.signer, s.chainConfig, s.vmConfig, gasLimit, s.logger)
+	s.was, err = NewWriteAheadState(s.db, rootHash, s.signer, s.chainConfig, s.vmConfig, *gasLimit, s.logger)
 	if err != nil {
 		return err
 	}
 
-	s.txPool = NewTxPool(s.ethState.Copy(), s.signer, s.chainConfig, s.vmConfig, gasLimit, s.logger)
+	s.txPool = NewTxPool(s.ethState.Copy(), s.signer, s.chainConfig, s.vmConfig, *gasLimit, s.logger)
 
 	return err
 }

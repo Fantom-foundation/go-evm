@@ -7,14 +7,10 @@ vendor:
 # install compiles and places the binary in GOPATH/bin
 install:
 	go install \
-		--ldflags "-X github.com/mosaicnetworks/evm-lite/src/version.GitCommit=`git rev-parse HEAD` -extldflags "-static"" \
+		--ldflags "-X github.com/Fantom-foundation/go-evm/src/version.GitCommit=`git rev-parse HEAD` -extldflags "-static"" \
 		./cmd/evml
 test:
 	glide novendor | xargs go test
-
-.PHONY: vendor install test
-	 	--ldflags '-extldflags "-static"' \
-		./cmd/evm
 
 # build compiles and places the binary in /build
 build:
@@ -26,7 +22,6 @@ build:
 dist:
 	@BUILD_TAGS='$(BUILD_TAGS)' sh -c "'$(CURDIR)/scripts/dist.sh'"
 
-test:
-	glide novendor | xargs go test
-
-.PHONY: vendor install build test
+.PHONY: vendor install test
+	 	--ldflags '-extldflags "-static"' \
+		./cmd/evm

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"path"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -20,8 +20,8 @@ const (
 )
 
 var (
-	defaultLachesisDir = fmt.Sprintf("%s/lachesis", DefaultDataDir)
-	defaultPeersFile   = fmt.Sprintf("%s/peers.json", defaultLachesisDir)
+	defaultLachesisDir     = path.Join(DefaultDataDir, "lachesis")
+	defaultPeersFile       = path.Join(defaultLachesisDir, "peers.json")
 )
 
 // LachesisConfig contains the configuration of a Lachesis node

@@ -2,7 +2,7 @@ package state
 
 import (
 	"encoding/json"
-	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/Fantom-foundation/go-lachesis/src/common/hexutil"
 	"io/ioutil"
 	"math/big"
 	"os"
